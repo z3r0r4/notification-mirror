@@ -12,7 +12,7 @@
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
+<!--TODO ADD LISTENER PERMISSIONS AND INTENT FILTER-->
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
