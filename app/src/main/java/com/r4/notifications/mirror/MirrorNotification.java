@@ -22,14 +22,36 @@ class MirrorNotification {
         //DATA EXTRACTION
     }
 
-    public MirrorNotification(String id, String appName) {
+    //FOR POSTING
+    public MirrorNotification(String id, String title, String text) {
 
     }
+
+    //FOR POSTING AND REPLIES
+    public MirrorNotification(String id, String title, String text, String replyActionName) {
+
+    }
+
+    //FOR POSTING AND REPLIES AND ACTIONS
+    public MirrorNotification(String id, String title, String text, String replyActionName, String actionName) {
+
+    }
+
+    //FOR REPLIES
+    public MirrorNotification(String id) {
+
+    }
+
     public void act(String actionName) {//maybe MirrorWorker
 
     }
 
     public void reply(String message) {//maybe MirrorWorker
+
+    }
+
+    //TEST ONLY
+    public void post() {
 
     }
 }

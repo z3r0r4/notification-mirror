@@ -16,17 +16,19 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        MirrorNotification notification = new MirrorNotification("123","TESTNOTIFIACTION","This is a Test Text","REPLYACTION");
+
         Button btnMsgTest = (Button) findViewById(R.id.btnMsgTest);
         btnMsgTest.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                createNotification();
+                notification.post();
                 Log.d(TAG, "onClick: msgTest");
             }
         });
         Button btnReply = (Button) findViewById(R.id.btnReply);
         btnReply.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                NotificationMirror.reply(new MirrorNotification("123", "com.egg.app"), "EGGGGGGG");
+                notification.reply("AUTOREPLY");//                (new MirrorNotification("123")).reply("TEST");
                 Log.d(TAG, "onClick: Reply");
             }
         });
@@ -43,8 +45,4 @@ public class MainActivity extends AppCompatActivity {
 
 
     //TEST-FUNCTIONS
-
-    private void createNotification() {
-
-    }
 }
