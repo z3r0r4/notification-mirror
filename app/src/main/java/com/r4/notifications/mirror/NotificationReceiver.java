@@ -13,7 +13,7 @@ class NotificationReceiver extends NotificationListenerService {
     private Map<String, MirrorNotification> activeNotifications = new HashMap<>();
 
     public void onListenerConnected() {
-        //put information in shared settings storage to display in Main
+        //put information in shared settings storage to display in Main //also consider filtering
     }
 
     public void onListenerDisconnected() {
