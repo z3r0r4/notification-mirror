@@ -24,9 +24,10 @@ class MirrorNotification {
     private String time;
     private String title;
     private String text;
-    private String ticker;
+    private String ticker;  //for compatability?
     private Notification.Action actions;
     private Notification.Action replyAction;
+//    private String replyID;//if replyactions can be uniquely identified by the notifi.id this isnt needed
 
     public MirrorNotification(StatusBarNotification sbn) {
         //DATA EXTRACTION
@@ -36,26 +37,30 @@ class MirrorNotification {
         time = Long.toString(sbn.getPostTime());
         title = getTitle(sbn);
         text = getText(sbn);
-
+        ticker = getTickerText(sbn);
+        actions = getActions(sbn);
+        replyAction = getReplyAction(actions);
+//        replyID = getReplyID(replyAction);
     }
 
 
     //FOR POSTING
+
     public MirrorNotification(String id, String title, String text) {
 
     }
-
     //FOR POSTING AND REPLIES
+
     public MirrorNotification(String id, String title, String text, String replyActionName) {
 
     }
-
     //FOR POSTING AND REPLIES AND ACTIONS
+
     public MirrorNotification(String id, String title, String text, String replyActionName, String actionName) {
 
     }
-
     //FOR REPLIES
+
     public MirrorNotification(String id) {
 
     }
@@ -70,12 +75,13 @@ class MirrorNotification {
 
 
     /* MAYBE EXTRACT TO HELPER CLASS */
+
     private String getNotificationKey(StatusBarNotification sbn) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
             return sbn.getKey(); //sbn.getId();
         else {
-            String packageName = sbn.getPackageName() != null ? sbn.getPackageName() : ""; //RIP
-            String tag = sbn.getTag() != null ? sbn.getTag() : "";      //statusBarNotification.getTag() ?: ""; //ELVIS IS DEAD
+            String packageName = sbn.getPackageName() != null ? sbn.getPackageName() : ""; //RIP ELVIS IS DEAD
+            String tag = sbn.getTag() != null ? sbn.getTag() : "";      //statusBarNotification.getTag() ?: "";
             int id = sbn.getId();
             return packageName + ":" + tag + ":" + id; //sbn.getId();
         }
@@ -106,17 +112,14 @@ class MirrorNotification {
     private String getText(StatusBarNotification sbn) { //getMessage
         Bundle extras = sbn.getNotification().extras;
 
-        if (extras.getString(Notification.EXTRA_TEXT) != null) {
+        if (extras.getString(Notification.EXTRA_TEXT) != null)
             return extras.getString(Notification.EXTRA_TEXT);
-        }
 
-        if (extras.getString(Notification.EXTRA_BIG_TEXT) != null) {
+        if (extras.getString(Notification.EXTRA_BIG_TEXT) != null)
             return extras.getString(Notification.EXTRA_BIG_TEXT);
-        }
 
-        if (extras.getString(Notification.EXTRA_SUMMARY_TEXT) != null) {
+        if (extras.getString(Notification.EXTRA_SUMMARY_TEXT) != null)
             return extras.getString(Notification.EXTRA_SUMMARY_TEXT);
-        }
         //ALSO POSSIBLE EXTRA_INFO_TEXT, EXTRA_SUB_TEXT
 
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N)
@@ -136,7 +139,34 @@ class MirrorNotification {
                 text = (String) message.get("sender") + ": ";
             text += message.get("text") + "\n";
         }
+        if (text.equals(""))
+            Log.e(TAG, "getText: Couldn't get Text / Message", new NullPointerException());
         return text;
+    }
+
+    private String getTickerText(StatusBarNotification sbn) {
+        if (sbn.getNotification().tickerText != null)
+            return sbn.getNotification().tickerText.toString();
+
+        if (getTitle(sbn) != null && getText(sbn) != null)
+            return getTitle(sbn) + ": " + getText(sbn);
+
+        if (getTitle(sbn) != null)
+            return getTitle(sbn);
+
+        if (getText(sbn) != null)
+            return getText(sbn);
+
+        Log.e(TAG, "getTickerText: Couldn't get TickerText", new NullPointerException());
+        return null;
+    }
+
+    private Notification.Action getActions(StatusBarNotification sbn) {
+        return null;
+    }
+
+    private Notification.Action getReplyAction(Notification.Action actions) {
+        return null;
     }
 
     /* TEST ONLY */
