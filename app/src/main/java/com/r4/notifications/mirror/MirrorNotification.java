@@ -8,7 +8,6 @@ import android.os.Parcelable;
 import android.service.notification.StatusBarNotification;
 import android.util.Log;
 
-import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -19,17 +18,18 @@ class MirrorNotification {
 
     protected final String TAG = getClass().getSimpleName();
 
-    private int id;
-    private String key; //maybe only use one of them
-    private String appName; //packageName
-    private boolean isCancel;   //TODO onNotificationRemoved
-    //    private boolean isUpdate;
-//    private boolean isClearable;
-//    private String requestReplyId;
-    private String time;
-    private String title;
-    private String text;
-    private String ticker;  //for compatability?
+    public int id;
+    public String key; //maybe only use one of them
+    public String appName; //packageName
+    public boolean isCancel;   //TODO onNotificationRemoved
+
+    //    public boolean isUpdate;
+//    public boolean isClearable;
+//    public String requestReplyId;
+    public String time;
+    public String title;
+    public String text;
+    public String ticker;  //for compatability?
     private List<Notification.Action> actions; //excludes repliable Actions
     private Notification.Action replyAction;    //only one
 //    private String replyID;//if replyactions can be uniquely identified by the notifi.id this isnt needed
@@ -40,12 +40,11 @@ class MirrorNotification {
         key = getNotificationKey(sbn);
         appName = sbn.getPackageName();
         time = Long.toString(sbn.getPostTime());
-        title = getTitle(sbn);
+        title = "";//getTitle(sbn);
         text = getText(sbn);
         ticker = getTickerText(sbn);
         actions = getActions(sbn);
         replyAction = getReplyAction(sbn);  //TODO IMPLEMENT DATA EXTRACTION
-//        replyID = getReplyID(replyAction);
     }
 
 
@@ -89,7 +88,7 @@ class MirrorNotification {
             String packageName = sbn.getPackageName() != null ? sbn.getPackageName() : ""; //RIP ELVIS IS DEAD
             String tag = sbn.getTag() != null ? sbn.getTag() : "";      //statusBarNotification.getTag() ?: "";
             int id = sbn.getId();
-            return packageName + ":" + tag + ":" + id; //sbn.getId();
+            return packageName + ":" + tag + ":" + id;
         }
     }
 
@@ -99,7 +98,7 @@ class MirrorNotification {
 
         Bundle extras = sbn.getNotification().extras;
 
-        if (!extras.containsKey(Notification.EXTRA_MESSAGES)) //any cleaner way than ifs?
+        if (!extras.containsKey(Notification.EXTRA_MESSAGES))
             return null;
 
         if (extras.getString(Notification.EXTRA_CONVERSATION_TITLE) != null)
@@ -117,7 +116,7 @@ class MirrorNotification {
 
     private String getText(StatusBarNotification sbn) { //getMessage
         Bundle extras = sbn.getNotification().extras;
-
+        //ALSO POSSIBLE EXTRA_INFO_TEXT, EXTRA_SUB_TEXT
         if (extras.getString(Notification.EXTRA_TEXT) != null)
             return extras.getString(Notification.EXTRA_TEXT);
 
@@ -126,7 +125,6 @@ class MirrorNotification {
 
         if (extras.getString(Notification.EXTRA_SUMMARY_TEXT) != null)
             return extras.getString(Notification.EXTRA_SUMMARY_TEXT);
-        //ALSO POSSIBLE EXTRA_INFO_TEXT, EXTRA_SUB_TEXT
 
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N)
             return null;
@@ -146,7 +144,7 @@ class MirrorNotification {
             text += message.get("text") + "\n";
         }
         if (text.equals(""))
-            Log.e(TAG, "getText: Couldn't get Text / Message", new NullPointerException());
+            Log.d(TAG, "getText: Couldn't get Text / Message", new NullPointerException());
         return text;
     }
 
@@ -163,14 +161,14 @@ class MirrorNotification {
         if (getText(sbn) != null)
             return getText(sbn);
 
-        Log.e(TAG, "getTickerText: Couldn't get TickerText", new NullPointerException());
+        Log.d(TAG, "getTickerText: Couldn't get TickerText", new NullPointerException());
         return null;
     }
 
     private List<Notification.Action> getActions(StatusBarNotification sbn) {//actionextraction
         Notification notification = sbn.getNotification();
 
-        if (notification.actions != null || notification.actions.length > 0) {      //CHECK IF ACTIONS EXIST
+        if (notification.actions != null && notification.actions.length > 0) {      //CHECK IF ACTIONS EXIST
             LinkedList<Notification.Action> localActions = new LinkedList<Notification.Action>();
             for (Notification.Action action : notification.actions) {
 
@@ -182,7 +180,7 @@ class MirrorNotification {
             }
             return localActions;
         }
-        Log.e(TAG, "getTickerText: lame, couldn't get any action", new NullPointerException());
+        Log.d(TAG, "getTickerText: lame, couldn't get any action", new NullPointerException());
         return null;
     }
 
@@ -191,14 +189,10 @@ class MirrorNotification {
             return null;
 
         Notification notification = sbn.getNotification();
-        if (notification.actions != null || notification.actions.length > 0) {
+        if (notification.actions != null && notification.actions.length > 0) {
             for (Notification.Action action : notification.actions) {
                 if (action != null && action.getRemoteInputs() != null) {
-//                    ReplyAction replyAction = new ReplyAction();
-//                    replyAction.remoteInputs.addAll(Arrays.asList(action.getRemoteInputs()));
-//                    replyAction.pendingIntent = action.actionIntent;//STORE INTENT
-
-                    for (RemoteInput remoteInput : action.getRemoteInputs()) {
+                    for (RemoteInput remoteInput : action.getRemoteInputs()) {//kde version stores all remoteInputs and uses a different replyfunction
                         String resultKey = remoteInput.getResultKey().toLowerCase();
                         if (resultKey.contains("reply"))
                             return action;
@@ -209,12 +203,13 @@ class MirrorNotification {
                     }
                 }
             }
-
-            return null;
         }
-        //STOREE ALL REMOTE INPUTS(Y MULTIPLE THO?) =>Could check for the right one using the resukt key https://github.com/iamrobj/NotificationHelperLibrary/blob/master/notifLib/src/main/java/com/robj/notificationhelperlibrary/utils/NotificationUtils.java#L271
-        /* TEST ONLY */
-        public void post () {
-
-        }
+        Log.d(TAG, "getReplyAction: couldn't get any ReplyActions", new NullPointerException());
+        return null;
     }
+
+    /* TEST ONLY */
+    public void post() {
+
+    }
+}

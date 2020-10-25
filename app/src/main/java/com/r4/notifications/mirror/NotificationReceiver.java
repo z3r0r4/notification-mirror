@@ -8,7 +8,7 @@ import android.service.notification.StatusBarNotification;
 import java.util.HashMap;
 import java.util.Map;
 
-class NotificationReceiver extends NotificationListenerService {
+public class NotificationReceiver extends NotificationListenerService {
 
     private Map<String, MirrorNotification> activeNotifications = new HashMap<>();
 
@@ -25,9 +25,12 @@ class NotificationReceiver extends NotificationListenerService {
     }
 
     public void onNotificationPosted(StatusBarNotification sbn) {
-        //maybe use getNotificationKey as static instead of getId
-        activeNotifications.put(String.valueOf(sbn.getId()), new MirrorNotification(sbn)); //setData(extractData(sbn)); //setData(MirrorNotification(sbn))
-        NotificationMirror.mirror(getData(String.valueOf(sbn.getId())));                    //mirror(getData(sbn));
+        MirrorNotification mirrorNotification = new MirrorNotification(sbn);
+        if (!NotificationMirror.inFilter(sbn))
+            if (!activeNotifications.containsKey(mirrorNotification.key)) {
+                activeNotifications.put(mirrorNotification.key, mirrorNotification); //maybe use getNotificationKey as static instead of getId //setData(extractData(sbn)); //setData(MirrorNotification(sbn))
+                NotificationMirror.mirror(getData(String.valueOf(sbn.getId())));                    //mirror(getData(sbn));
+            }
     }
 
     public void onNotificationRemoved(StatusBarNotification sbn) {

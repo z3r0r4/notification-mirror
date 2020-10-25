@@ -1,4 +1,4 @@
 <resources>
     <string name="app_name">Notification Mirror</string>
-    <string name="service_label">MirrorNotificationListenerService</string>
+    <string name="service_label">NotificationReceiver</string>
 </resources>
