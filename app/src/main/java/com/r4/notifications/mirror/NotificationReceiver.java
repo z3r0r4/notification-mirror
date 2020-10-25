@@ -25,12 +25,13 @@ class NotificationReceiver extends NotificationListenerService {
     }
 
     public void onNotificationPosted(StatusBarNotification sbn) {
-//        setData(extractData(sbn)); //setData(MirrorNotification(sbn))//TODO IMPLEMENT DATA EXTRACTION
-//        mirror(getData(sbn));
+        //maybe use getNotificationKey as static instead of getId
+        activeNotifications.put(String.valueOf(sbn.getId()), new MirrorNotification(sbn)); //setData(extractData(sbn)); //setData(MirrorNotification(sbn))
+        NotificationMirror.mirror(getData(String.valueOf(sbn.getId())));                    //mirror(getData(sbn));
     }
 
     public void onNotificationRemoved(StatusBarNotification sbn) {
-//        mirrorCanceled(getData(sbn));
+//        mirrorCanceled(getData(sbn)); //mirror(getData(sbn).setCanceled())
 //        resetData(getData(sbn)); //reset(getId(sbn));
     }
 
@@ -41,7 +42,7 @@ class NotificationReceiver extends NotificationListenerService {
 
     public MirrorNotification getData(String id) {
         return null;
-    }
+    } //useless for static
 
     private void setData(MirrorNotification notification) {
         //either store in this service(use binder to access) or store in shared storage?

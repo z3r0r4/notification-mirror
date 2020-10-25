@@ -1,11 +1,16 @@
 package com.r4.notifications.mirror;
 
 import android.app.Notification;
+import android.app.RemoteInput;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.service.notification.StatusBarNotification;
 import android.util.Log;
+
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
 
 import androidx.core.app.NotificationCompat;
 
@@ -25,8 +30,8 @@ class MirrorNotification {
     private String title;
     private String text;
     private String ticker;  //for compatability?
-    private Notification.Action actions;
-    private Notification.Action replyAction;
+    private List<Notification.Action> actions; //excludes repliable Actions
+    private Notification.Action replyAction;    //only one
 //    private String replyID;//if replyactions can be uniquely identified by the notifi.id this isnt needed
 
     public MirrorNotification(StatusBarNotification sbn) {
@@ -39,7 +44,7 @@ class MirrorNotification {
         text = getText(sbn);
         ticker = getTickerText(sbn);
         actions = getActions(sbn);
-        replyAction = getReplyAction(actions);
+        replyAction = getReplyAction(sbn);  //TODO IMPLEMENT DATA EXTRACTION
 //        replyID = getReplyID(replyAction);
     }
 
@@ -75,6 +80,7 @@ class MirrorNotification {
 
 
     /* MAYBE EXTRACT TO HELPER CLASS */
+    //can all be static
 
     private String getNotificationKey(StatusBarNotification sbn) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
@@ -161,16 +167,54 @@ class MirrorNotification {
         return null;
     }
 
-    private Notification.Action getActions(StatusBarNotification sbn) {
+    private List<Notification.Action> getActions(StatusBarNotification sbn) {//actionextraction
+        Notification notification = sbn.getNotification();
+
+        if (notification.actions != null || notification.actions.length > 0) {      //CHECK IF ACTIONS EXIST
+            LinkedList<Notification.Action> localActions = new LinkedList<Notification.Action>();
+            for (Notification.Action action : notification.actions) {
+
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT_WATCH)// Check whether it is a REPLY ACTION. We have special treatment for them
+                    if (action.getRemoteInputs() != null && action.getRemoteInputs().length > 0)
+                        continue;
+
+                localActions.add(action);
+            }
+            return localActions;
+        }
+        Log.e(TAG, "getTickerText: lame, couldn't get any action", new NullPointerException());
         return null;
     }
 
-    private Notification.Action getReplyAction(Notification.Action actions) {
-        return null;
-    }
+    private Notification.Action getReplyAction(StatusBarNotification sbn) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP)
+            return null;
 
-    /* TEST ONLY */
-    public void post() {
+        Notification notification = sbn.getNotification();
+        if (notification.actions != null || notification.actions.length > 0) {
+            for (Notification.Action action : notification.actions) {
+                if (action != null && action.getRemoteInputs() != null) {
+//                    ReplyAction replyAction = new ReplyAction();
+//                    replyAction.remoteInputs.addAll(Arrays.asList(action.getRemoteInputs()));
+//                    replyAction.pendingIntent = action.actionIntent;//STORE INTENT
 
+                    for (RemoteInput remoteInput : action.getRemoteInputs()) {
+                        String resultKey = remoteInput.getResultKey().toLowerCase();
+                        if (resultKey.contains("reply"))
+                            return action;
+                        else if (resultKey.contains("android.intent.extra.text"))
+                            return action;
+                        else if (resultKey.contains("input"))
+                            return action;
+                    }
+                }
+            }
+
+            return null;
+        }
+        //STOREE ALL REMOTE INPUTS(Y MULTIPLE THO?) =>Could check for the right one using the resukt key https://github.com/iamrobj/NotificationHelperLibrary/blob/master/notifLib/src/main/java/com/robj/notificationhelperlibrary/utils/NotificationUtils.java#L271
+        /* TEST ONLY */
+        public void post () {
+
+        }
     }
-}
