@@ -1,7 +1,10 @@
 package com.r4.notifications.mirror;
 
 import android.app.Notification;
+import android.app.PendingIntent;
 import android.app.RemoteInput;
+import android.content.Context;
+import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcelable;
@@ -11,28 +14,27 @@ import android.util.Log;
 import java.util.LinkedList;
 import java.util.List;
 
+import androidx.annotation.RequiresApi;
 import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
 
-//not named Notifiaction to avoid naming conflicst with android
 class MirrorNotification {
 
     protected final String TAG = getClass().getSimpleName();
 
     public int id;
-    public String key; //maybe only use one of them
+    public String key;
     public String appName; //packageName
     public boolean isCancel;   //TODO onNotificationRemoved
 
     //    public boolean isUpdate;
 //    public boolean isClearable;
-//    public String requestReplyId;
     public String time;
     public String title;
     public String text;
     public String ticker;  //for compatability?
     private List<Notification.Action> actions; //excludes repliable Actions
-    private Notification.Action replyAction;    //only one
-//    private String replyID;//if replyactions can be uniquely identified by the notifi.id this isnt needed
+    private Notification.Action replyAction;    //theres only one replyaction
 
     public MirrorNotification(StatusBarNotification sbn) {
         //DATA EXTRACTION
@@ -40,31 +42,44 @@ class MirrorNotification {
         key = getNotificationKey(sbn);
         appName = sbn.getPackageName();
         time = Long.toString(sbn.getPostTime());
-        title = "";//getTitle(sbn);
+        title = getTitle(sbn);
         text = getText(sbn);
         ticker = getTickerText(sbn);
         actions = getActions(sbn);
-        replyAction = getReplyAction(sbn);  //TODO IMPLEMENT DATA EXTRACTION
+        replyAction = getReplyAction(sbn);
     }
 
 
     //FOR POSTING
-
     public MirrorNotification(String id, String title, String text) {
 
     }
-    //FOR POSTING AND REPLIES
 
-    public MirrorNotification(String id, String title, String text, String replyActionName) {
+    //FOR POSTING AND REPLIES AND ACTIONS
+    @RequiresApi(api = Build.VERSION_CODES.KITKAT_WATCH)
+    public MirrorNotification(String id, String title, String text, String replyActionName, Context context) {
+        this.title = title;
+        this.text = text;
+
+        RemoteInput remoteInput = new RemoteInput.Builder("reply")
+                .setLabel("Enter Text Boss")
+                .build();
+        Intent replyIntent = new Intent(context, MainActivity.class);
+        PendingIntent replyPendingIntent =
+                PendingIntent.getActivity(context, 1, replyIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        this.replyAction =
+                new Notification.Action.Builder(android.R.drawable.ic_dialog_info, "Reply", replyPendingIntent)
+                        .addRemoteInput(remoteInput)
+                        .build();
 
     }
-    //FOR POSTING AND REPLIES AND ACTIONS
 
+    //FOR POSTING AND REPLIES
     public MirrorNotification(String id, String title, String text, String replyActionName, String actionName) {
 
     }
-    //FOR REPLIES
 
+    //FOR REPLIES
     public MirrorNotification(String id) {
 
     }
@@ -93,22 +108,28 @@ class MirrorNotification {
     }
 
     private String getTitle(StatusBarNotification sbn) {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N)
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
+            Log.e(TAG, "getTitle: couldn't get the Title from the Notification", new NullPointerException());
             return null;
+        }
 
         Bundle extras = sbn.getNotification().extras;
 
-        if (!extras.containsKey(Notification.EXTRA_MESSAGES))
+        if (extras.containsKey("android.title"))
+            return extras.getString("android.title");
+
+        if (!extras.containsKey(Notification.EXTRA_MESSAGES)) {
+            Log.e(TAG, "getTitle: couldn't get the Title from the Notification", new NullPointerException());
             return null;
-
-        if (extras.getString(Notification.EXTRA_CONVERSATION_TITLE) != null)
-            return extras.getString(Notification.EXTRA_CONVERSATION_TITLE);
-
+        }
         if (extras.getString(Notification.EXTRA_TITLE) != null)
             return extras.getString(Notification.EXTRA_TITLE);
 
         if (extras.getString(Notification.EXTRA_TITLE_BIG) != null)
             return extras.getString(Notification.EXTRA_TITLE_BIG);
+
+        if (extras.getString(Notification.EXTRA_CONVERSATION_TITLE) != null)
+            return extras.getString(Notification.EXTRA_CONVERSATION_TITLE);
 
         Log.e(TAG, "getTitle: couldn't get the Title from the Notification", new NullPointerException());
         return null;
@@ -116,8 +137,8 @@ class MirrorNotification {
 
     private String getText(StatusBarNotification sbn) { //getMessage
         Bundle extras = sbn.getNotification().extras;
-        //ALSO POSSIBLE EXTRA_INFO_TEXT, EXTRA_SUB_TEXT
-        if (extras.getString(Notification.EXTRA_TEXT) != null)
+
+        if (extras.getString(Notification.EXTRA_TEXT) != null)      //ALSO POSSIBLE EXTRA_INFO_TEXT, EXTRA_SUB_TEXT
             return extras.getString(Notification.EXTRA_TEXT);
 
         if (extras.getString(Notification.EXTRA_BIG_TEXT) != null)
@@ -126,16 +147,22 @@ class MirrorNotification {
         if (extras.getString(Notification.EXTRA_SUMMARY_TEXT) != null)
             return extras.getString(Notification.EXTRA_SUMMARY_TEXT);
 
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N)
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
+            Log.d(TAG, "getText: Couldn't get Text / Message", new NullPointerException());
             return null;
+        }
 
-        if (!extras.containsKey(Notification.EXTRA_MESSAGES))
+        if (!extras.containsKey(Notification.EXTRA_MESSAGES)) {
+            Log.d(TAG, "getText: Couldn't get Text / Message", new NullPointerException());
             return null;
+        }
 
         boolean isGroupConversation = extras.getBoolean(NotificationCompat.EXTRA_IS_GROUP_CONVERSATION);
         Parcelable[] messages = extras.getParcelableArray(Notification.EXTRA_MESSAGES);
-        if (messages == null)
+        if (messages == null) {
+            Log.d(TAG, "getText: Couldn't get Text / Message", new NullPointerException());
             return null;
+        }
 
         String text = "";
         for (Bundle message : (Bundle[]) messages) { //for (Parcelable p : ms) Bundle m = (Bundle) p;
@@ -180,13 +207,15 @@ class MirrorNotification {
             }
             return localActions;
         }
-        Log.d(TAG, "getTickerText: lame, couldn't get any action", new NullPointerException());
+        Log.d(TAG, "getActions: lame, couldn't get any action", new NullPointerException());
         return null;
     }
 
     private Notification.Action getReplyAction(StatusBarNotification sbn) {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP)
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+            Log.d(TAG, "getReplyAction: couldn't get any ReplyActions", new NullPointerException());
             return null;
+        }
 
         Notification notification = sbn.getNotification();
         if (notification.actions != null && notification.actions.length > 0) {
@@ -209,7 +238,17 @@ class MirrorNotification {
     }
 
     /* TEST ONLY */
-    public void post() {
-
+    @RequiresApi(api = Build.VERSION_CODES.O)
+    public void post(NotificationManagerCompat notificationManager, Context context) {
+        Notification notification = new Notification.Builder(context, "TestChannel")
+                .setSmallIcon(android.R.drawable.ic_dialog_info)
+                .setContentTitle("TEST NOTIFICATION TITLE")
+                .setContentText("TEST TEXT")
+//                .setContentIntent(pIntent)
+//                .setPriority(NotificationCompat.PRIORITY_MAX) //For lower androids without channels
+//                .setAutoCancel(true) //close onclick
+                .addAction(replyAction)
+                .build();
+        notificationManager.notify(9001, notification);
     }
 }

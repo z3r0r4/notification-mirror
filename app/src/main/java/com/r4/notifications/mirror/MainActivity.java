@@ -1,40 +1,59 @@
 package com.r4.notifications.mirror;
 
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
+import android.content.ComponentName;
 import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.NotificationManagerCompat;
 
 public class MainActivity extends AppCompatActivity {
     final static String TAG = "MAIN";
 
+    //TEST
+    public NotificationManagerCompat notificationManager;
+
+
+    //    @RequiresApi(api = Build.VERSION_CODES.O)//END
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        MirrorNotification notification = new MirrorNotification("123","TESTNOTIFIACTION","This is a Test Text","REPLYACTION");
 
-        Button btnMsgTest = (Button) findViewById(R.id.btnMsgTest);
-        btnMsgTest.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                notification.post();
-                Log.d(TAG, "onClick: msgTest");
-            }
-        });
+        notificationManager = NotificationManagerCompat.from(this);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            notificationManager.createNotificationChannel(new NotificationChannel("TestChannel", "Test", NotificationManager.IMPORTANCE_HIGH));
+            final MirrorNotification notification = new MirrorNotification("123456", "TestNotification", "Testing", "ReplyAction", this);
+
+            Button btnMsgTest = (Button) findViewById(R.id.btnMsgTest);
+            btnMsgTest.setOnClickListener(new View.OnClickListener() {
+                public void onClick(View v) {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT_WATCH)
+                        notification.post(notificationManager, getApplicationContext());//TODO add Test Notification
+                    Log.d(TAG, "onClick: msgTest");
+                }
+            });
+        }
+
+        final MirrorNotification notification2 = new MirrorNotification("123456");
         Button btnReply = (Button) findViewById(R.id.btnReply);
         btnReply.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                notification.reply("AUTOREPLY");//                (new MirrorNotification("123")).reply("TEST");
+                notification2.reply("AUTOREPLY");
                 Log.d(TAG, "onClick: Reply");
             }
         });
+
         Button btnGetListenerPermission = (Button) findViewById(R.id.btnGetListenerPermission);
         btnGetListenerPermission.setOnClickListener(new View.OnClickListener() {
-
             public void onClick(View v) {
                 Intent intent = new Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS");
                 startActivity(intent);
@@ -43,6 +62,13 @@ public class MainActivity extends AppCompatActivity {
         });
     }
 
-
-    //TEST-FUNCTIONS
+    private boolean checkPermission() {
+        String theList = android.provider.Settings.Secure.getString(getContentResolver(), "enabled_notification_listeners");
+        String[] theListList = theList.split(":");
+        String me = (new ComponentName(this, NotificationReceiver.class)).flattenToString();
+        for (String next : theListList) {
+            if (me.equals(next)) return true;
+        }
+        return false;
+    }
 }

@@ -25,12 +25,14 @@ public class NotificationReceiver extends NotificationListenerService {
     }
 
     public void onNotificationPosted(StatusBarNotification sbn) {
-        MirrorNotification mirrorNotification = new MirrorNotification(sbn);
-        if (!NotificationMirror.inFilter(sbn))
-            if (!activeNotifications.containsKey(mirrorNotification.key)) {
+//        if (!NotificationMirror.inFilter(sbn)) {
+            MirrorNotification mirrorNotification = new MirrorNotification(sbn);
+
+//            if (!activeNotifications.containsKey(mirrorNotification.key)) {
                 activeNotifications.put(mirrorNotification.key, mirrorNotification); //maybe use getNotificationKey as static instead of getId //setData(extractData(sbn)); //setData(MirrorNotification(sbn))
-                NotificationMirror.mirror(getData(String.valueOf(sbn.getId())));                    //mirror(getData(sbn));
-            }
+                NotificationMirror.mirror(getData(mirrorNotification.key));                    //mirror(getData(sbn));
+//            }
+//        }
     }
 
     public void onNotificationRemoved(StatusBarNotification sbn) {
@@ -43,8 +45,8 @@ public class NotificationReceiver extends NotificationListenerService {
         return super.onBind(intent);
     }
 
-    public MirrorNotification getData(String id) {
-        return null;
+    public MirrorNotification getData(String key) {
+        return activeNotifications.get(key);
     } //useless for static
 
     private void setData(MirrorNotification notification) {
