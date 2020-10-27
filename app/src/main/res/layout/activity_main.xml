@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".MainActivity">
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -12,12 +12,17 @@
         tools:layout_editor_absoluteX="208dp"
         tools:layout_editor_absoluteY="258dp">
 
-
         <Button
-            android:id="@+id/btnGetListenerPermission"
+            android:id="@+id/btnMsgTest"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Get Listener Permission"/>
+            android:text="Send TEST" />
+
+        <Button
+            android:id="@+id/btnReply"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="REPLY" />
 
         <Switch
             android:id="@+id/swListenerPermission"
@@ -26,30 +31,24 @@
             android:text="Listener Service" />
 
         <Button
-            android:id="@+id/btnMsgTest"
+            android:id="@+id/btnTestBinding"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Send TEST"/>
-
-        <Button
-            android:id="@+id/btnReply"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="REPLY" />
+            android:text="Test Binding" />
 
         <TextView
             android:id="@+id/tV_repliedtext"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Replied Text"
-            android:gravity="center"/>
+            android:gravity="center"
+            android:text="Replied Text" />
 
         <TextView
             android:id="@+id/tV_infotext"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Info Text "
-            android:gravity="center" />
-<!--     TODO: ADD TOGGLE WHICH INFORMS ABOUT LISTENER SERVICE STATUS-->
+            android:gravity="center"
+            android:text="Info Text " />
+        <!--     TODO: ADD TOGGLE WHICH INFORMS ABOUT LISTENER SERVICE STATUS-->
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

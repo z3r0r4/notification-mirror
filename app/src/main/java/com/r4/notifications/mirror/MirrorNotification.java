@@ -14,7 +14,6 @@ import android.util.Log;
 import java.util.LinkedList;
 import java.util.List;
 
-import androidx.annotation.RequiresApi;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 
@@ -48,7 +47,6 @@ class MirrorNotification {
         replyAction = getReplyAction(sbn);
     }
 
-
     //FOR REPLIES
     public MirrorNotification(String id) {
 
@@ -81,6 +79,7 @@ class MirrorNotification {
 
     }
 
+    /* MAYBE EXTRACT TO HELPER CLASS */
     private static String getNotificationKey(StatusBarNotification sbn) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
             return sbn.getKey(); //sbn.getId();
@@ -93,6 +92,7 @@ class MirrorNotification {
     }
 
     private static String getTitle(StatusBarNotification sbn) {
+
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
             Log.e(TAG, "getTitle: couldn't get the Title from the Notification", new NullPointerException());
             return null;
@@ -101,28 +101,29 @@ class MirrorNotification {
         Bundle extras = sbn.getNotification().extras;
 
         if (extras.containsKey("android.title")) //extras.getString("android.title") != null
+        {
             return extras.getString("android.title");
+        }
 
         if (!extras.containsKey(Notification.EXTRA_MESSAGES)) {
             Log.e(TAG, "getTitle: couldn't get the Title from the Notification", new NullPointerException());
             return null;
         }
-        if (extras.getString(Notification.EXTRA_TITLE) != null)
+        if (extras.getString(Notification.EXTRA_TITLE) != null) {
             return extras.getString(Notification.EXTRA_TITLE);
+        }
 
-        if (extras.getString(Notification.EXTRA_TITLE_BIG) != null)
+        if (extras.getString(Notification.EXTRA_TITLE_BIG) != null) {
             return extras.getString(Notification.EXTRA_TITLE_BIG);
+        }
 
-        if (extras.getString(Notification.EXTRA_CONVERSATION_TITLE) != null)
+        if (extras.getString(Notification.EXTRA_CONVERSATION_TITLE) != null) {
             return extras.getString(Notification.EXTRA_CONVERSATION_TITLE);
+        }
 
         Log.e(TAG, "getTitle: couldn't get the Title from the Notification", new NullPointerException());
         return null;
     }
-
-
-    /* MAYBE EXTRACT TO HELPER CLASS */
-    //can all be static
 
     private static String getText(StatusBarNotification sbn) { //getMessage
         Bundle extras = sbn.getNotification().extras;
@@ -200,7 +201,7 @@ class MirrorNotification {
         return null;
     }
 
-    //RETURNS THE ACTUAL REPLY ACTION WITH THE FiTTING REMOTE INPUT doesnt store all of the actions like smth called k** (still gotta search for the right remoteInput, wehn replying tho)
+    //RETURNS THE ACTUAL REPLY ACTION WITH THE FiTTING REMOTE INPUT doesnt store all of the actions like smth called k** (still gotta search for the right remoteInput, when replying tho)
     private static Notification.Action getReplyAction(StatusBarNotification sbn) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
             Log.d(TAG, "getReplyAction: couldn't get any ReplyActions", new NullPointerException());
@@ -231,8 +232,7 @@ class MirrorNotification {
 
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.KITKAT_WATCH)
-    public void reply(String message, Context context) throws PendingIntent.CanceledException {//maybe MirrorWorker
+    public void reply(String message, Context context) {//maybe MirrorWorker
         if (this.replyAction == null || this.replyAction.getRemoteInputs().length == 0) {
             Log.e(TAG, "reply: couldn't get ReplyAction or RemoteInputs");
             return;

@@ -55,7 +55,8 @@ class NotificationMirror {
     }
 
     /* Get DATA out of the service */
-    public MirrorNotification getNotification(String id) {
+    public static MirrorNotification getNotification(String id) {
+//        MirrorNotification.bindService();
         return null; //use Binder to access Data in ListenerService
     }
 }
