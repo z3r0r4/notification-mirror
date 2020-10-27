@@ -1,15 +1,18 @@
 package com.r4.notifications.mirror;
 
+import android.app.Activity;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.RemoteInput;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Button;
+import android.widget.Switch;
 import android.widget.TextView;
 
 import androidx.annotation.RequiresApi;
@@ -18,7 +21,7 @@ import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 
 public class MainActivity extends AppCompatActivity {
-    final static String TAG = "MAIN";
+    private final static String TAG = "MAIN";
 
     //TEST
     public NotificationManagerCompat notificationManager;
@@ -58,7 +61,9 @@ public class MainActivity extends AppCompatActivity {
             startActivity(intent);
             Log.d(TAG, "onClick: ActionNotificationListener");
         });
-
+        Switch swListenerStatus = (Switch) findViewById(R.id.swListenerPermission);
+        swListenerStatus.setChecked(checkListenerService());
+        
         handleReplyIntent();
     }
 
@@ -87,6 +92,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private boolean checkListenerService() {
-        return false;
+        SharedPreferences sharedPreferences = getApplicationContext().getSharedPreferences(NotificationReceiver.class.getSimpleName(), Activity.MODE_PRIVATE);
+        return sharedPreferences.getBoolean("ListenerStatus", false);
+
     }
 }

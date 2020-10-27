@@ -7,7 +7,7 @@ import android.util.Log;
 import androidx.core.app.NotificationCompat;
 
 class NotificationMirror {
-    protected final static String TAG = "NotifiactionMirror";
+    private final static String TAG = "NotifiactionMirror";
 
     public static void mirror(MirrorNotification notification) {
         Log.d(TAG, "MirrorNotification: "
@@ -46,18 +46,16 @@ class NotificationMirror {
         return false;
     }
 
-    /*
-    Get DATA out of the service
-     */
-    public MirrorNotification getNotification(String id) {
-        return null; //use Binder to access Data in ListenerService
-    }
-
     private void onReceive(NetworkPackage networkPackage) {//maybe not here
         MirrorNotification notification = getNotification(networkPackage.getID());
 //        if (networkPackage.isReply())
 //            notification.reply(networkPackage.getMessage());
 //        else if (networkPackage.isAction())
 //            notification.act(networkPackage.getActionName());
+    }
+
+    /* Get DATA out of the service */
+    public MirrorNotification getNotification(String id) {
+        return null; //use Binder to access Data in ListenerService
     }
 }

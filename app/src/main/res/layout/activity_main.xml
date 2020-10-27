@@ -19,6 +19,12 @@
             android:layout_height="wrap_content"
             android:text="Get Listener Permission"/>
 
+        <Switch
+            android:id="@+id/swListenerPermission"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Listener Service" />
+
         <Button
             android:id="@+id/btnMsgTest"
             android:layout_width="match_parent"

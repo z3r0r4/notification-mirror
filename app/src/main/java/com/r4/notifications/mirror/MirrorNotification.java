@@ -20,13 +20,12 @@ import androidx.core.app.NotificationManagerCompat;
 
 class MirrorNotification {
 
-    protected final static String TAG = "MirrorNotification";
+    private final static String TAG = "MirrorNotification";
 
     public int id;
     public String key;
     public String appName; //packageName
     public boolean isCancel;   //TODO onNotificationRemoved
-
     //    public boolean isUpdate;
 //    public boolean isClearable;
     public String time;
