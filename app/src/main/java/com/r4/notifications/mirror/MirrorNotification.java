@@ -263,12 +263,12 @@ class MirrorNotification {
     public void post(NotificationManagerCompat notificationManager, Context context) {
         Notification notification = new Notification.Builder(context, "TestChannel")
                 .setSmallIcon(android.R.drawable.ic_dialog_info)
-                .setContentTitle("TEST NOTIFICATION TITLE")
-                .setContentText("TEST TEXT")
+                .setContentTitle(this.title)
+                .setContentText(this.text)
 //                .setContentIntent(pIntent)
 //                .setPriority(NotificationCompat.PRIORITY_MAX) //For lower androids without channels
 //                .setAutoCancel(true) //close onclick
-                .addAction(replyAction)
+                .addAction(this.replyAction)
                 .build();
         notificationManager.notify(9001, notification);
     }
