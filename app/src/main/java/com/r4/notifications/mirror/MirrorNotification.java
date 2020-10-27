@@ -101,7 +101,7 @@ class MirrorNotification {
         ArrayList<RemoteInput> actualInputs = new ArrayList<>();
         for (RemoteInput remoteIn : this.replyAction.getRemoteInputs()) {
             bundle.putCharSequence(remoteIn.getResultKey(), message);
-            Log.e(TAG, "reply: INSIDE"+remoteIn.getResultKey());
+            Log.e(TAG, "reply: INSIDE" + remoteIn.getResultKey());
         }
         RemoteInput.addResultsToIntent(this.replyAction.getRemoteInputs(), intent, bundle);
         try {
@@ -236,7 +236,7 @@ class MirrorNotification {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
             Log.d(TAG, "getReplyAction: couldn't get any ReplyActions", new NullPointerException());
             return null;
-        }
+        }   
 
         Notification notification = sbn.getNotification();
         if (notification.actions != null && notification.actions.length > 0) {
@@ -259,7 +259,6 @@ class MirrorNotification {
     }
 
     /* TEST ONLY */
-    @RequiresApi(api = Build.VERSION_CODES.O)
     public void post(NotificationManagerCompat notificationManager, Context context) {
         Notification notification = new Notification.Builder(context, "TestChannel")
                 .setSmallIcon(android.R.drawable.ic_dialog_info)

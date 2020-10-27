@@ -36,33 +36,32 @@ public class MainActivity extends AppCompatActivity {
 
         notificationManager = NotificationManagerCompat.from(this);
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            notificationManager.createNotificationChannel(new NotificationChannel("TestChannel", "Test", NotificationManager.IMPORTANCE_HIGH));
-            final MirrorNotification notification = new MirrorNotification("123456", "TestNotification", "Testing", "ReplyAction", this);
 
-            Button btnMsgTest = (Button) findViewById(R.id.btnMsgTest);
-            btnMsgTest.setOnClickListener(new View.OnClickListener() {
-                public void onClick(View v) {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT_WATCH)
-                        notification.post(notificationManager, getApplicationContext());//TODO add Test Notification
-                    Log.d(TAG, "onClick: msgTest");
-                }
-            });
+        notificationManager.createNotificationChannel(new NotificationChannel("TestChannel", "Test", NotificationManager.IMPORTANCE_HIGH));
+        final MirrorNotification notification = new MirrorNotification("123456", "TestNotification", "Testing", "ReplyAction", this);
+
+        Button btnMsgTest = (Button) findViewById(R.id.btnMsgTest);
+        btnMsgTest.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                notification.post(notificationManager, getApplicationContext());//TODO add Test Notification
+                Log.d(TAG, "onClick: msgTest");
+            }
+        });
 
 
 //            final MirrorNotification notification2 = new MirrorNotification("123456");
-            Button btnReply = (Button) findViewById(R.id.btnReply);
-            btnReply.setOnClickListener(new View.OnClickListener() {
-                public void onClick(View v) {
-                    try {
-                        notification.reply("AUTOREPLY", getApplicationContext());
-                    } catch (PendingIntent.CanceledException e) {
-                        Log.e(TAG, "onClick: Reply Intent might be canceled already", e);
-                    }
-                    Log.d(TAG, "onClick: Reply");
+        Button btnReply = (Button) findViewById(R.id.btnReply);
+        btnReply.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                try {
+                    notification.reply("AUTOREPLY", getApplicationContext());
+                } catch (PendingIntent.CanceledException e) {
+                    Log.e(TAG, "onClick: Reply Intent might be canceled already", e);
                 }
-            });
-        }
+                Log.d(TAG, "onClick: Reply");
+            }
+        });
+
         Button btnGetListenerPermission = (Button) findViewById(R.id.btnGetListenerPermission);
         btnGetListenerPermission.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
@@ -84,7 +83,6 @@ public class MainActivity extends AppCompatActivity {
         return false;
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.KITKAT_WATCH)
     private void handleReplyIntent() {
         Intent intent = this.getIntent();
 
