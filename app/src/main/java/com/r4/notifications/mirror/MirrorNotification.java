@@ -11,7 +11,6 @@ import android.os.Parcelable;
 import android.service.notification.StatusBarNotification;
 import android.util.Log;
 
-import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -21,7 +20,7 @@ import androidx.core.app.NotificationManagerCompat;
 
 class MirrorNotification {
 
-    protected final String TAG = getClass().getSimpleName();
+    protected final static String TAG = "MirrorNotification";
 
     public int id;
     public String key;
@@ -37,7 +36,7 @@ class MirrorNotification {
     public Notification.Action replyAction;    //theres only one replyaction
     private List<Notification.Action> actions; //excludes repliable Actions
 
-    public MirrorNotification(StatusBarNotification sbn) { //extraction //not useable for posts: problematic
+    public MirrorNotification(StatusBarNotification sbn) { //extraction //not useable for posts: problematic //nvm think it works
         //DATA EXTRACTION
         id = sbn.getId();
         key = getNotificationKey(sbn);
@@ -51,13 +50,17 @@ class MirrorNotification {
     }
 
 
+    //FOR REPLIES
+    public MirrorNotification(String id) {
+
+    }
+
     //FOR POSTING
     public MirrorNotification(String id, String title, String text) {
 
     }
 
-    //FOR POSTING AND REPLIES AND ACTIONS
-    @RequiresApi(api = Build.VERSION_CODES.KITKAT_WATCH)
+    //FOR POSTING AND REPLIES
     public MirrorNotification(String id, String title, String text, String replyActionName, Context context) { //posting
         this.title = title;
         this.text = text;
@@ -74,49 +77,12 @@ class MirrorNotification {
                         .build();
     }
 
-    //FOR POSTING AND REPLIES
-    public MirrorNotification(String id, String title, String text, String replyActionName, String actionName) {
+    //FOR POSTING AND REPLIES AND ACTIONS
+    public MirrorNotification(String id, String title, String text, String replyActionName, String actionName, Context context) {
 
     }
 
-    //FOR REPLIES
-    public MirrorNotification(String id) {
-
-    }
-
-    public void act(String actionName) {//maybe MirrorWorker
-
-    }
-
-    @RequiresApi(api = Build.VERSION_CODES.KITKAT_WATCH)
-    public void reply(String message, Context context) throws PendingIntent.CanceledException {//maybe MirrorWorker
-        if (this.replyAction == null || this.replyAction.getRemoteInputs().length == 0) {
-            Log.e(TAG, "reply: couldn't get ReplyAction or RemoteInputs");
-            return;
-        }
-        Log.e(TAG, "reply: INSIDE");
-        Intent intent = new Intent();
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        Bundle bundle = new Bundle();
-        ArrayList<RemoteInput> actualInputs = new ArrayList<>();
-        for (RemoteInput remoteIn : this.replyAction.getRemoteInputs()) {
-            bundle.putCharSequence(remoteIn.getResultKey(), message);
-            Log.e(TAG, "reply: INSIDE" + remoteIn.getResultKey());
-        }
-        RemoteInput.addResultsToIntent(this.replyAction.getRemoteInputs(), intent, bundle);
-        try {
-            replyAction.actionIntent.send(context, 0, intent);
-            Log.e(TAG, "reply: SEND");
-        } catch (PendingIntent.CanceledException e) {
-            Log.e(TAG, "reply: Couldn't send" + e.getLocalizedMessage());
-        }
-    }
-
-
-    /* MAYBE EXTRACT TO HELPER CLASS */
-    //can all be static
-
-    private String getNotificationKey(StatusBarNotification sbn) {
+    private static String getNotificationKey(StatusBarNotification sbn) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
             return sbn.getKey(); //sbn.getId();
         else {
@@ -127,7 +93,7 @@ class MirrorNotification {
         }
     }
 
-    private String getTitle(StatusBarNotification sbn) {
+    private static String getTitle(StatusBarNotification sbn) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
             Log.e(TAG, "getTitle: couldn't get the Title from the Notification", new NullPointerException());
             return null;
@@ -155,7 +121,11 @@ class MirrorNotification {
         return null;
     }
 
-    private String getText(StatusBarNotification sbn) { //getMessage
+
+    /* MAYBE EXTRACT TO HELPER CLASS */
+    //can all be static
+
+    private static String getText(StatusBarNotification sbn) { //getMessage
         Bundle extras = sbn.getNotification().extras;
 
         if (extras.getString(Notification.EXTRA_TEXT) != null)      //ALSO POSSIBLE EXTRA_INFO_TEXT, EXTRA_SUB_TEXT
@@ -195,7 +165,7 @@ class MirrorNotification {
         return text;
     }
 
-    private String getTickerText(StatusBarNotification sbn) {
+    private static String getTickerText(StatusBarNotification sbn) {
         if (sbn.getNotification().tickerText != null)
             return sbn.getNotification().tickerText.toString();
 
@@ -212,7 +182,7 @@ class MirrorNotification {
         return null;
     }
 
-    private List<Notification.Action> getActions(StatusBarNotification sbn) {//actionextraction
+    private static List<Notification.Action> getActions(StatusBarNotification sbn) {//actionextraction
         Notification notification = sbn.getNotification();
 
         if (notification.actions != null && notification.actions.length > 0) {      //CHECK IF ACTIONS EXIST
@@ -232,11 +202,11 @@ class MirrorNotification {
     }
 
     //RETURNS THE ACTUAL REPLY ACTION WITH THE FiTTING REMOTE INPUT doesnt store all of the actions like smth called k** (still gotta search for the right remoteInput, wehn replying tho)
-    private Notification.Action getReplyAction(StatusBarNotification sbn) {
+    private static Notification.Action getReplyAction(StatusBarNotification sbn) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
             Log.d(TAG, "getReplyAction: couldn't get any ReplyActions", new NullPointerException());
             return null;
-        }   
+        }
 
         Notification notification = sbn.getNotification();
         if (notification.actions != null && notification.actions.length > 0) {
@@ -256,6 +226,31 @@ class MirrorNotification {
         }
         Log.d(TAG, "getReplyAction: couldn't get any ReplyActions", new NullPointerException());
         return null;
+    }
+
+    public void act(String actionName) {//maybe MirrorWorker
+
+    }
+
+    @RequiresApi(api = Build.VERSION_CODES.KITKAT_WATCH)
+    public void reply(String message, Context context) throws PendingIntent.CanceledException {//maybe MirrorWorker
+        if (this.replyAction == null || this.replyAction.getRemoteInputs().length == 0) {
+            Log.e(TAG, "reply: couldn't get ReplyAction or RemoteInputs");
+            return;
+        }
+
+        Intent intent = new Intent();
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        Bundle bundle = new Bundle();
+        for (RemoteInput remoteIn : this.replyAction.getRemoteInputs())
+            bundle.putCharSequence(remoteIn.getResultKey(), message);
+
+        RemoteInput.addResultsToIntent(this.replyAction.getRemoteInputs(), intent, bundle);
+        try {
+            replyAction.actionIntent.send(context, 0, intent);
+        } catch (PendingIntent.CanceledException e) {
+            Log.e(TAG, "reply: Couldn't send" + e.getLocalizedMessage());
+        }
     }
 
     /* TEST ONLY */

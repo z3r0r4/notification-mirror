@@ -1,7 +1,6 @@
 package com.r4.notifications.mirror;
 
 import android.app.Notification;
-import android.content.Context;
 import android.service.notification.StatusBarNotification;
 import android.util.Log;
 
@@ -22,14 +21,14 @@ class NotificationMirror {
 //                + "\nactions:" + actions.size()
 //                + "\nrepAct :" + replyAction.title
         );
-//    send NotificationData over windows to network
+// TODO   send NotificationData over windows to network
     }
 
     public static void mirrorCancel(MirrorNotification notification) {
 //    send Update to cancel over network
     }
 
-    public static boolean inFilter(StatusBarNotification sbn) {
+    public static boolean inFilter(StatusBarNotification sbn) {//here?
         Notification notification = sbn.getNotification();
 
         if ((notification.flags & Notification.FLAG_FOREGROUND_SERVICE) != 0
@@ -42,8 +41,7 @@ class NotificationMirror {
                 return true;
             else if (sbn.getTag().equals("charging_state"))
                 return true;
-            else if (sbn.getTag().contains("NetworkPolicy"))
-                return true;
+            else return sbn.getTag().contains("NetworkPolicy");
         }
         return false;
     }
@@ -51,7 +49,7 @@ class NotificationMirror {
     /*
     Get DATA out of the service
      */
-    private MirrorNotification getNotification(String id) {
+    public MirrorNotification getNotification(String id) {
         return null; //use Binder to access Data in ListenerService
     }
 

@@ -5,12 +5,10 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.RemoteInput;
-import android.content.ComponentName;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
@@ -35,72 +33,60 @@ public class MainActivity extends AppCompatActivity {
 
 
         notificationManager = NotificationManagerCompat.from(this);
-
-
         notificationManager.createNotificationChannel(new NotificationChannel("TestChannel", "Test", NotificationManager.IMPORTANCE_HIGH));
         final MirrorNotification notification = new MirrorNotification("123456", "TestNotification", "Testing", "ReplyAction", this);
 
         Button btnMsgTest = (Button) findViewById(R.id.btnMsgTest);
-        btnMsgTest.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                notification.post(notificationManager, getApplicationContext());//TODO add Test Notification
-                Log.d(TAG, "onClick: msgTest");
-            }
+        btnMsgTest.setOnClickListener(v -> {
+            notification.post(notificationManager, getApplicationContext());
+            Log.d(TAG, "onClick: msgTest");
         });
 
-
-//            final MirrorNotification notification2 = new MirrorNotification("123456");
         Button btnReply = (Button) findViewById(R.id.btnReply);
-        btnReply.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                try {
-                    notification.reply("AUTOREPLY", getApplicationContext());
-                } catch (PendingIntent.CanceledException e) {
-                    Log.e(TAG, "onClick: Reply Intent might be canceled already", e);
-                }
-                Log.d(TAG, "onClick: Reply");
+        btnReply.setOnClickListener(v -> {
+            try {
+                notification.reply("AUTOREPLY", getApplicationContext());//TODO GET FROM BINDER INSTEAD
+            } catch (PendingIntent.CanceledException e) {
+                Log.e(TAG, "onClick: Reply Intent might be canceled already", e);
             }
+            Log.d(TAG, "onClick: Reply");
         });
 
         Button btnGetListenerPermission = (Button) findViewById(R.id.btnGetListenerPermission);
-        btnGetListenerPermission.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                Intent intent = new Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS");
-                startActivity(intent);
-                Log.d(TAG, "onClick: ActionNotificationListener");
-            }
+        btnGetListenerPermission.setOnClickListener(v -> {
+            Intent intent = new Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS");
+            startActivity(intent);
+            Log.d(TAG, "onClick: ActionNotificationListener");
         });
+
         handleReplyIntent();
     }
 
-    private boolean checkPermission() {
-        String theList = android.provider.Settings.Secure.getString(getContentResolver(), "enabled_notification_listeners");
-        String[] theListList = theList.split(":");
-        String me = (new ComponentName(this, NotificationReceiver.class)).flattenToString();
-        for (String next : theListList) {
-            if (me.equals(next)) return true;
-        }
-        return false;
-    }
-
+    /* TEST ONLY */
     private void handleReplyIntent() {
         Intent intent = this.getIntent();
-
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         Bundle remoteInput = RemoteInput.getResultsFromIntent(intent);
+
+        Log.d(TAG, "handleReplyIntent: Trying to get Replied Input");
         try {
-            Log.d(TAG, "handleReplyIntent: Trying to get Replied Input");
-            TextView myTextView = (TextView) findViewById(R.id.tV_repliedtext);
             String inputString = remoteInput.getCharSequence("reply").toString();
-            myTextView.setText(inputString);
-            Notification repliedNotification =                                      //update Notifiaction to stop sending loading circle
+
+            TextView replyTV = (TextView) findViewById(R.id.tV_repliedtext);
+            replyTV.setText(inputString);
+
+            Notification repliedNotification =   //update Notifiaction to stop sending loading circle
                     new NotificationCompat.Builder(this, "TestChannel")
                             .setSmallIcon(android.R.drawable.ic_dialog_info)
                             .setContentText("Reply received")
                             .build();
-
             notificationManager.notify(9001, repliedNotification);
-        } catch (Exception e) {
-            Log.e(TAG, "handleReplyIntent: No Results Android lvl maybe low", e);
+        } catch (NullPointerException e) {
+            Log.e(TAG, "handleReplyIntent: couldn't get Reply text, maybe wrong Intent", e);
         }
+    }
+
+    private boolean checkListenerService() {
+        return false;
     }
 }
