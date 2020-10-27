@@ -54,16 +54,24 @@ public class MainActivity extends AppCompatActivity {
             }
             Log.d(TAG, "onClick: Reply");
         });
+        
+        Switch swListenerStatus = (Switch) findViewById(R.id.swListenerPermission);
+        swListenerStatus.setClickable(false);
+        swListenerStatus.setChecked(checkListenerService());
 
-        Button btnGetListenerPermission = (Button) findViewById(R.id.btnGetListenerPermission);
-        btnGetListenerPermission.setOnClickListener(v -> {
+        swListenerStatus.setOnClickListener(v -> {
             Intent intent = new Intent("android.settings.ACTION_NOTIFICATION_LISTENER_SETTINGS");
             startActivity(intent);
-            Log.d(TAG, "onClick: ActionNotificationListener");
         });
+        handleReplyIntent();
+    }
+
+    @Override
+    protected void onRestart() {
+        super.onRestart();
         Switch swListenerStatus = (Switch) findViewById(R.id.swListenerPermission);
         swListenerStatus.setChecked(checkListenerService());
-        
+
         handleReplyIntent();
     }
 
@@ -94,6 +102,5 @@ public class MainActivity extends AppCompatActivity {
     private boolean checkListenerService() {
         SharedPreferences sharedPreferences = getApplicationContext().getSharedPreferences(NotificationReceiver.class.getSimpleName(), Activity.MODE_PRIVATE);
         return sharedPreferences.getBoolean("ListenerStatus", false);
-
     }
 }
