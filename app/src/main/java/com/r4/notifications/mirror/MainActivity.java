@@ -38,6 +38,8 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+//        Intent bindIntent = new Intent(getApplicationContext(), NotificationMirror.class);
+//        bindService(bindIntent, NotificationMirror.mConnection, Context.BIND_AUTO_CREATE);
 
         notificationManager = NotificationManagerCompat.from(this);
         notificationManager.createNotificationChannel(new NotificationChannel("TestChannel", "Test", NotificationManager.IMPORTANCE_HIGH));
@@ -66,10 +68,12 @@ public class MainActivity extends AppCompatActivity {
 
         Button btnTestBinding = (Button) findViewById(R.id.btnTestBinding);
         btnTestBinding.setOnClickListener(v -> {
-            if(mBound){
-                mReceiver.checkBinding();
-//                Log.e(TAG, "BOOOOOOOOOOOOOOOOOOOOOOUUUUUUUUUUUUNDDDDDDDDDDDDDDDDDDDDD", new Exception());
-            }
+//            if(NotificationMirror.mBound){
+//                NotificationMirror.sReceiver.checkBinding();
+                Log.e(TAG, "BOOOOOOOOOOOOOOOOOOOOOOUUUUUUUUUUUUNDDDDDDDDDDDDDDDDDDDDD", new Exception());
+//            } else {
+//                Log.e(TAG, "onCreate: NOOOOOOOOOOOOOOOOOOOOOOOOOOOOO");
+//            }
         });
         handleReplyIntent();
     }
@@ -112,39 +116,39 @@ public class MainActivity extends AppCompatActivity {
         return sharedPreferences.getBoolean("ListenerStatus", false);
     }
 
-    NotificationReceiver mReceiver;
-    boolean mBound = false;
-
-    @Override
-    protected void onStart() {
-        super.onStart();
-        // Bind to LocalService
-        Intent intent = new Intent(this, NotificationReceiver.class);
-        bindService(intent, connection, Context.BIND_AUTO_CREATE);
-    }
-    @Override
-    protected void onStop() {
-        super.onStop();
-        unbindService(connection);
-        mBound = false;
-    }
-    /** Defines callbacks for service binding, passed to bindService() */
-    private ServiceConnection connection = new ServiceConnection() {
-
-        @Override
-        public void onServiceConnected(ComponentName className,
-                                       IBinder service) {
-            // We've bound to LocalService, cast the IBinder and get LocalService instance
-            NotificationReceiver.LocalBinder binder = (NotificationReceiver.LocalBinder) service;
-            mReceiver = binder.getService();
-            mBound = true;
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName arg0) {
-            mBound = false;
-        }
-    };
+//    NotificationReceiver mReceiver;
+//    boolean mBound = false;
+//
+//    @Override
+//    protected void onStart() {
+//        super.onStart();
+//        // Bind to LocalService
+//        Intent intent = new Intent(this, NotificationReceiver.class);
+//        bindService(intent, connection, Context.BIND_AUTO_CREATE);
+//    }
+//    @Override
+//    protected void onStop() {
+//        super.onStop();
+//        unbindService(connection);
+//        mBound = false;
+//    }
+//    /** Defines callbacks for service binding, passed to bindService() */
+//    private ServiceConnection connection = new ServiceConnection() {
+//
+//        @Override
+//        public void onServiceConnected(ComponentName className,
+//                                       IBinder service) {
+//            // We've bound to LocalService, cast the IBinder and get LocalService instance
+//            NotificationReceiver.LocalBinder binder = (NotificationReceiver.LocalBinder) service;
+//            mReceiver = binder.getService();
+//            mBound = true;
+//        }
+//
+//        @Override
+//        public void onServiceDisconnected(ComponentName arg0) {
+//            mBound = false;
+//        }
+//    };
 
 
 }

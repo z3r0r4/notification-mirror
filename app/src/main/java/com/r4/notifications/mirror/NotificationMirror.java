@@ -1,6 +1,10 @@
 package com.r4.notifications.mirror;
 
 import android.app.Notification;
+import android.content.ComponentName;
+import android.content.Context;
+import android.content.ServiceConnection;
+import android.os.IBinder;
 import android.service.notification.StatusBarNotification;
 import android.util.Log;
 
@@ -47,7 +51,7 @@ class NotificationMirror {
     }
 
     private void onReceive(NetworkPackage networkPackage) {//maybe not here
-        MirrorNotification notification = getNotification(networkPackage.getID());
+//        MirrorNotification notification = getNotification(networkPackage.getID());
 //        if (networkPackage.isReply())
 //            notification.reply(networkPackage.getMessage());
 //        else if (networkPackage.isAction())
@@ -55,8 +59,30 @@ class NotificationMirror {
     }
 
     /* Get DATA out of the service */
-    public static MirrorNotification getNotification(String id) {
-//        MirrorNotification.bindService();
-        return null; //use Binder to access Data in ListenerService
-    }
+
+
+//    public static NotificationReceiver sReceiver;
+//    public static boolean mBound = false;
+//
+//    public static ServiceConnection mConnection = new ServiceConnection() {
+//        // Called when the connection with the service is established
+//        public void onServiceConnected(ComponentName className, IBinder service) {
+//            // Because we have bound to an explicit
+//            // service that is running in our own process, we can
+//            // cast its IBinder to a concrete class and directly access it.
+//            NotificationReceiver.LocalBinder binder = (NotificationReceiver.LocalBinder) service;
+//            sReceiver = binder.getService();
+//            mBound = true;
+//        }
+//
+//        // Called when the connection with the service disconnects unexpectedly
+//        public void onServiceDisconnected(ComponentName className) {
+//            Log.e(TAG, "onServiceDisconnected");
+//            mBound = false;
+//        }
+//    };
+//    public static MirrorNotification getNotification(String id, Context context) {
+//        sReceiver.checkBinding();
+//        return null; //use Binder to access Data in ListenerService
+//    }
 }
