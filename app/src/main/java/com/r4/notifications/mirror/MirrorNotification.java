@@ -11,6 +11,7 @@ import android.os.Parcelable;
 import android.service.notification.StatusBarNotification;
 import android.util.Log;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -33,10 +34,10 @@ class MirrorNotification {
     public String title;
     public String text;
     public String ticker;  //for compatability?
+    public Notification.Action replyAction;    //theres only one replyaction
     private List<Notification.Action> actions; //excludes repliable Actions
-    private Notification.Action replyAction;    //theres only one replyaction
 
-    public MirrorNotification(StatusBarNotification sbn) {
+    public MirrorNotification(StatusBarNotification sbn) { //extraction //not useable for posts: problematic
         //DATA EXTRACTION
         id = sbn.getId();
         key = getNotificationKey(sbn);
@@ -57,7 +58,7 @@ class MirrorNotification {
 
     //FOR POSTING AND REPLIES AND ACTIONS
     @RequiresApi(api = Build.VERSION_CODES.KITKAT_WATCH)
-    public MirrorNotification(String id, String title, String text, String replyActionName, Context context) {
+    public MirrorNotification(String id, String title, String text, String replyActionName, Context context) { //posting
         this.title = title;
         this.text = text;
 
@@ -71,7 +72,6 @@ class MirrorNotification {
                 new Notification.Action.Builder(android.R.drawable.ic_dialog_info, "Reply", replyPendingIntent)
                         .addRemoteInput(remoteInput)
                         .build();
-
     }
 
     //FOR POSTING AND REPLIES
@@ -88,8 +88,28 @@ class MirrorNotification {
 
     }
 
-    public void reply(String message) {//maybe MirrorWorker
-
+    @RequiresApi(api = Build.VERSION_CODES.KITKAT_WATCH)
+    public void reply(String message, Context context) throws PendingIntent.CanceledException {//maybe MirrorWorker
+        if (this.replyAction == null || this.replyAction.getRemoteInputs().length == 0) {
+            Log.e(TAG, "reply: couldn't get ReplyAction or RemoteInputs");
+            return;
+        }
+        Log.e(TAG, "reply: INSIDE");
+        Intent intent = new Intent();
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        Bundle bundle = new Bundle();
+        ArrayList<RemoteInput> actualInputs = new ArrayList<>();
+        for (RemoteInput remoteIn : this.replyAction.getRemoteInputs()) {
+            bundle.putCharSequence(remoteIn.getResultKey(), message);
+            Log.e(TAG, "reply: INSIDE"+remoteIn.getResultKey());
+        }
+        RemoteInput.addResultsToIntent(this.replyAction.getRemoteInputs(), intent, bundle);
+        try {
+            replyAction.actionIntent.send(context, 0, intent);
+            Log.e(TAG, "reply: SEND");
+        } catch (PendingIntent.CanceledException e) {
+            Log.e(TAG, "reply: Couldn't send" + e.getLocalizedMessage());
+        }
     }
 
 
@@ -115,7 +135,7 @@ class MirrorNotification {
 
         Bundle extras = sbn.getNotification().extras;
 
-        if (extras.containsKey("android.title"))
+        if (extras.containsKey("android.title")) //extras.getString("android.title") != null
             return extras.getString("android.title");
 
         if (!extras.containsKey(Notification.EXTRA_MESSAGES)) {
@@ -152,7 +172,7 @@ class MirrorNotification {
             return null;
         }
 
-        if (!extras.containsKey(Notification.EXTRA_MESSAGES)) {
+        if (!extras.containsKey(Notification.EXTRA_MESSAGES)) { //extras.getString(Notification.EXTRA_MESSAGES) == null
             Log.d(TAG, "getText: Couldn't get Text / Message", new NullPointerException());
             return null;
         }
@@ -211,6 +231,7 @@ class MirrorNotification {
         return null;
     }
 
+    //RETURNS THE ACTUAL REPLY ACTION WITH THE FiTTING REMOTE INPUT doesnt store all of the actions like smth called k** (still gotta search for the right remoteInput, wehn replying tho)
     private Notification.Action getReplyAction(StatusBarNotification sbn) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
             Log.d(TAG, "getReplyAction: couldn't get any ReplyActions", new NullPointerException());
