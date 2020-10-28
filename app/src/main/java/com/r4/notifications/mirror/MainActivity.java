@@ -42,6 +42,8 @@ public class MainActivity extends AppCompatActivity {
 //        Intent bindIntent = new Intent(getApplicationContext(), NotificationReceiver.class);
 //        if(!bindService(bindIntent, notificationMirror.mConnection, Context.BIND_AUTO_CREATE))throw new NullPointerException();
 
+
+
         notificationManager = NotificationManagerCompat.from(this);
         notificationManager.createNotificationChannel(new NotificationChannel("TestChannel", "Test", NotificationManager.IMPORTANCE_HIGH));
         final MirrorNotification notification = new MirrorNotification("123456", "TestNotification", "Testing", "ReplyAction", this);
@@ -52,11 +54,7 @@ public class MainActivity extends AppCompatActivity {
             Log.d(TAG, "onClick: msgTest");
         });
 
-        Button btnReply = (Button) findViewById(R.id.btnReply);
-        btnReply.setOnClickListener(v -> {
-//                notificationMirror.getLastNotification(getApplicationContext()).reply("AUTOREPLY", getApplicationContext());//TODO GET FROM BINDER INSTEAD //binder.activenotifications.last.reply("AUTOREPLY", getApplicationContext());
-            Log.d(TAG, "onClick: Reply");
-        });
+
 
         Switch swListenerStatus = (Switch) findViewById(R.id.swListenerPermission);
         swListenerStatus.setClickable(false);
@@ -67,17 +65,29 @@ public class MainActivity extends AppCompatActivity {
             startActivity(intent);
         });
 
-//        Button btnTestBinding = (Button) findViewById(R.id.btnTestBinding);
-//        btnTestBinding.setOnClickListener(v -> {
+
+//        if(!notificationMirror.mBound) throw new NullPointerException();
+        handleReplyIntent();
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        NotificationReceiver receiver = NotificationReceiver.get();
+        Button btnTestBinding = (Button) findViewById(R.id.btnTestBinding);
+        btnTestBinding.setOnClickListener(v -> {
 //            if(notificationMirror.mBound){
-//                notificationMirror.sReceiver.checkBinding();
-//                Log.e(TAG, "BOOOOOOOOOOOOOOOOOOOOOOUUUUUUUUUUUUNDDDDDDDDDDDDDDDDDDDDD", new Exception());
+            receiver.checkBinding();
+//            Log.e(TAG, "BOOOOOOOOOOOOOOOOOOOOOOUUUUUUUUUUUUNDDDDDDDDDDDDDDDDDDDDD", new Exception());
 //            } else {
 //                Log.e(TAG, "onCreate: NOOOOOOOOOOOOOOOOOOOOOOOOOOOOO");
 //            }
-//        });
-//        if(!notificationMirror.mBound) throw new NullPointerException();
-        handleReplyIntent();
+        });
+        Button btnReply = (Button) findViewById(R.id.btnReply);
+        btnReply.setOnClickListener(v -> {
+            receiver.getLast().reply("AUTOREPLY", getApplicationContext());//TODO GET FROM BINDER INSTEAD //binder.activenotifications.last.reply("AUTOREPLY", getApplicationContext());
+            Log.d(TAG, "onClick: Reply");
+        });
     }
 
     @Override

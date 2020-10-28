@@ -12,6 +12,7 @@ import android.util.Log;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
+import java.util.concurrent.Semaphore;
 
 public class NotificationReceiver extends NotificationListenerService {
     private final static String TAG = "Receiver";
@@ -19,16 +20,30 @@ public class NotificationReceiver extends NotificationListenerService {
     public String lastKey;
     private SharedPreferences.Editor editor;
 
+    static NotificationReceiver _this;
+    static Semaphore sem = new Semaphore(0);
+
+    public static NotificationReceiver get() { //BLACK MAGIC touch with 100m stick
+        sem.acquireUninterruptibly();
+        NotificationReceiver ret = _this;
+        sem.release();
+        return ret;
+    }
+
     public void onListenerConnected() {
         editor.putBoolean("ListenerStatus", true);
         editor.apply();
         Log.e(TAG, "onListenerConnected");
+        _this = this;
+        sem.release();
     }
 
     public void onListenerDisconnected() {
         editor.putBoolean("ListenerStatus", false);
         editor.apply();
         Log.e(TAG, "onListenerDisconnected");
+        sem.acquireUninterruptibly();
+        _this = null;
     }
 
     public void onCreate() {
