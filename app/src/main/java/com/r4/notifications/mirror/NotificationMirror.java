@@ -14,7 +14,7 @@ class NotificationMirror {
     private final static String TAG = "NotifiactionMirror";
 
     public static void mirror(MirrorNotification notification) {
-        Log.d(TAG, "MirrorNotification: "
+        Log.e(TAG, "MirrorNotification: "
                         + "\nID     :" + notification.id
                         + "\nkey    :" + notification.key
                         + "\nappName:" + notification.appName
@@ -61,10 +61,10 @@ class NotificationMirror {
     /* Get DATA out of the service */
 
 
-//    public static NotificationReceiver sReceiver;
-//    public static boolean mBound = false;
+//    public NotificationReceiver sReceiver;
+//    public boolean mBound = false;
 //
-//    public static ServiceConnection mConnection = new ServiceConnection() {
+//    public ServiceConnection mConnection = new ServiceConnection() {
 //        // Called when the connection with the service is established
 //        public void onServiceConnected(ComponentName className, IBinder service) {
 //            // Because we have bound to an explicit
@@ -72,6 +72,13 @@ class NotificationMirror {
 //            // cast its IBinder to a concrete class and directly access it.
 //            NotificationReceiver.LocalBinder binder = (NotificationReceiver.LocalBinder) service;
 //            sReceiver = binder.getService();
+//            Log.e(TAG, "onServiceConnected: SERVICE");
+//            if(sReceiver==null){
+//                Log.e(TAG, "onServiceConnected: NO SERVICE", new NullPointerException());
+//                throw new NullPointerException();
+//            }
+////            if(sReceiver.lastKey == null) throw new NullPointerException();
+////            Log.e(TAG, "onServiceConnected: " + sReceiver.activeNotifications.get(sReceiver.lastKey).ticker);
 //            mBound = true;
 //        }
 //
@@ -81,8 +88,13 @@ class NotificationMirror {
 //            mBound = false;
 //        }
 //    };
-//    public static MirrorNotification getNotification(String id, Context context) {
+//    public MirrorNotification getLastNotification(Context context) {
 //        sReceiver.checkBinding();
-//        return null; //use Binder to access Data in ListenerService
+//        if(sReceiver==null)
+//            throw new NullPointerException();
+//        Log.e(TAG, "getLastNotification: "+sReceiver.activeNotifications.size());
+//        if(sReceiver.getLast() == null)
+//            throw new NullPointerException();
+//         return sReceiver.getLast();
 //    }
 }

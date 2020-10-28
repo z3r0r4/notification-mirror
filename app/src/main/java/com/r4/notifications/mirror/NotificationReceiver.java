@@ -15,7 +15,8 @@ import java.util.Random;
 
 public class NotificationReceiver extends NotificationListenerService {
     private final static String TAG = "Receiver";
-    private Map<String, MirrorNotification> activeNotifications = new HashMap<>();//either store in this service(use binder to access) or store in shared storage?
+    public Map<String, MirrorNotification> activeNotifications = new HashMap<>();//either store in this service(use binder to access) or store in shared storage?
+    public String lastKey;
     private SharedPreferences.Editor editor;
 
     public void onListenerConnected() {
@@ -35,14 +36,15 @@ public class NotificationReceiver extends NotificationListenerService {
     }
 
     public void onNotificationPosted(StatusBarNotification sbn) {
-        if (!NotificationMirror.inFilter(sbn)) {
+//        if (!NotificationMirror.inFilter(sbn)) {
             MirrorNotification mn = new MirrorNotification(sbn);
-
-            if (!activeNotifications.containsKey(mn.key)) {
+        Log.e(TAG, "onNotificationPosted: RECEIVED");
+//            if (!activeNotifications.containsKey(mn.key)) {
                 activeNotifications.put(mn.key, mn); //maybe use getNotificationKey as static instead of getId //setData(extractData(sbn)); //setData(MirrorNotification(sbn))
                 NotificationMirror.mirror(activeNotifications.get(mn.key));                    //mirror(getData(sbn));
-            }
-        }
+                lastKey = mn.key;
+//            }
+//        }
     }
 
     public void onNotificationRemoved(StatusBarNotification sbn) {
@@ -50,20 +52,22 @@ public class NotificationReceiver extends NotificationListenerService {
 //        resetData(getData(sbn)); //reset(getId(sbn));
     }
 
-    private final IBinder binder = new LocalBinder();
-    private final Random mGenerator = new Random();
-    public class LocalBinder extends Binder {
-        NotificationReceiver getService() {
-            // Return this instance of LocalService so clients can call public methods
-            return NotificationReceiver.this;
-        }
-    }
+//    private final IBinder binder = new LocalBinder();
+//    public class LocalBinder extends Binder {
+//        NotificationReceiver getService() {
+//            // Return this instance of LocalService so clients can call public methods
+//            return NotificationReceiver.this;
+//        }
+//    }
 
     @Override
     public IBinder onBind(Intent intent) {
-        return binder;
+        return super.onBind(intent);
     }
     public void checkBinding(){
         Log.e(TAG, "checkBinding: AAAAAAAAAAAAAAAAAAAAA",new Exception() );
+    }
+    public MirrorNotification getLast(){
+        return activeNotifications.get(lastKey);
     }
 }
