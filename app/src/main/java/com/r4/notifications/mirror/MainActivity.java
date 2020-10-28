@@ -4,16 +4,11 @@ import android.app.Activity;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.app.RemoteInput;
-import android.content.ComponentName;
-import android.content.Context;
 import android.content.Intent;
-import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.IBinder;
 import android.util.Log;
 import android.widget.Button;
 import android.widget.Switch;
@@ -38,11 +33,6 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-//        NotificationMirror notificationMirror = new NotificationMirror();
-//        Intent bindIntent = new Intent(getApplicationContext(), NotificationReceiver.class);
-//        if(!bindService(bindIntent, notificationMirror.mConnection, Context.BIND_AUTO_CREATE))throw new NullPointerException();
-
-
 
         notificationManager = NotificationManagerCompat.from(this);
         notificationManager.createNotificationChannel(new NotificationChannel("TestChannel", "Test", NotificationManager.IMPORTANCE_HIGH));
@@ -54,7 +44,11 @@ public class MainActivity extends AppCompatActivity {
             Log.d(TAG, "onClick: msgTest");
         });
 
-
+        Button btnNetTest = (Button) findViewById(R.id.btnNetTest);
+        btnNetTest.setOnClickListener(v -> {
+            Mirror mirror = new Mirror();
+            mirror.execute("TEST");
+        });
 
         Switch swListenerStatus = (Switch) findViewById(R.id.swListenerPermission);
         swListenerStatus.setClickable(false);
@@ -65,27 +59,24 @@ public class MainActivity extends AppCompatActivity {
             startActivity(intent);
         });
 
-
-//        if(!notificationMirror.mBound) throw new NullPointerException();
         handleReplyIntent();
     }
 
     @Override
     protected void onStart() {
         super.onStart();
+        if (!checkListenerService()) return; //controll blackmagic
+
         NotificationReceiver receiver = NotificationReceiver.get();
+
         Button btnTestBinding = (Button) findViewById(R.id.btnTestBinding);
         btnTestBinding.setOnClickListener(v -> {
-//            if(notificationMirror.mBound){
-            receiver.checkBinding();
-//            Log.e(TAG, "BOOOOOOOOOOOOOOOOOOOOOOUUUUUUUUUUUUNDDDDDDDDDDDDDDDDDDDDD", new Exception());
-//            } else {
-//                Log.e(TAG, "onCreate: NOOOOOOOOOOOOOOOOOOOOOOOOOOOOO");
-//            }
+            receiver.checkAccess();
         });
+
         Button btnReply = (Button) findViewById(R.id.btnReply);
         btnReply.setOnClickListener(v -> {
-            receiver.getLast().reply("AUTOREPLY", getApplicationContext());//TODO GET FROM BINDER INSTEAD //binder.activenotifications.last.reply("AUTOREPLY", getApplicationContext());
+            receiver.getLast().reply("AUTOREPLY", getApplicationContext());
             Log.d(TAG, "onClick: Reply");
         });
     }
@@ -95,7 +86,6 @@ public class MainActivity extends AppCompatActivity {
         super.onRestart();
         Switch swListenerStatus = (Switch) findViewById(R.id.swListenerPermission);
         swListenerStatus.setChecked(checkListenerService());
-
 
         handleReplyIntent();
     }
@@ -120,7 +110,7 @@ public class MainActivity extends AppCompatActivity {
                             .build();
             notificationManager.notify(9001, repliedNotification);
         } catch (NullPointerException e) {
-            Log.e(TAG, "handleReplyIntent: couldn't get Reply text, maybe wrong Intent", e);
+            Log.e(TAG, "handleReplyIntent: couldn't get Reply text, maybe wrong Intent");// , e);
         }
     }
 
@@ -128,38 +118,4 @@ public class MainActivity extends AppCompatActivity {
         SharedPreferences sharedPreferences = getApplicationContext().getSharedPreferences(NotificationReceiver.class.getSimpleName(), Activity.MODE_PRIVATE);
         return sharedPreferences.getBoolean("ListenerStatus", false);
     }
-
-//    NotificationReceiver mReceiver;
-//    boolean mBound = false;
-//
-//    @Override
-//    protected void onStart() {
-//        super.onStart();
-//        // Bind to LocalService
-//        Intent intent = new Intent(this, NotificationReceiver.class);
-//        bindService(intent, connection, Context.BIND_AUTO_CREATE);
-//    }
-//    @Override
-//    protected void onStop() {
-//        super.onStop();
-//        unbindService(connection);
-//        mBound = false;
-//    }
-//    /** Defines callbacks for service binding, passed to bindService() */
-//    private ServiceConnection connection = new ServiceConnection() {
-//
-//        @Override
-//        public void onServiceConnected(ComponentName className,
-//                                       IBinder service) {
-//            // We've bound to LocalService, cast the IBinder and get LocalService instance
-//            NotificationReceiver.LocalBinder binder = (NotificationReceiver.LocalBinder) service;
-//            mReceiver = binder.getService();
-//            mBound = true;
-//        }
-//
-//        @Override
-//        public void onServiceDisconnected(ComponentName arg0) {
-//            mBound = false;
-//        }
-//    };
 }

@@ -19,6 +19,12 @@
             android:text="Send TEST" />
 
         <Button
+            android:id="@+id/btnNetTest"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Net TEST" />
+
+        <Button
             android:id="@+id/btnReply"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

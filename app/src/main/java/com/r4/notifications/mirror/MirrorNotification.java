@@ -32,7 +32,7 @@ class MirrorNotification {
     public String text;
     public String ticker;  //for compatability?
     public Notification.Action replyAction;    //theres only one replyaction
-    private List<Notification.Action> actions; //excludes repliable Actions
+    public List<Notification.Action> actions; //excludes repliable Actions
 
     public MirrorNotification(StatusBarNotification sbn) { //extraction //not useable for posts: problematic //nvm think it works
         //DATA EXTRACTION
@@ -94,7 +94,7 @@ class MirrorNotification {
     private static String getTitle(StatusBarNotification sbn) {
 
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
-            Log.e(TAG, "getTitle: couldn't get the Title from the Notification", new NullPointerException());
+            Log.e(TAG, "getTitle: couldn't get the Title from the Notification");//, new NullPointerException());
             return null;
         }
 
@@ -106,7 +106,7 @@ class MirrorNotification {
         }
 
         if (!extras.containsKey(Notification.EXTRA_MESSAGES)) {
-            Log.e(TAG, "getTitle: couldn't get the Title from the Notification", new NullPointerException());
+            Log.e(TAG, "getTitle: couldn't get the Title from the Notification");//, new NullPointerException());
             return null;
         }
         if (extras.getString(Notification.EXTRA_TITLE) != null) {
@@ -121,7 +121,7 @@ class MirrorNotification {
             return extras.getString(Notification.EXTRA_CONVERSATION_TITLE);
         }
 
-        Log.e(TAG, "getTitle: couldn't get the Title from the Notification", new NullPointerException());
+        Log.e(TAG, "getTitle: couldn't get the Title from the Notification");//, new NullPointerException());
         return null;
     }
 
@@ -138,30 +138,31 @@ class MirrorNotification {
             return extras.getString(Notification.EXTRA_SUMMARY_TEXT);
 
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
-            Log.d(TAG, "getText: Couldn't get Text / Message", new NullPointerException());
+            Log.d(TAG, "getText: Couldn't get Text / Message");//, new NullPointerException());
             return null;
         }
 
         if (!extras.containsKey(Notification.EXTRA_MESSAGES)) { //extras.getString(Notification.EXTRA_MESSAGES) == null
-            Log.d(TAG, "getText: Couldn't get Text / Message", new NullPointerException());
+            Log.d(TAG, "getText: Couldn't get Text / Message");//, new NullPointerException());
             return null;
         }
 
         boolean isGroupConversation = extras.getBoolean(NotificationCompat.EXTRA_IS_GROUP_CONVERSATION);
         Parcelable[] messages = extras.getParcelableArray(Notification.EXTRA_MESSAGES);
         if (messages == null) {
-            Log.d(TAG, "getText: Couldn't get Text / Message", new NullPointerException());
+            Log.d(TAG, "getText: Couldn't get Text / Message");//, new NullPointerException());
             return null;
         }
 
         String text = "";
-        for (Bundle message : (Bundle[]) messages) { //for (Parcelable p : ms) Bundle m = (Bundle) p;
+        for (Parcelable p : messages) { //for (Bundle message : (Bundle[]) messages) { //TODO fix maybe
+            Bundle message = (Bundle) p;
             if (isGroupConversation && message.containsKey("sender"))
                 text = (String) message.get("sender") + ": ";
             text += message.get("text") + "\n";
         }
         if (text.equals(""))
-            Log.d(TAG, "getText: Couldn't get Text / Message", new NullPointerException());
+            Log.d(TAG, "getText: Couldn't get Text / Message");//, new NullPointerException());
         return text;
     }
 
@@ -178,7 +179,7 @@ class MirrorNotification {
         if (getText(sbn) != null)
             return getText(sbn);
 
-        Log.d(TAG, "getTickerText: Couldn't get TickerText", new NullPointerException());
+        Log.d(TAG, "getTickerText: Couldn't get TickerText");//, new NullPointerException());
         return null;
     }
 
@@ -197,14 +198,14 @@ class MirrorNotification {
             }
             return localActions;
         }
-        Log.d(TAG, "getActions: lame, couldn't get any action", new NullPointerException());
+        Log.d(TAG, "getActions: lame, couldn't get any action");//, new NullPointerException());
         return null;
     }
 
     //RETURNS THE ACTUAL REPLY ACTION WITH THE FiTTING REMOTE INPUT doesnt store all of the actions like smth called k** (still gotta search for the right remoteInput, when replying tho)
     private static Notification.Action getReplyAction(StatusBarNotification sbn) {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-            Log.d(TAG, "getReplyAction: couldn't get any ReplyActions", new NullPointerException());
+            Log.d(TAG, "getReplyAction: couldn't get any ReplyActions");//, new NullPointerException());
             return null;
         }
 
@@ -224,7 +225,7 @@ class MirrorNotification {
                 }
             }
         }
-        Log.d(TAG, "getReplyAction: couldn't get any ReplyActions", new NullPointerException());
+        Log.d(TAG, "getReplyAction: couldn't get any ReplyActions");//, new NullPointerException());
         return null;
     }
 
