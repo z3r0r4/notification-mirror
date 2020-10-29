@@ -55,18 +55,18 @@ public class NotificationReceiver extends NotificationListenerService {
     }
 
     public void onNotificationPosted(StatusBarNotification sbn) {
-//        if (!NotificationMirror.inFilter(sbn)) {
+        if (!NotificationMirror.inFilter(sbn)) {
             Log.e(TAG, "onNotificationPosted: RECEIVED");
             MirrorNotification mn = new MirrorNotification(sbn);
             Log.d(TAG, "onNotificationPosted: " + mn.ticker);
 //            if (!activeNotifications.containsKey(mn.key)) {
                 activeNotifications.put(mn.key, mn);
-        Log.e(TAG, "onNotificationPosted:"+ shPref.getBoolean("MirrorState", false));
+                 Log.e(TAG, "Mirroring: "+ shPref.getBoolean("MirrorState", false));
                 if (shPref.getBoolean("MirrorState", false))
                     NotificationMirror.mirror(activeNotifications.get(mn.key));
                 lastKey = mn.key;
 //            }
-//        }
+        }
     }
 
     public void onNotificationRemoved(StatusBarNotification sbn) {

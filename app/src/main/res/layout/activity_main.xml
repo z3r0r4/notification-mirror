@@ -40,7 +40,7 @@
             android:id="@+id/swMirrorState"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Send over Network" />
+            android:text="Mirror over Network" />
 
         <Button
             android:id="@+id/btnTestBinding"

@@ -1,10 +1,10 @@
 package com.r4.notifications.mirror;
 
-import android.app.Activity;
 import android.app.Notification;
-import android.content.SharedPreferences;
 import android.service.notification.StatusBarNotification;
 import android.util.Log;
+
+import androidx.core.app.NotificationCompat;
 
 class NotificationMirror {
     private final static String TAG = "NotifiactionMirror";
@@ -23,7 +23,6 @@ class NotificationMirror {
         );
         Mirror mirror = new Mirror();
         mirror.execute(notification);
-// TODO send NotificationData over windows to network
     }
 
     public static void mirrorCancel(MirrorNotification notification) {
@@ -33,17 +32,21 @@ class NotificationMirror {
     public static boolean inFilter(StatusBarNotification sbn) {//here?
         Notification notification = sbn.getNotification();
 
-//        if ((notification.flags & Notification.FLAG_FOREGROUND_SERVICE) != 0
-//                || (notification.flags & Notification.FLAG_ONGOING_EVENT) != 0
-//                || (notification.flags & Notification.FLAG_LOCAL_ONLY) != 0
-//                || (notification.flags & NotificationCompat.FLAG_GROUP_SUMMARY) != 0)
-//            return true;
+        if ((notification.flags & Notification.FLAG_FOREGROUND_SERVICE) != 0
+                || (notification.flags & Notification.FLAG_ONGOING_EVENT) != 0
+                || (notification.flags & Notification.FLAG_LOCAL_ONLY) != 0
+                || (notification.flags & NotificationCompat.FLAG_GROUP_SUMMARY) != 0
+        )
+            return true;
+        if (sbn.getPackageName().equals("android"))
+            return true;
         if (sbn.getPackageName().equals("com.android.systemui")) {
             if (sbn.getTag().equals("low_battery"))
                 return true;
             else if (sbn.getTag().equals("charging_state"))
                 return true;
-            else return sbn.getTag().contains("NetworkPolicy");
+            else if (sbn.getTag().contains("NetworkPolicy"))
+                return true;
         }
         return false;
     }

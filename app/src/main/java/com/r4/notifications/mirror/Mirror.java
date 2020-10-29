@@ -5,23 +5,22 @@ import android.util.Log;
 
 import com.google.gson.Gson;
 
-import org.json.JSONObject;
-
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
 import java.net.Socket;
-
+//TODO receive replies in Background service
+//TODO reply then
 class Mirror extends AsyncTask<MirrorNotification, Void, Void> {
     private final static String TAG = "Mirror";
 
-    Socket mSocket;
-    DataOutputStream mDataOutputStream;
+    private Socket mSocket;
+    private DataOutputStream mDataOutputStream;
     private ObjectOutputStream outputStream = null;
-    PrintWriter mWriter;
-    String HOST_IP = "192.168.178.10";
-    int HOST_PORT = 9999;
+    private PrintWriter mWriter;
+    private String HOST_IP = "192.168.178.10";
+    private int HOST_PORT = 9999;
 
     @Override
     protected Void doInBackground(MirrorNotification... mnts) {
@@ -36,6 +35,7 @@ class Mirror extends AsyncTask<MirrorNotification, Void, Void> {
 //            SocketAddress socketAddress = new InetSocketAddress(inetAddress, 9999);
 //            mSocket.bind(socketAddress);
 //            mSocket.connect(socketAddress, 5000);
+
             String jason = new Gson().toJson(notification);
 //            outputStream = new ObjectOutputStream(mSocket.getOutputStream());
 //            outputStream.writeObject(notification);
