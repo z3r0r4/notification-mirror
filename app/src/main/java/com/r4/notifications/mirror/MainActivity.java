@@ -44,11 +44,6 @@ public class MainActivity extends AppCompatActivity {
             Log.d(TAG, "onClick: msgTest");
         });
 
-        Button btnNetTest = (Button) findViewById(R.id.btnNetTest);
-        btnNetTest.setOnClickListener(v -> {
-            Mirror mirror = new Mirror();
-            mirror.execute("TEST");
-        });
 
         Switch swListenerStatus = (Switch) findViewById(R.id.swListenerPermission);
         swListenerStatus.setClickable(false);
@@ -78,6 +73,12 @@ public class MainActivity extends AppCompatActivity {
         btnReply.setOnClickListener(v -> {
             receiver.getLast().reply("AUTOREPLY", getApplicationContext());
             Log.d(TAG, "onClick: Reply");
+        });
+
+        Button btnNetTest = (Button) findViewById(R.id.btnNetTest);
+        btnNetTest.setOnClickListener(v -> {
+            Mirror mirror = new Mirror();
+            mirror.execute(receiver.getLast());
         });
     }
 

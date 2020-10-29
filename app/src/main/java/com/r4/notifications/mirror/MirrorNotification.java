@@ -11,13 +11,14 @@ import android.os.Parcelable;
 import android.service.notification.StatusBarNotification;
 import android.util.Log;
 
+import java.io.Serializable;
 import java.util.LinkedList;
 import java.util.List;
 
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 
-class MirrorNotification {
+class MirrorNotification implements Serializable {
 
     private final static String TAG = "MirrorNotification";
 
@@ -31,8 +32,8 @@ class MirrorNotification {
     public String title;
     public String text;
     public String ticker;  //for compatability?
-    public Notification.Action replyAction;    //theres only one replyaction
-    public List<Notification.Action> actions; //excludes repliable Actions
+    public transient Notification.Action replyAction;    //theres only one replyaction
+    public transient List<Notification.Action> actions; //excludes repliable Actions
 
     public MirrorNotification(StatusBarNotification sbn) { //extraction //not useable for posts: problematic //nvm think it works
         //DATA EXTRACTION

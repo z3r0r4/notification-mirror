@@ -3,41 +3,51 @@ package com.r4.notifications.mirror;
 import android.os.AsyncTask;
 import android.util.Log;
 
+import com.google.gson.Gson;
+
+import org.json.JSONObject;
+
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
 import java.net.Socket;
-import java.net.SocketAddress;
 
-class Mirror extends AsyncTask<String, Void, Void> {
+class Mirror extends AsyncTask<MirrorNotification, Void, Void> {
     private final static String TAG = "Mirror";
 
     Socket mSocket;
     DataOutputStream mDataOutputStream;
-    PrintWriter mPrintWriter;
+    private ObjectOutputStream outputStream = null;
+    PrintWriter mWriter;
+    String HOST_IP = "192.168.178.10";
+    int HOST_PORT = 9999;
 
     @Override
-    protected Void doInBackground(String... strings) {
+    protected Void doInBackground(MirrorNotification... mnts) {
 
-        String message = strings[0];
+        MirrorNotification notification = mnts[0];
         try {
+            Log.d(TAG, "Connecting to Socket");
+            mSocket = new Socket(HOST_IP, HOST_PORT);
 //            mSocket.checkConnect();
-            Log.d(TAG, "doInBackground: sending");
-            mSocket = new Socket();
-            InetAddress inetAddress = InetAddress.getByName("192.168.178.10");
-            SocketAddress socketAddress = new InetSocketAddress(inetAddress, 9999);
+            Log.d(TAG, "Socket Connected");
+//            InetAddress inetAddress = InetAddress.getByName("192.168.178.10");
+//            SocketAddress socketAddress = new InetSocketAddress(inetAddress, 9999);
 //            mSocket.bind(socketAddress);
-            mSocket.connect(socketAddress, 5000);
-            mPrintWriter = new PrintWriter(mSocket.getOutputStream(), true);
-            mPrintWriter.println("This is a message sent to the server");
-            //            mPrintWriter.write(message);
-//            mPrintWriter.flush();
-            mPrintWriter.close();
+//            mSocket.connect(socketAddress, 5000);
+            String jason = new Gson().toJson(notification);
+//            outputStream = new ObjectOutputStream(mSocket.getOutputStream());
+//            outputStream.writeObject(notification);
+//            outputStream.flush();
+//            outputStream.close();
+            mWriter = new PrintWriter(mSocket.getOutputStream());//,true);
+//            mPrintWriter.println(message);
+            mWriter.write(jason);
+            mWriter.flush();
+            mWriter.close();
             mSocket.close();
             Log.d(TAG, "doInBackground: SENNT");
-
         } catch (IOException e) {
             Log.e(TAG, "doInBackground: COULDNT CONNCET", e);
         }
