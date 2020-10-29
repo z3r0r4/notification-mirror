@@ -36,6 +36,12 @@
             android:layout_height="wrap_content"
             android:text="Listener Service" />
 
+        <Switch
+            android:id="@+id/swMirrorState"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Send over Network" />
+
         <Button
             android:id="@+id/btnTestBinding"
             android:layout_width="match_parent"
@@ -55,6 +61,5 @@
             android:layout_height="wrap_content"
             android:gravity="center"
             android:text="Info Text " />
-        <!--     TODO: ADD TOGGLE WHICH INFORMS ABOUT LISTENER SERVICE STATUS-->
-    </LinearLayout>
+         </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

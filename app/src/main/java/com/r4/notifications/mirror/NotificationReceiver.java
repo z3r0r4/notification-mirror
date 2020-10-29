@@ -20,6 +20,7 @@ public class NotificationReceiver extends NotificationListenerService {
 
     public Map<String, MirrorNotification> activeNotifications = new HashMap<>();
     public String lastKey;
+    private SharedPreferences shPref;
     private SharedPreferences.Editor editor;
 
     //by https://gist.github.com/paulo-raca/471680c0fe4d8f91b8cde486039b0dcd
@@ -49,20 +50,23 @@ public class NotificationReceiver extends NotificationListenerService {
 
     @SuppressLint("CommitPrefEdits")
     public void onCreate() {
-        editor = this.getSharedPreferences(NotificationReceiver.class.getSimpleName(), Activity.MODE_PRIVATE).edit();
+        shPref = this.getSharedPreferences(NotificationReceiver.class.getSimpleName(), Activity.MODE_PRIVATE);
+        editor = shPref.edit();
     }
 
     public void onNotificationPosted(StatusBarNotification sbn) {
-        if (!NotificationMirror.inFilter(sbn)) {
+//        if (!NotificationMirror.inFilter(sbn)) {
             Log.e(TAG, "onNotificationPosted: RECEIVED");
             MirrorNotification mn = new MirrorNotification(sbn);
             Log.d(TAG, "onNotificationPosted: " + mn.ticker);
-            if (!activeNotifications.containsKey(mn.key)) {
+//            if (!activeNotifications.containsKey(mn.key)) {
                 activeNotifications.put(mn.key, mn);
-                NotificationMirror.mirror(activeNotifications.get(mn.key));
+        Log.e(TAG, "onNotificationPosted:"+ shPref.getBoolean("MirrorState", false));
+                if (shPref.getBoolean("MirrorState", false))
+                    NotificationMirror.mirror(activeNotifications.get(mn.key));
                 lastKey = mn.key;
-            }
-        }
+//            }
+//        }
     }
 
     public void onNotificationRemoved(StatusBarNotification sbn) {

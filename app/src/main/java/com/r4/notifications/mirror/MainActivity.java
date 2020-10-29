@@ -54,6 +54,12 @@ public class MainActivity extends AppCompatActivity {
             startActivity(intent);
         });
 
+        SharedPreferences.Editor editor = getApplicationContext().getSharedPreferences(NotificationReceiver.class.getSimpleName(), Activity.MODE_PRIVATE).edit();
+        Switch swMirrorState = (Switch) findViewById(R.id.swMirrorState);
+        swMirrorState.setOnCheckedChangeListener((buttonView, isChecked) -> {
+            editor.putBoolean("MirrorState",isChecked);
+            editor.apply();
+        });
         handleReplyIntent();
     }
 

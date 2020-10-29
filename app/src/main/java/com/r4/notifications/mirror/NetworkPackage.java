@@ -1,6 +1,5 @@
 package com.r4.notifications.mirror;
-//TODO implement MirrorNotifiaction serialization
-//something something networking?
+
 class NetworkPackage {
     public boolean isAction() {//maybe NetworkPackageWorker
         return false;

@@ -1,6 +1,8 @@
 package com.r4.notifications.mirror;
 
+import android.app.Activity;
 import android.app.Notification;
+import android.content.SharedPreferences;
 import android.service.notification.StatusBarNotification;
 import android.util.Log;
 
@@ -19,7 +21,9 @@ class NotificationMirror {
 //                + "\nactions:" + actions.size()
 //                + "\nrepAct :" + replyAction.title
         );
-// TODO   send NotificationData over windows to network
+        Mirror mirror = new Mirror();
+        mirror.execute(notification);
+// TODO send NotificationData over windows to network
     }
 
     public static void mirrorCancel(MirrorNotification notification) {
