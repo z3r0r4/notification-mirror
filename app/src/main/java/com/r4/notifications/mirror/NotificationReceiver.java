@@ -18,7 +18,7 @@ public class NotificationReceiver extends NotificationListenerService {
     static NotificationReceiver _this;
     static Semaphore sem = new Semaphore(0);
 
-    public Map<String, MirrorNotification> activeNotifications = new HashMap<>();
+    public Map<String, MirrorNotification> activeNotifications = new HashMap<>(); //TODO TODO TODO static
     public String lastKey;
     private SharedPreferences shPref;
     private SharedPreferences.Editor editor;

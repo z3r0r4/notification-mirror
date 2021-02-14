@@ -7,14 +7,12 @@ import android.app.NotificationManager;
 import android.app.RemoteInput;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Button;
 import android.widget.Switch;
 import android.widget.TextView;
 
-import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
@@ -22,12 +20,12 @@ import androidx.core.app.NotificationManagerCompat;
 public class MainActivity extends AppCompatActivity {
     private final static String TAG = "MAIN";
 
-    //TEST
     public NotificationManagerCompat notificationManager;
+//TODO add logcat textview
+//TODO show last received notification
+//TODO add reply text textbox
+//TODO add last reply list
 
-
-    //    @RequiresApi(api = Build.VERSION_CODES.O)//END
-    @RequiresApi(api = Build.VERSION_CODES.KITKAT_WATCH)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -54,11 +52,17 @@ public class MainActivity extends AppCompatActivity {
             startActivity(intent);
         });
 
-        SharedPreferences.Editor editor = getApplicationContext().getSharedPreferences(NotificationReceiver.class.getSimpleName(), Activity.MODE_PRIVATE).edit();
+        SharedPreferences shPref = getApplicationContext().getSharedPreferences(NotificationReceiver.class.getSimpleName(), Activity.MODE_PRIVATE);
+        SharedPreferences.Editor editor = shPref.edit();
         Switch swMirrorState = (Switch) findViewById(R.id.swMirrorState);
+        swMirrorState.setChecked(shPref.getBoolean("MirrorState", false));
         swMirrorState.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            editor.putBoolean("MirrorState",isChecked);
+            editor.putBoolean("MirrorState", isChecked);
             editor.apply();
+            if (isChecked)
+                Log.d(TAG, "onCreate: Mirroring now");
+            if (!isChecked)
+                Log.d(TAG, "onCreate: NOT Mirroring now");
         });
         handleReplyIntent();
     }
