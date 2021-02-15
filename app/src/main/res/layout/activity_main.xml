@@ -61,5 +61,35 @@
             android:layout_height="wrap_content"
             android:gravity="center"
             android:text="Info Text " />
-         </LinearLayout>
+
+        <TextView
+            android:id="@+id/tV_IP"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="IP" />
+
+        <TextView
+            android:id="@+id/tV_PORT"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="PORT" />
+
+
+        <EditText
+            android:id="@+id/eT_IP"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:inputType="textPersonName"
+            android:hint="IP" />
+        <EditText
+            android:id="@+id/eT_Port"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:ems="10"
+            android:inputType="textPersonName"
+            android:hint="PORT"/>
+    </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

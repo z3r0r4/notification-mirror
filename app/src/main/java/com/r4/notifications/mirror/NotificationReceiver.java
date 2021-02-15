@@ -2,16 +2,13 @@ package com.r4.notifications.mirror;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.content.Intent;
 import android.content.SharedPreferences;
-import android.os.IBinder;
 import android.service.notification.NotificationListenerService;
 import android.service.notification.StatusBarNotification;
 import android.util.Log;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.Semaphore;
 
 public class NotificationReceiver extends NotificationListenerService {
     private final static String TAG = "Receiver";
@@ -20,6 +17,11 @@ public class NotificationReceiver extends NotificationListenerService {
     public static String lastKey;
     private SharedPreferences shPref;
     private SharedPreferences.Editor editor;
+
+    public static Map<String, MirrorNotification> getactiveNotifications() {
+        if (lastKey == null) throw new NullPointerException();
+        return activeNotifications;
+    }
 
     public void onListenerConnected() {
         editor.putBoolean("ListenerStatus", true);
@@ -45,11 +47,11 @@ public class NotificationReceiver extends NotificationListenerService {
             MirrorNotification mn = new MirrorNotification(sbn);
             Log.d(TAG, "onNotificationPosted: " + mn.ticker);
 //            if (!activeNotifications.containsKey(mn.key)) {
-                activeNotifications.put(mn.key, mn);
-                 Log.e(TAG, "Mirroring: "+ shPref.getBoolean("MirrorState", false));
-                if (shPref.getBoolean("MirrorState", false))
-                    NotificationMirror.mirror(activeNotifications.get(mn.key));
-                lastKey = mn.key;
+            activeNotifications.put(mn.key, mn);
+            Log.e(TAG, "Mirroring: " + shPref.getBoolean("MirrorState", false));
+            if (shPref.getBoolean("MirrorState", false))
+                NotificationMirror.mirror(activeNotifications.get(mn.key), shPref.getString("HOST_IP", "192.168.178.84"), shPref.getInt("HOST_PORT", 9001));
+            lastKey = mn.key;
 //            }
         }
     }

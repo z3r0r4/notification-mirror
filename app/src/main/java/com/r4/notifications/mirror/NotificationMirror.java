@@ -9,7 +9,7 @@ import androidx.core.app.NotificationCompat;
 class NotificationMirror {
     private final static String TAG = "NotifiactionMirror";
 
-    public static void mirror(MirrorNotification notification) {
+    public static void mirror(MirrorNotification notification, String IP, int PORT) {
         Log.e(TAG, "MirrorNotification: "
                         + "\nID     :" + notification.id
                         + "\nkey    :" + notification.key
@@ -21,7 +21,8 @@ class NotificationMirror {
 //                + "\nactions:" + actions.size()
 //                + "\nrepAct :" + replyAction.title
         );
-        Mirror mirror = new Mirror();
+
+        Mirror mirror = new Mirror(IP, PORT);
         mirror.execute(notification);
     }
 

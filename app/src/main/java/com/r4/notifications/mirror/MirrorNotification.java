@@ -257,6 +257,7 @@ class MirrorNotification implements Serializable {
     }
 
     /* TEST ONLY */
+    @Deprecated
     public void post(NotificationManagerCompat notificationManager, Context context) {
         Notification notification = new Notification.Builder(context, "TestChannel")
                 .setSmallIcon(android.R.drawable.ic_dialog_info)
