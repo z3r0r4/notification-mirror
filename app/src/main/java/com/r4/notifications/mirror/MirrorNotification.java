@@ -28,6 +28,8 @@ class MirrorNotification implements Serializable {
     public boolean isCancel;   //TODO onNotificationRemoved
     //    public boolean isUpdate;
 //    public boolean isClearable;
+//    public boolean isReplyable; //TODO add marker for json that specificies repliability
+//    public boolean isActionable;
     public String time;
     public String title;
     public String text;

@@ -24,7 +24,7 @@ class Mirror extends AsyncTask<MirrorNotification, Void, Void> { //deprecated
     private DataOutputStream mDataOutputStream;
     private ObjectOutputStream outputStream = null;
     private PrintWriter mWriter;
-    private String HOST_IP = "192.168.178.10";
+    private String HOST_IP = "192.168.178.84";
     private int HOST_PORT = 9001;
 
     @Override
