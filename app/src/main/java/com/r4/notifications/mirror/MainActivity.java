@@ -72,23 +72,40 @@ public class MainActivity extends AppCompatActivity {
         super.onStart();
         if (!checkListenerService()) return; //controll blackmagic
 
-        NotificationReceiver receiver = NotificationReceiver.get();
+//        NotificationReceiver receiver = NotificationReceiver.get();
+//
+////        Button btnTestBinding = (Button) findViewById(R.id.btnTestBinding);
+////        btnTestBinding.setOnClickListener(v -> {
+////            receiver.checkAccess();
+////        });
+//
+//        Button btnReply = (Button) findViewById(R.id.btnReply);
+//        btnReply.setOnClickListener(v -> {
+//            receiver.getLast().reply("AUTOREPLY", getApplicationContext());
+//            Log.d(TAG, "onClick: Reply");
+//        });
+//
+//        Button btnNetTest = (Button) findViewById(R.id.btnNetTest);
+//        btnNetTest.setOnClickListener(v -> {
+//            Mirror mirror = new Mirror();
+//            mirror.execute(receiver.getLast());
+//        });
 
         Button btnTestBinding = (Button) findViewById(R.id.btnTestBinding);
         btnTestBinding.setOnClickListener(v -> {
-            receiver.checkAccess();
+            Log.d("Test By extracting Last Notification",NotificationReceiver.activeNotifications.get(NotificationReceiver.lastKey).toString());
         });
 
         Button btnReply = (Button) findViewById(R.id.btnReply);
         btnReply.setOnClickListener(v -> {
-            receiver.getLast().reply("AUTOREPLY", getApplicationContext());
+            NotificationReceiver.activeNotifications.get(NotificationReceiver.lastKey).reply("AUTOREPLY", getApplicationContext());
             Log.d(TAG, "onClick: Reply");
         });
 
         Button btnNetTest = (Button) findViewById(R.id.btnNetTest);
         btnNetTest.setOnClickListener(v -> {
             Mirror mirror = new Mirror();
-            mirror.execute(receiver.getLast());
+            mirror.execute(NotificationReceiver.activeNotifications.get(NotificationReceiver.lastKey));
         });
     }
 

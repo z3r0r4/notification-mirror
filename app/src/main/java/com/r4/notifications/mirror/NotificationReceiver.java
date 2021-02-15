@@ -18,18 +18,19 @@ public class NotificationReceiver extends NotificationListenerService {
     static NotificationReceiver _this;
     static Semaphore sem = new Semaphore(0);
 
-    public Map<String, MirrorNotification> activeNotifications = new HashMap<>(); //TODO TODO TODO static
-    public String lastKey;
+    public static Map<String, MirrorNotification> activeNotifications = new HashMap<>();
+    //TODO static
+    public static String lastKey;
     private SharedPreferences shPref;
     private SharedPreferences.Editor editor;
 
     //by https://gist.github.com/paulo-raca/471680c0fe4d8f91b8cde486039b0dcd
-    public static NotificationReceiver get() { //BLACK MAGIC touch with 100m stick
-        sem.acquireUninterruptibly();
-        NotificationReceiver receiver = _this;
-        sem.release();
-        return receiver;
-    }//TODO stop weird things while Listener is connecting
+//    public static NotificationReceiver get() { //BLACK MAGIC touch with 100m stick
+//        sem.acquireUninterruptibly();
+//        NotificationReceiver receiver = _this;
+//        sem.release();
+//        return receiver;
+//    }//TODO stop weird things while Listener is connecting
     //TODO maybe use Intent->Broadcast construct instead
 
     public void onListenerConnected() {
