@@ -158,7 +158,8 @@ class MirrorNotification implements Serializable {
         }
 
         String text = "";
-        for (Parcelable p : messages) { //for (Bundle message : (Bundle[]) messages) { //TODO fix maybe
+        //TODO TEST and fix maybe
+        for (Parcelable p : messages) { //for (Bundle message : (Bundle[]) messages) {
             Bundle message = (Bundle) p;
             if (isGroupConversation && message.containsKey("sender"))
                 text = (String) message.get("sender") + ": ";

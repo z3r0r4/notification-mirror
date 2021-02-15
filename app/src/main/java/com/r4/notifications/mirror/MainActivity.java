@@ -24,7 +24,13 @@ public class MainActivity extends AppCompatActivity {
     private final static String TAG = "MAIN";
 
     public NotificationManagerCompat notificationManager;
-//TODO add logcat textview
+//TODOs clean up logs
+    //TODO toast important things
+    //TODO add comments and documentation
+    //TODO create application data graph
+    //TODO clean code
+    //TODO refactor UI
+
 //TODO show last received notification
 //TODO add reply text textbox
 //TODO add last reply list
