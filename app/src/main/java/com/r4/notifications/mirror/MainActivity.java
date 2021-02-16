@@ -8,8 +8,6 @@ import android.app.RemoteInput;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.util.Log;
 import android.widget.Button;
 import android.widget.EditText;
@@ -24,16 +22,13 @@ public class MainActivity extends AppCompatActivity {
     private final static String TAG = "MAIN";
 
     public NotificationManagerCompat notificationManager;
-//TODOs clean up logs
     //TODO toast important things
-    //TODO add comments and documentation
-    //TODO create application data graph
     //TODO clean code
-    //TODO refactor UI
+        //TODO clean up logs
+        //TODO add comments and documentation
+    //TODO create application data graph
 
-//TODO show last received notification
-//TODO add reply text textbox
-//TODO add last reply list
+    //TODO show last replies from pc
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,47 +64,71 @@ public class MainActivity extends AppCompatActivity {
         /*handle replyintents from testnotification*/
         handleReplyIntent();
 
-        TextView tvIP = (TextView) findViewById(R.id.tV_IP);
-        TextView tvPORT = (TextView) findViewById(R.id.tV_PORT);
+        /*save IP:PORT*/
+        TextView tvIP = (TextView) findViewById(R.id.tvIP);
+        TextView tvPORT = (TextView) findViewById(R.id.tvPORT);
         tvIP.setText(shPref.getString("HOST_IP", "192.168.178.84"));
         tvPORT.setText(String.valueOf(shPref.getInt("HOST_PORT", 9001)));
 
-        EditText etIP = (EditText) findViewById(R.id.eT_IP);
-        etIP.addTextChangedListener(new TextWatcher() {
-                                        public void afterTextChanged(Editable s) {
-                                            editor.putString("HOST_IP", s.toString());
-                                            editor.apply();
-                                            Log.d(TAG, "changed HOST_IP to:" + s.toString());
-                                        }
+        EditText etIP = (EditText) findViewById(R.id.etIP);
+//        etIP.addTextChangedListener(new TextWatcher() {
+//                                        public void afterTextChanged(Editable s) {
+//                                            editor.putString("HOST_IP", s.toString());
+//                                            editor.apply();
+//                                            Log.d(TAG, "changed HOST_IP to:" + s.toString());
+//                                        }
+//
+//                                        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+//
+//                                        }
+//
+//                                        public void onTextChanged(CharSequence s, int start, int before, int count) {
+//                                        }
+//                                    }
+//        );
+        EditText etPORT = (EditText) findViewById(R.id.etPort);
+//        etPORT.addTextChangedListener(new TextWatcher() {
+//                                          public void afterTextChanged(Editable s) {
+//                                              try {
+//                                                  editor.putInt("HOST_PORT", Integer.parseInt(s.toString()));
+//                                                  editor.apply();
+//                                                  Log.d(TAG, "changed HOST_PORT to:" + Integer.parseInt(s.toString()));
+//                                              } catch (NumberFormatException e) {
+//                                                  Log.e(TAG, "NOT AN INT");
+//                                              }
+//                                          }
+//
+//                                          public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+//
+//                                          }
+//
+//                                          public void onTextChanged(CharSequence s, int start, int before, int count) {
+//                                          }
+//                                      }
+//        );
 
-                                        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
 
-                                        }
+        Button btnSaveConnection = (Button) findViewById(R.id.btnSave);
+        btnSaveConnection.setOnClickListener(v -> {
+            String IP = etIP.getText().toString().equals("") ? "192.168.178.84" : etIP.getText().toString();
+            int PORT = 9001;
+            try {
+                PORT = Integer.parseInt(etPORT.getText().toString()) == 0 ? 9001 : Integer.parseInt(etPORT.getText().toString());
+            } catch (NumberFormatException e) {
+                Log.e(TAG, "NOT AN INT");
+            }
 
-                                        public void onTextChanged(CharSequence s, int start, int before, int count) {
-                                        }
-                                    }
-        );
-        EditText etPORT = (EditText) findViewById(R.id.eT_Port);
-        etPORT.addTextChangedListener(new TextWatcher() {
-                                          public void afterTextChanged(Editable s) {
-                                              try {
-                                                  editor.putInt("HOST_PORT", Integer.parseInt(s.toString()));
-                                                  editor.apply();
-                                                  Log.d(TAG, "changed HOST_PORT to:" + Integer.parseInt(s.toString()));
-                                              } catch (NumberFormatException e) {
-                                                  Log.e(TAG, "NOT AN INT");
-                                              }
-                                          }
+            editor.putString("HOST_IP", IP);
+            editor.apply();
+            Log.d(TAG, "changed HOST_IP to:" + IP);
 
-                                          public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            editor.putInt("HOST_PORT", PORT);
+            editor.apply();
+            Log.d(TAG, "changed HOST_PORT to:" + PORT);
 
-                                          }
-
-                                          public void onTextChanged(CharSequence s, int start, int before, int count) {
-                                          }
-                                      }
-        );
+            tvIP.setText(shPref.getString("HOST_IP", "192.168.178.84"));
+            tvPORT.setText(String.valueOf(shPref.getInt("HOST_PORT", 9001)));
+        });
 
         if (!checkListenerService()) return;
         /*add onclick to for Test Notification post */
@@ -180,7 +199,7 @@ public class MainActivity extends AppCompatActivity {
         try {//TODO dont react to every intent (use broadcasts?)
             String inputString = remoteInput.getCharSequence("reply").toString();
 
-            TextView replyTV = (TextView) findViewById(R.id.tV_repliedtext);
+            TextView replyTV = (TextView) findViewById(R.id.tvRepliedText);
             replyTV.setText(inputString);
 
             Notification repliedNotification =   //update Notifiaction to stop sending loading circle
