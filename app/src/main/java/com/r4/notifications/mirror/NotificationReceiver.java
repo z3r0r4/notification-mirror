@@ -11,7 +11,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class NotificationReceiver extends NotificationListenerService {
-    private final static String TAG = "Receiver";
+    private final static String TAG = "Notification Receiver";
 
     public static Map<String, MirrorNotification> activeNotifications = new HashMap<>();
     public static String lastKey;
@@ -26,13 +26,14 @@ public class NotificationReceiver extends NotificationListenerService {
     public void onListenerConnected() {
         editor.putBoolean("ListenerStatus", true);
         editor.apply();
-        Log.e(TAG, "onListenerConnected");
+        Log.d(TAG, "Listener Connected");
     }
 
     public void onListenerDisconnected() {
         editor.putBoolean("ListenerStatus", false);
         editor.apply();
-        Log.e(TAG, "onListenerDisconnected");
+        Log.e(TAG, "Listener Disconnected");
+        Helper.toasted("LISTENER Disconnected");
     }
 
     @SuppressLint("CommitPrefEdits")
@@ -43,12 +44,12 @@ public class NotificationReceiver extends NotificationListenerService {
 
     public void onNotificationPosted(StatusBarNotification sbn) {
         if (!NotificationMirror.inFilter(sbn)) {
-            Log.e(TAG, "onNotificationPosted: RECEIVED");
+            Log.d(TAG + "onNotificationPosted", "RECEIVED Notification");
             MirrorNotification mn = new MirrorNotification(sbn);
-            Log.d(TAG, "onNotificationPosted: " + mn.ticker);
+            Log.d(TAG + "onNotificationPosted", " Ticker: " + mn.ticker);
 //            if (!activeNotifications.containsKey(mn.key)) {
             activeNotifications.put(mn.key, mn);
-            Log.e(TAG, "Mirroring: " + shPref.getBoolean("MirrorState", false));
+            Log.d(TAG +"onNotificationPosted", "Mirroring Notification: " + shPref.getBoolean("MirrorState", false));
             if (shPref.getBoolean("MirrorState", false))
                 NotificationMirror.mirror(activeNotifications.get(mn.key), shPref.getString("HOST_IP", "192.168.178.84"), shPref.getInt("HOST_PORT", 9001));
             lastKey = mn.key;

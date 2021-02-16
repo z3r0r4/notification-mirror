@@ -95,9 +95,10 @@ class MirrorNotification implements Serializable {
     }
 
     private static String getTitle(StatusBarNotification sbn) {
+        Logger log = () -> Log.e(TAG + "getTitle", "TITLE EXTRACTION FAILED");
 
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
-            Log.e(TAG, "getTitle: couldn't get the Title from the Notification");//, new NullPointerException());
+            log.e();
             return null;
         }
 
@@ -109,7 +110,7 @@ class MirrorNotification implements Serializable {
         }
 
         if (!extras.containsKey(Notification.EXTRA_MESSAGES)) {
-            Log.e(TAG, "getTitle: couldn't get the Title from the Notification");//, new NullPointerException());
+            log.e();
             return null;
         }
         if (extras.getString(Notification.EXTRA_TITLE) != null) {
@@ -124,12 +125,13 @@ class MirrorNotification implements Serializable {
             return extras.getString(Notification.EXTRA_CONVERSATION_TITLE);
         }
 
-        Log.e(TAG, "getTitle: couldn't get the Title from the Notification");//, new NullPointerException());
+        log.e();
         return null;
     }
 
     private static String getText(StatusBarNotification sbn) { //getMessage
         Bundle extras = sbn.getNotification().extras;
+        Logger log = () -> Log.e(TAG + "getText", "TEXT / MSG EXTRACTION FAILED");
 
         if (extras.getString(Notification.EXTRA_TEXT) != null)      //ALSO POSSIBLE EXTRA_INFO_TEXT, EXTRA_SUB_TEXT
             return extras.getString(Notification.EXTRA_TEXT);
@@ -141,19 +143,19 @@ class MirrorNotification implements Serializable {
             return extras.getString(Notification.EXTRA_SUMMARY_TEXT);
 
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
-            Log.d(TAG, "getText: Couldn't get Text / Message");//, new NullPointerException());
+            log.e();
             return null;
         }
 
         if (!extras.containsKey(Notification.EXTRA_MESSAGES)) { //extras.getString(Notification.EXTRA_MESSAGES) == null
-            Log.d(TAG, "getText: Couldn't get Text / Message");//, new NullPointerException());
+            log.e();//, new NullPointerException());
             return null;
         }
 
         boolean isGroupConversation = extras.getBoolean(NotificationCompat.EXTRA_IS_GROUP_CONVERSATION);
         Parcelable[] messages = extras.getParcelableArray(Notification.EXTRA_MESSAGES);
         if (messages == null) {
-            Log.d(TAG, "getText: Couldn't get Text / Message");//, new NullPointerException());
+            log.e();//, new NullPointerException());
             return null;
         }
 
@@ -166,11 +168,13 @@ class MirrorNotification implements Serializable {
             text += message.get("text") + "\n";
         }
         if (text.equals(""))
-            Log.d(TAG, "getText: Couldn't get Text / Message");//, new NullPointerException());
+            log.e();//, new NullPointerException());
         return text;
     }
 
     private static String getTickerText(StatusBarNotification sbn) {
+        Logger log = () -> Log.e(TAG + "getTickerText", "TICKERTEXT EXTRACTION FAILED");
+
         if (sbn.getNotification().tickerText != null)
             return sbn.getNotification().tickerText.toString();
 
@@ -183,12 +187,13 @@ class MirrorNotification implements Serializable {
         if (getText(sbn) != null)
             return getText(sbn);
 
-        Log.d(TAG, "getTickerText: Couldn't get TickerText");//, new NullPointerException());
+        log.e();
         return null;
     }
 
     private static List<Notification.Action> getActions(StatusBarNotification sbn) {//actionextraction
         Notification notification = sbn.getNotification();
+        Logger log = () -> Log.e(TAG + "getActions", "ACTION EXTRACTION FAILED");
 
         if (notification.actions != null && notification.actions.length > 0) {      //CHECK IF ACTIONS EXIST
             LinkedList<Notification.Action> localActions = new LinkedList<Notification.Action>();
@@ -202,14 +207,16 @@ class MirrorNotification implements Serializable {
             }
             return localActions;
         }
-        Log.d(TAG, "getActions: lame, couldn't get any action");//, new NullPointerException());
+        log.e();   //lame, couldn't get any action");//, new NullPointerException());
         return null;
     }
 
     //RETURNS THE ACTUAL REPLY ACTION WITH THE FiTTING REMOTE INPUT doesnt store all of the actions like smth called k** (still gotta search for the right remoteInput, when replying tho)
     private static Notification.Action getReplyAction(StatusBarNotification sbn) {
+        Logger log = () -> Log.e(TAG + "getReplyAction", "REPLYACTION EXTRACTION FAILED");
+
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-            Log.d(TAG, "getReplyAction: couldn't get any ReplyActions");//, new NullPointerException());
+            log.e();
             return null;
         }
 
@@ -229,7 +236,7 @@ class MirrorNotification implements Serializable {
                 }
             }
         }
-        Log.d(TAG, "getReplyAction: couldn't get any ReplyActions");//, new NullPointerException());
+        log.e();
         return null;
     }
 
@@ -238,8 +245,12 @@ class MirrorNotification implements Serializable {
     }
 
     public void reply(String message, Context context) {//maybe MirrorWorker
+        Logger log = () -> {
+            Log.e(TAG + "reply", "NO REPLYACTIONS or REMOTEINPUTS");
+            Helper.toasted("Not Repliable");
+        };
         if (this.replyAction == null || this.replyAction.getRemoteInputs().length == 0) {
-            Log.e(TAG, "reply: couldn't get ReplyAction or RemoteInputs");
+            log.e();
             return;
         }
 
@@ -253,7 +264,8 @@ class MirrorNotification implements Serializable {
         try {
             replyAction.actionIntent.send(context, 0, intent);
         } catch (PendingIntent.CanceledException e) {
-            Log.e(TAG, "reply: Couldn't send" + e.getLocalizedMessage());
+            Log.e(TAG +"reply", "REPLY FAILED" + e.getLocalizedMessage());
+            Helper.toasted("Couldnt reply");
         }
     }
 
@@ -270,5 +282,9 @@ class MirrorNotification implements Serializable {
                 .addAction(this.replyAction)
                 .build();
         notificationManager.notify(9001, notification);
+    }
+
+    interface Logger {
+        void e();
     }
 }

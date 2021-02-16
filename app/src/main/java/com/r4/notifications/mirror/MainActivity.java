@@ -5,6 +5,7 @@ import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.RemoteInput;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -22,7 +23,9 @@ public class MainActivity extends AppCompatActivity {
     private final static String TAG = "MAIN";
 
     public NotificationManagerCompat notificationManager;
-    //TODO toast important things
+    public static Context sContext;
+
+//TODO toast important things
     //TODO clean code
         //TODO clean up logs
         //TODO add comments and documentation
@@ -35,6 +38,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        sContext = getApplicationContext();
         /*add on click to post test notification*/
         TestNotificationButtonSetOnClick();
 
@@ -71,43 +75,7 @@ public class MainActivity extends AppCompatActivity {
         tvPORT.setText(String.valueOf(shPref.getInt("HOST_PORT", 9001)));
 
         EditText etIP = (EditText) findViewById(R.id.etIP);
-//        etIP.addTextChangedListener(new TextWatcher() {
-//                                        public void afterTextChanged(Editable s) {
-//                                            editor.putString("HOST_IP", s.toString());
-//                                            editor.apply();
-//                                            Log.d(TAG, "changed HOST_IP to:" + s.toString());
-//                                        }
-//
-//                                        public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-//
-//                                        }
-//
-//                                        public void onTextChanged(CharSequence s, int start, int before, int count) {
-//                                        }
-//                                    }
-//        );
         EditText etPORT = (EditText) findViewById(R.id.etPort);
-//        etPORT.addTextChangedListener(new TextWatcher() {
-//                                          public void afterTextChanged(Editable s) {
-//                                              try {
-//                                                  editor.putInt("HOST_PORT", Integer.parseInt(s.toString()));
-//                                                  editor.apply();
-//                                                  Log.d(TAG, "changed HOST_PORT to:" + Integer.parseInt(s.toString()));
-//                                              } catch (NumberFormatException e) {
-//                                                  Log.e(TAG, "NOT AN INT");
-//                                              }
-//                                          }
-//
-//                                          public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-//
-//                                          }
-//
-//                                          public void onTextChanged(CharSequence s, int start, int before, int count) {
-//                                          }
-//                                      }
-//        );
-
-
         Button btnSaveConnection = (Button) findViewById(R.id.btnSave);
         btnSaveConnection.setOnClickListener(v -> {
             String IP = etIP.getText().toString().equals("") ? "192.168.178.84" : etIP.getText().toString();
@@ -115,7 +83,7 @@ public class MainActivity extends AppCompatActivity {
             try {
                 PORT = Integer.parseInt(etPORT.getText().toString()) == 0 ? 9001 : Integer.parseInt(etPORT.getText().toString());
             } catch (NumberFormatException e) {
-                Log.e(TAG, "NOT AN INT");
+                Helper.toasted("Input an Integer");
             }
 
             editor.putString("HOST_IP", IP);
@@ -137,7 +105,8 @@ public class MainActivity extends AppCompatActivity {
             try {
                 Log.d("Test By extracting Last Notification", NotificationReceiver.getactiveNotifications().get(NotificationReceiver.lastKey).toString());
             } catch (NullPointerException e) {
-                Log.e(TAG, "no Noficications yet, or Listener broke");
+                Log.e(TAG + "OnClickReceiverAccess", "no Noficications yet, or Listener broke");
+                Helper.toasted("No Notifications yet, check Listener connection");
             }
         });
 
@@ -148,7 +117,8 @@ public class MainActivity extends AppCompatActivity {
             try {
                 NotificationReceiver.getactiveNotifications().get(NotificationReceiver.lastKey).reply("AUTOREPLY", getApplicationContext());
             } catch (NullPointerException e) {
-                Log.e(TAG, "no Noficications yet, or Listener broke");
+                Log.e(TAG + "OnClickReply", "no Noficications yet, or Listener broke");
+                Helper.toasted("No Notifications yet, check Listener connection");
             }
         });
 
@@ -159,7 +129,8 @@ public class MainActivity extends AppCompatActivity {
                 Mirror mirror = new Mirror();
                 mirror.execute(NotificationReceiver.getactiveNotifications().get(NotificationReceiver.lastKey));
             } catch (NullPointerException e) {
-                Log.e(TAG, "no Noficications yet, or Listener broke");
+                Log.e(TAG + "OnClickNetTest", "no Noficications yet, or Listener broke");
+                Helper.toasted("No Notifications yet, check Listener connection");
             }
         });
     }
@@ -209,7 +180,8 @@ public class MainActivity extends AppCompatActivity {
                             .build();
             notificationManager.notify(9001, repliedNotification);
         } catch (NullPointerException e) {
-            Log.e(TAG, "handleReplyIntent: couldn't get Reply text, maybe wrong Intent");// , e);
+            Log.e(TAG+"handleReplyIntent", "REPLY EXTRACTION FAILED, maybe not a replying intent");
+            Helper.toasted("Not a Reply Intent");
         }
     }
 
@@ -222,7 +194,6 @@ public class MainActivity extends AppCompatActivity {
         Button btnMsgTest = (Button) findViewById(R.id.btnMsgTest);
         btnMsgTest.setOnClickListener(v -> {//TODO dont use lambda pass a actual callback function https://medium.com/@CodyEngel/4-ways-to-implement-onclicklistener-on-android-9b956cbd2928
             notification.post(notificationManager, getApplicationContext());
-            Log.d(TAG, "onClick: msgTest");
         });
     }
 }

@@ -10,7 +10,7 @@ class NotificationMirror {
     private final static String TAG = "NotifiactionMirror";
 
     public static void mirror(MirrorNotification notification, String IP, int PORT) {
-        Log.e(TAG, "MirrorNotification: "
+        Log.d(TAG +"MirrorNotification", "to be mirrored:"
                         + "\nID     :" + notification.id
                         + "\nkey    :" + notification.key
                         + "\nappName:" + notification.appName

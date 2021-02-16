@@ -42,7 +42,7 @@ class Mirror extends AsyncTask<MirrorNotification, Void, Void> { //deprecated
     protected Void doInBackground(MirrorNotification... mnts) {
 
         MirrorNotification notification = mnts[0];
-        Log.e(TAG, "doInBackground: Starting Async");
+        Log.d(TAG, "doInBackground: Starting Async Socket Connection to mirror");
         try {
             Log.d(TAG, "Trying to Connect to Socket " + HOST_IP + ":" + HOST_PORT);
             mSocket = new Socket();//HOST_IP, HOST_PORT);
@@ -64,11 +64,12 @@ class Mirror extends AsyncTask<MirrorNotification, Void, Void> { //deprecated
             mWriter.flush();
             mWriter.close();
             mSocket.close();
-            Log.d(TAG, "doInBackground: SENNT");
+            Log.d(TAG + "doInBackground", "Notification successfully Mirrored");
         } catch (IOException e) {
-            Log.e(TAG, "doInBackground: COULDNT CONNCET", e);
+            Log.e(TAG + "doInBackground", "SOCKET CONNECTION FAILED " + HOST_IP + ":" + HOST_PORT, e);
+//            Helper.toasted("Couldnt connect to Socket to mirror Notification");
         }
-        Log.e(TAG, "doInBackground: Ending Async");
+        Log.d(TAG + "doInBackground", "Ending Asynctask, Closed Socket");
         return null;
     }
 }
