@@ -132,7 +132,7 @@ class MirrorNotification implements Serializable {
     }
 
     @Deprecated
-    public void dismiss(NotificationManagerCompat notificationManager){
+    public void dismiss(NotificationManagerCompat notificationManager) {
         notificationManager.cancel(id);
     }
 

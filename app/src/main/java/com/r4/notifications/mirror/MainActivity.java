@@ -187,6 +187,9 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    /**
+     * dismisses the last notificaiton the listener stored
+     */
     private void dismissLastNotification() {
         try {
             NotificationReceiver.getactiveNotifications().get(NotificationReceiver.lastKey).dismiss(notificationManager);
