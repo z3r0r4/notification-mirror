@@ -16,7 +16,12 @@ import androidx.core.app.NotificationCompat;
 class NotificationExtractor {
     private static final String TAG = "Notification Extractor";
 
-    /* MAYBE EXTRACT TO HELPER CLASS */
+    /**
+     * extracts the key          : "A unique instance key for this notification record" (0|com.r4.notifications.mirror|9001|null|10084)
+     *
+     * @param sbn statusbarnotification of which the key should be extracted
+     * @return the key (i.e. 0|com.r4.notifications.mirror|9001|null|10084)
+     */
     protected static String getNotificationKey(StatusBarNotification sbn) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP)
             return sbn.getKey(); //sbn.getId();
@@ -28,6 +33,12 @@ class NotificationExtractor {
         }
     }
 
+    /**
+     * extracts the title        : sbn.getNotification().extras.getString("android.title")||.getString(Notification.EXTRA_TITLE)||getString(Notification.EXTRA_TITLE_BIG)||.getString(Notification.EXTRA_CONVERSATION_TITLE) (i.e. TestNotification)
+     *
+     * @param sbn statusbarnotification of which the title should be extracted
+     * @return the title of the notification (i.e. TestNotification)
+     */
     protected static String getTitle(StatusBarNotification sbn) {
         MirrorNotification.Logger log = () -> Log.e(TAG + "getTitle", "TITLE EXTRACTION FAILED");
 
@@ -63,6 +74,12 @@ class NotificationExtractor {
         return null;
     }
 
+    /**
+     * extracts the text         : .getString(Notification.EXTRA_TEXT||EXTRA_BIG_TEXT||EXTRA_SUMMARY_TEXT)||.getParcelableArray(Notification.EXTRA_MESSAGES) (i.e. Testing)
+     *
+     * @param sbn statusbarnotification of which the text should be extracted
+     * @return the text of the notification body (i.e. Testing)
+     */
     protected static String getText(StatusBarNotification sbn) { //getMessage
         Bundle extras = sbn.getNotification().extras;
         MirrorNotification.Logger log = () -> Log.e(TAG + "getText", "TEXT / MSG EXTRACTION FAILED");
@@ -106,6 +123,12 @@ class NotificationExtractor {
         return text;
     }
 
+    /**
+     * extracts the ticker       : sbn.getNotification().tickerText||getTitle(sbn) + ": " + getText(sbn)||getTitle||getText
+     *
+     * @param sbn statusbarnotification of which the Tickertext should be extracted
+     * @return the text of the ticker summary or a composite of title and text (i.e. TestNotification: Testing)
+     */
     protected static String getTickerText(StatusBarNotification sbn) {
         MirrorNotification.Logger log = () -> Log.e(TAG + "getTickerText", "TICKERTEXT EXTRACTION FAILED");
 
@@ -125,6 +148,12 @@ class NotificationExtractor {
         return null;
     }
 
+    /**
+     * extracts the actions      : multiple: sbn.getNotification().actions Except those with a remote input cuz those are repliable
+     *
+     * @param sbn statusbarnotification of which the actions should be extracted
+     * @return a list of the actions of the given notifiation
+     */
     protected static List<Notification.Action> getActions(StatusBarNotification sbn) {//actionextraction
         Notification notification = sbn.getNotification();
         MirrorNotification.Logger log = () -> Log.e(TAG + "getActions", "ACTION EXTRACTION FAILED");
@@ -145,6 +174,12 @@ class NotificationExtractor {
         return null;
     }
 
+    /**
+     * extracts one replyaction  : sbn.getNotification().actions with remoteInput and resultKey.contains("reply"||"android.intent.extra.text"||"input")
+     *
+     * @param sbn statusbarnotification of which the replyaction should be extracted
+     * @return the replyaction of the given notification
+     */
     //RETURNS THE ACTUAL REPLY ACTION WITH THE FiTTING REMOTE INPUT doesnt store all of the actions like smth called k** (still gotta search for the right remoteInput, when replying tho)
     protected static Notification.Action getReplyAction(StatusBarNotification sbn) {
         MirrorNotification.Logger log = () -> Log.e(TAG + "getReplyAction", "REPLYACTION EXTRACTION FAILED");

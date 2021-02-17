@@ -55,7 +55,7 @@ public class MainActivity extends AppCompatActivity {
 
         /**add on click to post test notification*/
         MirrorNotification notification = new MirrorNotification("123456", "TestNotification", "Testing", "ReplyAction", sContext);
-        notificationManager = MirrorNotification.createNotificationChannel();
+        notificationManager = MirrorNotification.createTestNotificationChannel();
         btnMsgTest.setOnClickListener(v -> notification.post(notificationManager, getApplicationContext()));
 
         /**check and show if listener is connected*/

@@ -18,26 +18,38 @@ import java.net.Socket;
 //TODO wait for secret
 //TODO receive replies in Background service
 //TODO reply then
-class Mirror extends AsyncTask<MirrorNotification, Void, Void> { //deprecated
+class Mirror extends AsyncTask<MirrorNotification, Void, Void> { //deprecated but who cares
     private final static String TAG = "Mirror";
 
-    private Socket mSocket;
-    private DataOutputStream mDataOutputStream;
-    private ObjectOutputStream outputStream = null;
-    private PrintWriter mWriter;
-
+    private final ObjectOutputStream outputStream = null;
 
     private String HOST_IP = "192.168.178.84"; //DEFAULT VALUES
     private int HOST_PORT = 9001; //DEFAULT VALUES
 
+    /**
+     * needed
+     */
     protected Mirror() {
     }
 
+    /**
+     * initalize the Socket address
+     *
+     * @param IP
+     * @param PORT
+     */
     protected Mirror(String IP, int PORT) {
         this.HOST_IP = IP;
         this.HOST_PORT = PORT;
     }
 
+    /**
+     * send the notification as json over tcp to the socket address
+     * catch and log if the address isnt reachable
+     *
+     * @param mnts notification to be sent
+     * @return nothing
+     */
     @Override
     protected Void doInBackground(MirrorNotification... mnts) {
 
@@ -45,25 +57,17 @@ class Mirror extends AsyncTask<MirrorNotification, Void, Void> { //deprecated
         Log.d(TAG, "doInBackground: Starting Async Socket Connection to mirror");
         try {
             Log.d(TAG, "Trying to Connect to Socket " + HOST_IP + ":" + HOST_PORT);
-            mSocket = new Socket();//HOST_IP, HOST_PORT);
-//            mSocket.checkConnect();
-//            InetAddress inetAddress = InetAddress.getByName("192.168.178.10");
-//            SocketAddress socketAddress = new InetSocketAddress(inetAddress, 9999);
-//            mSocket.bind(socketAddress);
-            mSocket.connect(new InetSocketAddress(HOST_IP, HOST_PORT), 1000);
+            Socket socket = new Socket();//HOST_IP, HOST_PORT);
+            socket.connect(new InetSocketAddress(HOST_IP, HOST_PORT), 1000);
             Log.d(TAG, "Socket Connected");
 
             String jason = new Gson().toJson(notification);
-//            outputStream = new ObjectOutputStream(mSocket.getOutputStream());
-//            outputStream.writeObject(notification);
-//            outputStream.flush();
-//            outputStream.close();
-            mWriter = new PrintWriter(mSocket.getOutputStream());//,true);
-//            mPrintWriter.println(message);
-            mWriter.write(jason);
-            mWriter.flush();
-            mWriter.close();
-            mSocket.close();
+
+            PrintWriter writer = new PrintWriter(socket.getOutputStream());//,true);
+            writer.write(jason);
+            writer.flush();
+            writer.close();
+            socket.close();
             Log.d(TAG + "doInBackground", "Notification successfully Mirrored");
         } catch (IOException e) {
             Log.e(TAG + "doInBackground", "SOCKET CONNECTION FAILED\n" + HOST_IP + ":" + HOST_PORT);
