@@ -21,7 +21,7 @@ import androidx.core.app.NotificationManagerCompat;
 class MirrorNotification implements Serializable {
 
     private final static String TAG = "MirrorNotification";
-
+    //TODO add Documentation
     public int id;
     public String key;
     public String appName; //packageName
@@ -265,7 +265,7 @@ class MirrorNotification implements Serializable {
             replyAction.actionIntent.send(context, 0, intent);
         } catch (PendingIntent.CanceledException e) {
             Log.e(TAG +"reply", "REPLY FAILED" + e.getLocalizedMessage());
-            Helper.toasted("Couldnt reply");
+            Helper.toasted("Couldnt reply to Notification");
         }
     }
 

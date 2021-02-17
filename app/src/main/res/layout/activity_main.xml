@@ -38,6 +38,7 @@
                 android:layout_height="wrap_content"
                 android:textAlignment="gravity"
                 android:inputType="number"
+                android:maxLength="5"
                 android:hint="PORT" />
 
             <Button
