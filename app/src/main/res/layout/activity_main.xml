@@ -149,6 +149,18 @@
             android:layout_height="wrap_content"
             android:text="Test Access to Notifications" />
 
+        <Button
+            android:id="@+id/btnReplyListenerServiceStart"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Start Reply Listener Service" />
+
+        <Button
+            android:id="@+id/btnReplyListenerServiceStop"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Stop Reply Listener Service" />
+
         <TextView
             android:id="@+id/tvRepliedText"
             android:layout_width="match_parent"

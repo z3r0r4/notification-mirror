@@ -2,6 +2,8 @@ package com.r4.notifications.mirror;
 
 import android.app.Activity;
 import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.app.RemoteInput;
 import android.content.Context;
 import android.content.Intent;
@@ -22,6 +24,10 @@ import androidx.core.app.NotificationManagerCompat;
  */
 public class MainActivity extends AppCompatActivity {
     private final static String TAG = "MAIN";
+
+    public static final String FOREGROUND_SERVICE_NOTIFICATIONCHANNEL_ID = "45654654464";
+    public static final String FOREGROUND_SERVICE_NOTIFICATIONCHANNEL_NAME = "Foreground Service Persistent Notification";
+
     public static Context sContext; //suck it Context
     private NotificationManagerCompat notificationManager;
     private SharedPreferences shPref;
@@ -29,6 +35,19 @@ public class MainActivity extends AppCompatActivity {
     //TODO replace default IP with 127.0.0.1
     //TODO create application data graph
     //TODO show last replies from pc
+
+    /**
+     * Test only
+     * creates a Test NotificationChannel
+     *
+     * @return NotificationManager with channel for test purposes
+     */
+    @Deprecated
+    public static NotificationManagerCompat createTestNotificationChannel() {
+        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(MainActivity.sContext);
+        notificationManager.createNotificationChannel(new NotificationChannel("TestChannel", "Test", NotificationManager.IMPORTANCE_HIGH));
+        return notificationManager;
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,10 +71,12 @@ public class MainActivity extends AppCompatActivity {
         Button btnReply = findViewById(R.id.btnReply);
         Button btnDismiss = findViewById(R.id.btnDismiss);
         Button btnNetTest = findViewById(R.id.btnNetTest);
+        Button btnListenerServiceStart = findViewById(R.id.btnReplyListenerServiceStart);
+        Button btnListenerServiceStop = findViewById(R.id.btnReplyListenerServiceStop);
 
         /**add on click to post test notification*/
         MirrorNotification notification = new MirrorNotification("123456", "TestNotification", "Testing", "ReplyAction", sContext);
-        notificationManager = MirrorNotification.createTestNotificationChannel();
+        notificationManager = createTestNotificationChannel();
         btnMsgTest.setOnClickListener(v -> notification.post(notificationManager, getApplicationContext()));
 
         /**check and show if listener is connected*/
@@ -96,6 +117,13 @@ public class MainActivity extends AppCompatActivity {
 
         /**add onclick to mirror last notification*/
         btnNetTest.setOnClickListener(v -> mirrorLastNotification());
+
+        createServiceNotificationChannel();
+        /**start the reply listener service in foreground*/
+        btnListenerServiceStart.setOnClickListener(v -> startReplyListenerService());
+
+        /**stop the replyListener service*/
+        btnListenerServiceStop.setOnClickListener(v -> stopReplyListenerService());
     }
 
     @Override
@@ -238,9 +266,23 @@ public class MainActivity extends AppCompatActivity {
         return sharedPreferences.getBoolean("ListenerStatus", false);
     }
 
-    /* TEST ONLY */
+    private void createServiceNotificationChannel() {
+        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(MainActivity.sContext);
+        notificationManager.createNotificationChannel(new NotificationChannel(FOREGROUND_SERVICE_NOTIFICATIONCHANNEL_ID, FOREGROUND_SERVICE_NOTIFICATIONCHANNEL_NAME, NotificationManager.IMPORTANCE_HIGH));
+    }
+
+    private void startReplyListenerService() {
+        Intent i = new Intent(this, ReplyListenerService.class);
+        this.startService(i);
+    }
+
+    private void stopReplyListenerService(){
+        Intent i = new Intent(this, ReplyListenerService.class);
+        this.stopService(i);
+    }
 
     /**
+     * Test only
      * handles an incoming intent and replies to the notification if its an intent from an reply to the notification
      */
     @Deprecated

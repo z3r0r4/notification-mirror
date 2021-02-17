@@ -135,19 +135,6 @@ class MirrorNotification implements Serializable {
     }
 
     /**
-     * Test only
-     * creates a Test NotificationChannel
-     *
-     * @return NotificationManager with channel for test purposes
-     */
-    @Deprecated
-    public static NotificationManagerCompat createTestNotificationChannel() {
-        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(MainActivity.sContext);
-        notificationManager.createNotificationChannel(new NotificationChannel("TestChannel", "Test", NotificationManager.IMPORTANCE_HIGH));
-        return notificationManager;
-    }
-
-    /**
      * execute the action of a notification by name
      *
      * @param actionName name of the action of the notification to be executed
