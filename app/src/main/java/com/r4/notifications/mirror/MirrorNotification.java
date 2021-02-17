@@ -1,6 +1,8 @@
 package com.r4.notifications.mirror;
 
 import android.app.Notification;
+import android.app.NotificationChannel;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.RemoteInput;
 import android.content.Context;
@@ -51,16 +53,17 @@ class MirrorNotification implements Serializable {
     }
 
     //FOR REPLIES
+    @Deprecated
     public MirrorNotification(String id) {
-
     }
 
     //FOR POSTING
+    @Deprecated
     public MirrorNotification(String id, String title, String text) {
-
     }
 
     //FOR POSTING AND REPLIES
+    @Deprecated
     public MirrorNotification(String id, String title, String text, String replyActionName, Context context) { //posting
         this.title = title;
         this.text = text;
@@ -78,8 +81,8 @@ class MirrorNotification implements Serializable {
     }
 
     //FOR POSTING AND REPLIES AND ACTIONS
+    @Deprecated
     public MirrorNotification(String id, String title, String text, String replyActionName, String actionName, Context context) {
-
     }
 
     /* MAYBE EXTRACT TO HELPER CLASS */
@@ -240,6 +243,13 @@ class MirrorNotification implements Serializable {
         return null;
     }
 
+    @Deprecated
+    public static NotificationManagerCompat createNotificationChannel() {
+        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(MainActivity.sContext);
+        notificationManager.createNotificationChannel(new NotificationChannel("TestChannel", "Test", NotificationManager.IMPORTANCE_HIGH));
+        return notificationManager;
+    }
+
     public void act(String actionName) {//maybe MirrorWorker
 
     }
@@ -264,7 +274,7 @@ class MirrorNotification implements Serializable {
         try {
             replyAction.actionIntent.send(context, 0, intent);
         } catch (PendingIntent.CanceledException e) {
-            Log.e(TAG +"reply", "REPLY FAILED" + e.getLocalizedMessage());
+            Log.e(TAG + "reply", "REPLY FAILED" + e.getLocalizedMessage());
             Helper.toasted("Couldnt reply to Notification");
         }
     }
