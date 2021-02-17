@@ -50,6 +50,7 @@ public class MainActivity extends AppCompatActivity {
         Button btnSaveConnection = findViewById(R.id.btnSave);
         Button btnTestNotificationReceiverAccess = findViewById(R.id.btnTestBinding);
         Button btnReply = findViewById(R.id.btnReply);
+        Button btnDismiss = findViewById(R.id.btnDismiss);
         Button btnNetTest = findViewById(R.id.btnNetTest);
 
         /**add on click to post test notification*/
@@ -89,6 +90,9 @@ public class MainActivity extends AppCompatActivity {
 
         /**add onclick to reply to last notification */
         btnReply.setOnClickListener(v -> replyToLastNotification());
+
+        /**add onclick to dismiss last notifiaction */
+        btnDismiss.setOnClickListener(v -> dismissLastNotification());
 
         /**add onclick to mirror last notification*/
         btnNetTest.setOnClickListener(v -> mirrorLastNotification());
@@ -175,11 +179,19 @@ public class MainActivity extends AppCompatActivity {
      * requires working listener
      */
     private void replyToLastNotification() {
-        Log.d(TAG, "onClick: Reply");
         try {
             NotificationReceiver.getactiveNotifications().get(NotificationReceiver.lastKey).reply("AUTOREPLY", getApplicationContext());
         } catch (NullPointerException e) {
             Log.e(TAG + "OnClickReply", "no Noficications yet, or Listener broke");
+            Helper.toasted("No Notifications yet, check Listener connection");
+        }
+    }
+
+    private void dismissLastNotification() {
+        try {
+            NotificationReceiver.getactiveNotifications().get(NotificationReceiver.lastKey).dismiss(notificationManager);
+        } catch (NullPointerException e) {
+            Log.e(TAG + "OnClickDismiss", "no Noficications yet, or Listener broke");
             Helper.toasted("No Notifications yet, check Listener connection");
         }
     }

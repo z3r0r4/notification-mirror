@@ -123,6 +123,12 @@
             android:text="Action on last Notification"/>
 
         <Button
+            android:id="@+id/btnDismiss"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Dismiss last Notification" />
+
+        <Button
             android:id="@+id/btnNetTest"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

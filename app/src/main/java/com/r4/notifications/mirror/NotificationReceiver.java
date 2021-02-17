@@ -15,6 +15,7 @@ public class NotificationReceiver extends NotificationListenerService {
 
     public static Map<String, MirrorNotification> activeNotifications = new HashMap<>();
     public static String lastKey;
+
     private SharedPreferences shPref;
     private SharedPreferences.Editor editor;
 
@@ -36,7 +37,6 @@ public class NotificationReceiver extends NotificationListenerService {
         Helper.toasted("LISTENER Disconnected");
     }
 
-    @SuppressLint("CommitPrefEdits")
     public void onCreate() {
         shPref = this.getSharedPreferences(NotificationReceiver.class.getSimpleName(), Activity.MODE_PRIVATE);
         editor = shPref.edit();
