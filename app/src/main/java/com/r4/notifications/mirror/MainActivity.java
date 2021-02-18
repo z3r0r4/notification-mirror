@@ -15,9 +15,6 @@ import android.widget.EditText;
 import android.widget.Switch;
 import android.widget.TextView;
 
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
@@ -184,7 +181,7 @@ public class MainActivity extends AppCompatActivity {
      */
     private void getLastNotification() {
         try {
-            Log.d("Test By extracting Last Notification", NotificationReceiver.getactiveNotifications().get(NotificationReceiver.lastKey).toString());
+            Log.d("Test By extracting Last Notification", NotificationReceiver.getactiveNotifications().get(NotificationReceiver.lastID).toString());
         } catch (NullPointerException e) {
             Log.e(TAG + "OnClickReceiverAccess", "no Noficications yet, or Listener broke");
             Helper.toasted("No Notifications yet, check Listener connection");
@@ -211,7 +208,7 @@ public class MainActivity extends AppCompatActivity {
      */
     private void replyToLastNotification() {
         try {
-            NotificationReceiver.getactiveNotifications().get(NotificationReceiver.lastKey).reply("AUTOREPLY", getApplicationContext());
+            NotificationReceiver.getactiveNotifications().get(NotificationReceiver.lastID).reply("AUTOREPLY", getApplicationContext());
         } catch (NullPointerException e) {
             Log.e(TAG + "OnClickReply", "no Noficications yet, or Listener broke");
             Helper.toasted("No Notifications yet, check Listener connection");
@@ -223,7 +220,7 @@ public class MainActivity extends AppCompatActivity {
      */
     private void dismissLastNotification() {
         try {
-            NotificationReceiver.getactiveNotifications().get(NotificationReceiver.lastKey).dismiss();
+            NotificationReceiver.getactiveNotifications().get(NotificationReceiver.lastID).dismiss();
         } catch (NullPointerException e) {
             Log.e(TAG + "OnClickDismiss", "no Noficications yet, or Listener broke");
             Helper.toasted("No Notifications yet, check Listener connection");
@@ -236,7 +233,7 @@ public class MainActivity extends AppCompatActivity {
     private void mirrorLastNotification() {
         try {
             Mirror mirror = new Mirror();
-            mirror.execute(NotificationReceiver.getactiveNotifications().get(NotificationReceiver.lastKey));
+            mirror.execute(NotificationReceiver.getactiveNotifications().get(NotificationReceiver.lastID));
         } catch (NullPointerException e) {
             Log.e(TAG + "OnClickNetTest", "no Noficications yet, or Listener broke");
             Helper.toasted("No Notifications yet, check Listener connection");

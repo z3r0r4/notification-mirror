@@ -12,9 +12,9 @@ import java.util.Map;
 public class NotificationReceiver extends NotificationListenerService {
     private final static String TAG = "Notification Receiver";
 
-    public static Map<String, MirrorNotification> activeNotifications = new HashMap<>();
-    public static String lastKey;
-    private static String lastlastKey;
+    public static Map<Integer, MirrorNotification> activeNotifications = new HashMap<Integer, MirrorNotification>();
+    public static int lastID;
+    private static int lastlastID;
 
     private SharedPreferences shPref;
     private SharedPreferences.Editor editor;
@@ -24,8 +24,8 @@ public class NotificationReceiver extends NotificationListenerService {
      *
      * @return a map of the currently active notifications accessible by their key
      */
-    public static Map<String, MirrorNotification> getactiveNotifications() {
-        if (lastKey == null) throw new NullPointerException();
+    public static Map<Integer, MirrorNotification> getactiveNotifications() {
+        if (lastID == 0) throw new NullPointerException();
         return activeNotifications;
     }
 
@@ -70,12 +70,12 @@ public class NotificationReceiver extends NotificationListenerService {
             MirrorNotification mn = new MirrorNotification(sbn);
             Log.d(TAG + "onNotificationPosted", " Ticker: " + mn.ticker);
 //            if (!activeNotifications.containsKey(mn.key)) {
-            activeNotifications.put(mn.key, mn);
+            activeNotifications.put(mn.id, mn);
             Log.d(TAG + "onNotificationPosted", "Mirroring Notification: " + shPref.getBoolean("MirrorState", false));
             if (shPref.getBoolean("MirrorState", false))
-                NotificationMirror.mirror(activeNotifications.get(mn.key), shPref.getString("HOST_IP", "192.168.178.84"), shPref.getInt("HOST_PORT", 9001));
-            if (lastKey != null) lastlastKey = lastKey;
-            lastKey = mn.key;
+                NotificationMirror.mirror(activeNotifications.get(mn.id), shPref.getString("HOST_IP", "192.168.178.84"), shPref.getInt("HOST_PORT", 9001));
+            if (lastID != 0) lastlastID = lastID;
+            lastID = mn.id;
 //            }
         }
     }
@@ -90,9 +90,9 @@ public class NotificationReceiver extends NotificationListenerService {
     public void onNotificationRemoved(StatusBarNotification sbn) {
         MirrorNotification mn = new MirrorNotification(sbn);
         if (activeNotifications.containsKey(mn.key)) {
-            if (lastlastKey != null) {
-                lastKey = lastlastKey;
-                lastlastKey = null;
+            if (lastlastID != 0) {
+                lastID = lastlastID;
+                lastlastID = 0;
             }
             activeNotifications.remove(mn.key);
 //        if (shPref.getBoolean("MirrorState", false)) NotificationMirror.dismiss();

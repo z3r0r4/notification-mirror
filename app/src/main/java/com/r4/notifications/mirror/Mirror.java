@@ -70,7 +70,7 @@ class Mirror extends AsyncTask<MirrorNotification, Void, Void> { //deprecated bu
             socket.close();
             Log.d(TAG + "doInBackground", "Notification successfully Mirrored");
         } catch (IOException e) {
-            Log.e(TAG + "doInBackground", "SOCKET CONNECTION FAILED\n" + HOST_IP + ":" + HOST_PORT,e);
+            Log.e(TAG + "doInBackground", "SOCKET CONNECTION FAILED\n" + HOST_IP + ":" + HOST_PORT);
 //            Helper.toasted("Couldnt connect to Socket to mirror Notification");
         }
         Log.d(TAG + "doInBackground", "Ending Asynctask, Closed Socket");

@@ -37,6 +37,9 @@ public class ReplyListenerService extends Service {
             /* TO USE THIS IN THE EMULATOR THE PORTS HAVE TO BE FORWARDED
              * adb -s emulator-5554 forward tcp:9002 tcp:9001
              * tcp:port adresses on host machine tcp:port forwarded to on emulator
+             *
+             * Test with:
+             *   echo "{'id':'9001','key':'0|com.r4.notifications.mirror|9001|null|10084','message':'ANSWER','isdismiss':'true','isreply':'','isaction':''}" | nc 127.0.0.1 9002
              * */
             Log.e(TAG + "run", "running a thread");
             try {
@@ -45,7 +48,7 @@ public class ReplyListenerService extends Service {
                 while (true) {
                     Log.d(TAG, "waiting for server connections " + IP);
                     if (serverSocket != null && !stopThread) {
-                        serverSocket.setSoTimeout(50000);
+//                        serverSocket.setSoTimeout(50000);
                         Log.d(TAG, "set TImeout");
                         socket = serverSocket.accept();
                         Log.e(TAG, "new Client!");
@@ -55,14 +58,16 @@ public class ReplyListenerService extends Service {
                         BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
                         String input = in.readLine();
                         Log.e(TAG, input);
+                        NetworkPackage netpkg = new NetworkPackage(input);
+                        netpkg.log();
                         //DO IN NEW THREADS
-//                        Log.e(TAG, dataInputStream.toString());
-//                        if (netpkg.isReply())
-//                            (new MirrorNotification(netpkg)).reply(netpkg.getMessage(), MainActivity.sContext);
-//                        if (netpkg.isAction())
-//                            (new MirrorNotification(netpkg)).act(netpkg.getActionName());
-//                        if (netpkg.isDismiss())
-//                            (new MirrorNotification(netpkg)).dismiss();
+
+                        if (netpkg.isReply())
+                            (new MirrorNotification(netpkg)).reply(netpkg.getMessage(), MainActivity.sContext);
+                        if (netpkg.isAction())
+                            (new MirrorNotification(netpkg)).act(netpkg.getActionName());
+                        if (netpkg.isDismiss())
+                            (new MirrorNotification(netpkg)).dismiss();
                     } else {
                         break;
                     }
@@ -91,10 +96,10 @@ public class ReplyListenerService extends Service {
 
     }
 
-    private NetworkPackage receiveData() {
-
-        return new NetworkPackage();
-    }
+//    private NetworkPackage receiveData() {
+//
+//        return new NetworkPackage();
+//    }
 
     @Override
     public void onDestroy() {
