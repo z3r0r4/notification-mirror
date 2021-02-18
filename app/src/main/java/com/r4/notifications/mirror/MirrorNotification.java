@@ -1,7 +1,6 @@
 package com.r4.notifications.mirror;
 
 import android.app.Notification;
-import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.RemoteInput;
@@ -93,6 +92,28 @@ class MirrorNotification implements Serializable {
     }
 
     /**
+     * creates a Notification from a networkpackage which can be used to dismiss or reply or act to a notification
+     * basically a copy constructor
+     *
+     * @param netpkg the json package specifiying the key of the notification
+     */
+    public MirrorNotification(NetworkPackage netpkg) {
+        MirrorNotification mn = NotificationReceiver.getactiveNotifications().get(netpkg.getKey());
+        this.id = mn.id;
+        this.key = mn.key;
+        this.appName = mn.appName;
+        this.title = mn.title;
+        this.text = mn.text;
+        this.ticker = mn.ticker;
+        this.time = mn.time;
+        this.replyAction = mn.replyAction;
+        this.actions = mn.actions;
+        this.isCancel = mn.isCancel;
+        this.isReplyable = mn.isReplyable;
+        this.isActionable = mn.isActionable;
+    }
+
+    /**
      * Test only
      * Creates a notification that can be posted and replied to
      *
@@ -136,6 +157,7 @@ class MirrorNotification implements Serializable {
 
     /**
      * execute the action of a notification by name
+     * writes ? times
      *
      * @param actionName name of the action of the notification to be executed
      */
@@ -145,6 +167,7 @@ class MirrorNotification implements Serializable {
 
     /**
      * replies to a notification using its replyaction and its remote inputs
+     * writes once
      *
      * @param message which should be replied
      * @param context trash
@@ -167,7 +190,7 @@ class MirrorNotification implements Serializable {
 
         RemoteInput.addResultsToIntent(this.replyAction.getRemoteInputs(), intent, bundle);
         try {
-            replyAction.actionIntent.send(context, 0, intent);
+            replyAction.actionIntent.send(context, 0, intent); //SET
         } catch (PendingIntent.CanceledException e) {
             Log.e(TAG + "reply", "REPLY FAILED" + e.getLocalizedMessage());
             Helper.toasted("Couldnt reply to Notification");
@@ -196,12 +219,12 @@ class MirrorNotification implements Serializable {
     }
 
     /**
-     * dismisses this notification posted in the notificationmanger
-     *
-     * @param notificationManager with the channel the notification was posted to
+     * dismisses this notification posted which is identified by its id
+     * <p>
+     * //     * @param notificationManager with the channel the notification was posted to
      */
-    @Deprecated
-    public void dismiss(NotificationManagerCompat notificationManager) {
+    public void dismiss() {
+        NotificationManager notificationManager = (NotificationManager) MainActivity.sContext.getSystemService(Context.NOTIFICATION_SERVICE);
         notificationManager.cancel(id);
     }
 

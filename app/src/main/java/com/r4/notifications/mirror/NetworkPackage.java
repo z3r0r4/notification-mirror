@@ -1,6 +1,7 @@
 package com.r4.notifications.mirror;
 
 class NetworkPackage {
+
     public boolean isAction() {//maybe NetworkPackageWorker
         return false;
     }
@@ -9,7 +10,15 @@ class NetworkPackage {
         return false;
     }
 
-    public String getID() {//maybe NetworkPackageWorker
+    public boolean isDismiss() {
+        return false;
+    }
+
+    public String getKey() {//maybe NetworkPackageWorker
+        return null;
+    }
+
+    public String getID() {
         return null;
     }
 
