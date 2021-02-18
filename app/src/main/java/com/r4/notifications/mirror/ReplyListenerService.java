@@ -48,7 +48,7 @@ public class ReplyListenerService extends Service {
                 while (true) {
                     Log.d(TAG, "waiting for server connections " + IP);
                     if (serverSocket != null && !stopThread) {
-//                        serverSocket.setSoTimeout(50000);
+                        serverSocket.setSoTimeout(50000);
                         Log.d(TAG, "set TImeout");
                         socket = serverSocket.accept();
                         Log.e(TAG, "new Client!");

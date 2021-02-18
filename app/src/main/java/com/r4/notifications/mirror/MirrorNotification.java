@@ -98,7 +98,7 @@ class MirrorNotification implements Serializable {
      * @param netpkg the json package specifiying the key of the notification
      */
     public MirrorNotification(NetworkPackage netpkg) {
-        MirrorNotification mn = NotificationReceiver.getactiveNotifications().get(netpkg.getID());
+        MirrorNotification mn = NotificationReceiver.getactiveNotifications().get(netpkg.getKey());
         this.id = mn.id;
         this.key = mn.key;
         this.appName = mn.appName;
