@@ -8,8 +8,10 @@ import android.os.IBinder;
 import android.util.Log;
 import android.widget.Toast;
 
-import java.io.DataInputStream;
+import java.io.BufferedReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
+import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
@@ -26,40 +28,54 @@ public class ReplyListenerService extends Service {
     private static final String TAG = "ReplyListenerService";
     ServerSocket serverSocket;
     Socket socket;
+    Thread mThread;
+    private ExecutorService executorService;
+    private boolean stopThread = false;
     Runnable runnable = new Runnable() {
         @Override
         public void run() {
+            /* TO USE THIS IN THE EMULATOR THE PORTS HAVE TO BE FORWARDED
+             * adb -s emulator-5554 forward tcp:9002 tcp:9001
+             * tcp:port adresses on host machine tcp:port forwarded to on emulator
+             * */
             Log.e(TAG + "run", "running a thread");
             try {
-                 serverSocket = new ServerSocket(9001, 3,InetAddress.getLocalHost()); //InetAddress.getByName("192.168.178.84"));
+                InetAddress IP = Inet4Address.getLocalHost();//InetAddress.getByName("192.168.232.2");//InetAddress.getByName("192.168.178.84");
+                serverSocket = new ServerSocket(9001, 0, IP);
                 while (true) {
-                    Log.e(TAG,"waiting for server connections "+InetAddress.getLocalHost());
-                    if (serverSocket != null) {
-                        serverSocket.setSoTimeout(10000);
+                    Log.d(TAG, "waiting for server connections " + IP);
+                    if (serverSocket != null && !stopThread) {
+                        serverSocket.setSoTimeout(50000);
+                        Log.d(TAG, "set TImeout");
                         socket = serverSocket.accept();
                         Log.e(TAG, "new Client!");
-                        DataInputStream dataInputStream = new DataInputStream(socket.getInputStream());
+//                        DataInputStream dataInputStream = new DataInputStream(socket.getInputStream());
+                        // Client established connection.
+                        // Create input and output streams
+                        BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                        String input = in.readLine();
+                        Log.e(TAG, input);
                         //DO IN NEW THREADS
-                        Log.e(TAG, dataInputStream.toString());
+//                        Log.e(TAG, dataInputStream.toString());
 //                        if (netpkg.isReply())
 //                            (new MirrorNotification(netpkg)).reply(netpkg.getMessage(), MainActivity.sContext);
 //                        if (netpkg.isAction())
 //                            (new MirrorNotification(netpkg)).act(netpkg.getActionName());
 //                        if (netpkg.isDismiss())
 //                            (new MirrorNotification(netpkg)).dismiss();
-                        continue;
+                    } else {
+                        break;
                     }
                 }
 //                NetworkPackage netpkg = receiveData();//DO IN WHILE
 
             } catch (IOException e) {
-                Log.e(TAG, "Socket connection failed",e);
+                Log.e(TAG, "Socket connection failed", e);
             }
-
-            Log.e(TAG + "run", "ending a thread");
+            Log.e(TAG + "run", "ending a thread and service");
+            stopSelf();
         }
     };
-    private ExecutorService executorService;
 
     @Override
     public void onCreate() {
@@ -67,8 +83,8 @@ public class ReplyListenerService extends Service {
 
         executorService = Executors.newFixedThreadPool(4);
 //        receiveDataInBackground();
-        new Thread(runnable).start();
-        Log.e(TAG, "ended thread");
+        mThread = new Thread(runnable);
+        mThread.start();
     }
 
     private void receiveDataInBackground() {
@@ -88,13 +104,10 @@ public class ReplyListenerService extends Service {
             serverSocket.close();
 //            socket.close();
         } catch (IOException e) {
-            Log.e(TAG,"couldnt close Sockets");
+            Log.e(TAG, "couldnt close Sockets");
         }
-    }
-
-    @Override
-    public void onStart(Intent intent, int startId) {
-        super.onStart(intent, startId);
+//        mThread.stop();
+        stopThread = true;
     }
 
     @Override

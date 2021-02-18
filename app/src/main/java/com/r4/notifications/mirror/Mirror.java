@@ -58,7 +58,7 @@ class Mirror extends AsyncTask<MirrorNotification, Void, Void> { //deprecated bu
         try {
             Log.d(TAG, "Trying to Connect to Socket " + HOST_IP + ":" + HOST_PORT);
             Socket socket = new Socket();//HOST_IP, HOST_PORT);
-            socket.connect(new InetSocketAddress(HOST_IP, HOST_PORT), 1000);
+            socket.connect(new InetSocketAddress(HOST_IP, HOST_PORT), 10000);
             Log.d(TAG, "Socket Connected");
 
             String jason = new Gson().toJson(notification);
@@ -70,7 +70,7 @@ class Mirror extends AsyncTask<MirrorNotification, Void, Void> { //deprecated bu
             socket.close();
             Log.d(TAG + "doInBackground", "Notification successfully Mirrored");
         } catch (IOException e) {
-            Log.e(TAG + "doInBackground", "SOCKET CONNECTION FAILED\n" + HOST_IP + ":" + HOST_PORT);
+            Log.e(TAG + "doInBackground", "SOCKET CONNECTION FAILED\n" + HOST_IP + ":" + HOST_PORT,e);
 //            Helper.toasted("Couldnt connect to Socket to mirror Notification");
         }
         Log.d(TAG + "doInBackground", "Ending Asynctask, Closed Socket");

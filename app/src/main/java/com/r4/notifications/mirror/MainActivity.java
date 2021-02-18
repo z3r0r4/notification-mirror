@@ -275,6 +275,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void startReplyListenerService() {
+//        Helper.toasted("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
         Intent i = new Intent(this, ReplyListenerService.class);
         this.startService(i);
     }
