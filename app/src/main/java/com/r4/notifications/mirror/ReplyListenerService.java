@@ -8,6 +8,11 @@ import android.os.IBinder;
 import android.util.Log;
 import android.widget.Toast;
 
+import java.io.DataInputStream;
+import java.io.IOException;
+import java.net.InetAddress;
+import java.net.ServerSocket;
+import java.net.Socket;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -19,6 +24,41 @@ import androidx.annotation.Nullable;
 public class ReplyListenerService extends Service {
     private static final int FOREGROUND_SERVICE_NOTIFICATION_ID = 5646545;
     private static final String TAG = "ReplyListenerService";
+    ServerSocket serverSocket;
+    Socket socket;
+    Runnable runnable = new Runnable() {
+        @Override
+        public void run() {
+            Log.e(TAG + "run", "running a thread");
+            try {
+                 serverSocket = new ServerSocket(9001, 3,InetAddress.getLocalHost()); //InetAddress.getByName("192.168.178.84"));
+                while (true) {
+                    Log.e(TAG,"waiting for server connections "+InetAddress.getLocalHost());
+                    if (serverSocket != null) {
+                        serverSocket.setSoTimeout(10000);
+                        socket = serverSocket.accept();
+                        Log.e(TAG, "new Client!");
+                        DataInputStream dataInputStream = new DataInputStream(socket.getInputStream());
+                        //DO IN NEW THREADS
+                        Log.e(TAG, dataInputStream.toString());
+//                        if (netpkg.isReply())
+//                            (new MirrorNotification(netpkg)).reply(netpkg.getMessage(), MainActivity.sContext);
+//                        if (netpkg.isAction())
+//                            (new MirrorNotification(netpkg)).act(netpkg.getActionName());
+//                        if (netpkg.isDismiss())
+//                            (new MirrorNotification(netpkg)).dismiss();
+                        continue;
+                    }
+                }
+//                NetworkPackage netpkg = receiveData();//DO IN WHILE
+
+            } catch (IOException e) {
+                Log.e(TAG, "Socket connection failed",e);
+            }
+
+            Log.e(TAG + "run", "ending a thread");
+        }
+    };
     private ExecutorService executorService;
 
     @Override
@@ -26,25 +66,12 @@ public class ReplyListenerService extends Service {
         super.onCreate();
 
         executorService = Executors.newFixedThreadPool(4);
-        receiveDataInBackground();
+//        receiveDataInBackground();
+        new Thread(runnable).start();
         Log.e(TAG, "ended thread");
     }
 
     private void receiveDataInBackground() {
-        executorService.execute(new Runnable() {
-            @Override
-            public void run() {
-                Log.e(TAG + "run", "running a thread");
-                NetworkPackage netpkg = receiveData();
-                if (netpkg.isReply())
-                    (new MirrorNotification(netpkg)).reply(netpkg.getMessage(), MainActivity.sContext);
-                if (netpkg.isAction())
-                    (new MirrorNotification(netpkg)).act(netpkg.getActionName());
-                if (netpkg.isDismiss())
-                    (new MirrorNotification(netpkg)).dismiss();
-                Log.e(TAG + "run", "ending a thread");
-            }
-        });
 
     }
 
@@ -57,7 +84,12 @@ public class ReplyListenerService extends Service {
     public void onDestroy() {
         super.onDestroy();
         Toast.makeText(this, "service destroyed", Toast.LENGTH_SHORT).show();
-
+        try {
+            serverSocket.close();
+//            socket.close();
+        } catch (IOException e) {
+            Log.e(TAG,"couldnt close Sockets");
+        }
     }
 
     @Override
