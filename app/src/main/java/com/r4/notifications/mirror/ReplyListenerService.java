@@ -62,12 +62,13 @@ public class ReplyListenerService extends Service {
                         netpkg.log();
                         //DO IN NEW THREADS
 
+                        MirrorNotification mn = new MirrorNotification(netpkg);
                         if (netpkg.isReply())
-                            (new MirrorNotification(netpkg)).reply(netpkg.getMessage(), MainActivity.sContext);
+                            mn.reply(netpkg.getMessage(), MainActivity.sContext);
                         if (netpkg.isAction())
-                            (new MirrorNotification(netpkg)).act(netpkg.getActionName());
+                            mn.act(netpkg.getActionName());
                         if (netpkg.isDismiss())
-                            (new MirrorNotification(netpkg)).dismiss();
+                            mn.dismiss();
                     } else {
                         break;
                     }
@@ -76,6 +77,8 @@ public class ReplyListenerService extends Service {
 
             } catch (IOException e) {
                 Log.e(TAG, "Socket connection failed", e);
+            } catch (ExceptionInInitializerError e) {
+                Log.e(TAG, "wrong ID for Key");
             }
             Log.e(TAG + "run", "ending a thread and service");
             stopSelf();

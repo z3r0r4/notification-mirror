@@ -23,11 +23,9 @@ import androidx.core.app.NotificationManagerCompat;
  * @since 2021-02-17
  */
 public class MainActivity extends AppCompatActivity {
-    private final static String TAG = "MAIN";
-
     public static final String FOREGROUND_SERVICE_NOTIFICATIONCHANNEL_ID = "45654654464";
     public static final String FOREGROUND_SERVICE_NOTIFICATIONCHANNEL_NAME = "Foreground Service Persistent Notification";
-
+    private final static String TAG = "MAIN";
     public static Context sContext; //suck it Context
     private NotificationManagerCompat notificationManager;
     private SharedPreferences shPref;
@@ -277,7 +275,7 @@ public class MainActivity extends AppCompatActivity {
         this.startService(i);
     }
 
-    private void stopReplyListenerService(){
+    private void stopReplyListenerService() {
         Intent i = new Intent(this, ReplyListenerService.class);
         this.stopService(i);
     }
@@ -299,7 +297,7 @@ public class MainActivity extends AppCompatActivity {
             TextView replyTV = (TextView) findViewById(R.id.tvRepliedText);
             replyTV.setText(inputString);
 
-            Notification repliedNotification =   //update Notifiaction to stop sending loading circle
+            Notification repliedNotification =  //update Notifiaction to stop sending loading circle
                     new NotificationCompat.Builder(this, "TestChannel")
                             .setSmallIcon(android.R.drawable.ic_dialog_info)
                             .setContentText("Reply received")

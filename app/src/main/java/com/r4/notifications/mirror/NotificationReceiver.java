@@ -69,7 +69,7 @@ public class NotificationReceiver extends NotificationListenerService {
             Log.d(TAG + "onNotificationPosted", "RECEIVED Notification");
             MirrorNotification mn = new MirrorNotification(sbn);
             Log.d(TAG + "onNotificationPosted", " Ticker: " + mn.ticker);
-//            if (!activeNotifications.containsKey(mn.key)) {
+//            if (!activeNotifications.containsKey(mn.key)) { //disallow updates
             activeNotifications.put(mn.key, mn);
             Log.d(TAG + "onNotificationPosted", "Mirroring Notification: " + shPref.getBoolean("MirrorState", false));
             if (shPref.getBoolean("MirrorState", false))

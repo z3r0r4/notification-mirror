@@ -11,6 +11,7 @@ import android.service.notification.StatusBarNotification;
 import android.util.Log;
 
 import java.io.Serializable;
+import java.lang.annotation.Documented;
 import java.util.List;
 
 import androidx.core.app.NotificationManagerCompat;
@@ -97,8 +98,13 @@ class MirrorNotification implements Serializable {
      *
      * @param netpkg the json package specifiying the key of the notification
      */
-    public MirrorNotification(NetworkPackage netpkg) {
+    public MirrorNotification(NetworkPackage netpkg) throws ExceptionInInitializerError {
         MirrorNotification mn = NotificationReceiver.getactiveNotifications().get(netpkg.getKey());
+        if (mn.id != netpkg.getID()) {
+            Log.e(TAG, "wrong ID for notifiaction retrived by KEY");
+            throw new ExceptionInInitializerError();
+        }
+
         this.id = mn.id;
         this.key = mn.key;
         this.appName = mn.appName;
@@ -178,7 +184,7 @@ class MirrorNotification implements Serializable {
             Helper.toasted("Not Repliable");
         };
         if (this.replyAction == null || this.replyAction.getRemoteInputs().length == 0) {
-            log.e();
+            Log.e(TAG,"no actions or remote inputs to reply to");
             return;
         }
 
