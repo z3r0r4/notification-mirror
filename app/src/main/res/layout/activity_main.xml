@@ -96,13 +96,21 @@
             tools:ignore="UseSwitchCompatOrMaterialXml" />
 
         <Switch
-            android:id="@+id/swListenerPermission"
+            android:id="@+id/swSetListenerPermission"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="5dp"
             android:text="Listener Service"
             tools:ignore="UseSwitchCompatOrMaterialXml" />
 
+
+        <Switch
+            android:id="@+id/swRunReplyReceiverService"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="5dp"
+            android:text="Reply Receiver Service"
+            tools:ignore="UseSwitchCompatOrMaterialXml" />
 
         <Button
             android:id="@+id/btnMsgTest"
@@ -120,7 +128,7 @@
             android:id="@+id/btnAction"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Action on last Notification"/>
+            android:text="Action on last Notification" />
 
         <Button
             android:id="@+id/btnDismiss"
@@ -148,18 +156,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Test Access to Notifications" />
-
-        <Button
-            android:id="@+id/btnReplyListenerServiceStart"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Start Reply Listener Service" />
-
-        <Button
-            android:id="@+id/btnReplyListenerServiceStop"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Stop Reply Listener Service" />
 
         <TextView
             android:id="@+id/tvRepliedText"

@@ -1,9 +1,11 @@
 package com.r4.notifications.mirror;
 
+import android.app.Activity;
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.IBinder;
 import android.util.Log;
 import android.widget.Toast;
@@ -15,8 +17,6 @@ import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 import androidx.annotation.Nullable;
 
@@ -29,7 +29,10 @@ public class ReplyListenerService extends Service {
     ServerSocket serverSocket;
     Socket socket;
     Thread mThread;
-    private ExecutorService executorService;
+    private SharedPreferences shPref;
+    private SharedPreferences.Editor editor;
+
+//    private ExecutorService executorService;
     private boolean stopThread = false;
     Runnable runnable = new Runnable() {
         @Override
@@ -48,7 +51,7 @@ public class ReplyListenerService extends Service {
                 while (true) {
                     Log.d(TAG, "waiting for server connections " + IP);
                     if (serverSocket != null && !stopThread) {
-                        serverSocket.setSoTimeout(50000);
+                        serverSocket.setSoTimeout(10000);
                         Log.d(TAG, "set TImeout");
                         socket = serverSocket.accept();
                         Log.e(TAG, "new Client!");
@@ -81,18 +84,20 @@ public class ReplyListenerService extends Service {
                 Log.e(TAG, "wrong ID for Key");
             }
             Log.e(TAG + "run", "ending a thread and service");
-            stopSelf();
+//            stopSelf();
         }
     };
 
     @Override
     public void onCreate() {
         super.onCreate();
+        shPref = this.getSharedPreferences(NotificationReceiver.class.getSimpleName(), Activity.MODE_PRIVATE);
+        editor = shPref.edit();
 
-        executorService = Executors.newFixedThreadPool(4);
-//        receiveDataInBackground();
         mThread = new Thread(runnable);
         mThread.start();
+//        executorService = Executors.newFixedThreadPool(4);
+//        receiveDataInBackground();
     }
 
     private void receiveDataInBackground() {
@@ -116,10 +121,17 @@ public class ReplyListenerService extends Service {
         }
 //        mThread.stop();
         stopThread = true;
+        editor.putBoolean("ReceiverStatus", false);
+        editor.apply();
+        Log.d(TAG, "Receiver inactive");
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) { //Intent should contain the Socket address
+        editor.putBoolean("ReceiverStatus", true);
+        editor.apply();
+        Log.d(TAG, "Receiver active");
+
         Toast.makeText(this, "service starting", Toast.LENGTH_SHORT).show();
 //no one tells you to put this here and not externally -.-
         Intent notificationIntent = new Intent(this, ReplyListenerService.class);
@@ -133,13 +145,19 @@ public class ReplyListenerService extends Service {
                         .setTicker("Notification Mirror Reply Listener Service: Listening for Replies from the PC")
                         .build();
         startForeground(FOREGROUND_SERVICE_NOTIFICATION_ID, notification);
-
+        if(!mThread.isAlive()) {
+            mThread = new Thread(runnable);
+            mThread.start();
+        }
         // If we get killed, after returning from here, restart
         return START_STICKY;
     }
 
     @Override
     public boolean stopService(Intent service) {
+        editor.putBoolean("ReceiverStatus", true);
+        editor.apply();
+        Log.d(TAG, "Receiver active");
         return false;
     }
 

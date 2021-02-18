@@ -58,7 +58,7 @@ public class MainActivity extends AppCompatActivity {
 
         /**declare buttons and views*/
         Button btnMsgTest = findViewById(R.id.btnMsgTest);
-        Switch swListenerStatus = findViewById(R.id.swListenerPermission);
+        Switch swListenerStatus = findViewById(R.id.swSetListenerPermission);
         Switch swMirrorState = findViewById(R.id.swMirrorState);
         TextView tvIP = findViewById(R.id.tvIP);
         TextView tvPORT = findViewById(R.id.tvPORT);
@@ -69,8 +69,7 @@ public class MainActivity extends AppCompatActivity {
         Button btnReply = findViewById(R.id.btnReply);
         Button btnDismiss = findViewById(R.id.btnDismiss);
         Button btnNetTest = findViewById(R.id.btnNetTest);
-        Button btnListenerServiceStart = findViewById(R.id.btnReplyListenerServiceStart);
-        Button btnListenerServiceStop = findViewById(R.id.btnReplyListenerServiceStop);
+        Switch swRunReplyReceiverService = findViewById(R.id.swRunReplyReceiverService);
 
         /**add on click to post test notification*/
         MirrorNotification notification = new MirrorNotification("123456", "TestNotification", "Testing", "ReplyAction", sContext);
@@ -79,7 +78,7 @@ public class MainActivity extends AppCompatActivity {
 
         /**check and show if listener is connected*/
         swListenerStatus.setClickable(false);
-        showListenerService();
+        showListenerServiceStatus();
 
         /**add onclick to open notification listener settings*/
         swListenerStatus.setOnClickListener(v -> openListenerSettings());
@@ -117,25 +116,38 @@ public class MainActivity extends AppCompatActivity {
         btnNetTest.setOnClickListener(v -> mirrorLastNotification());
 
         createServiceNotificationChannel();
-        /**start the reply listener service in foreground*/
-        btnListenerServiceStart.setOnClickListener(v -> startReplyListenerService());
 
-        /**stop the replyListener service*/
-        btnListenerServiceStop.setOnClickListener(v -> stopReplyListenerService());
+        /**make sure the reply receiver service is started and its shown*/
+        showReceiverServiceStatus();
+        ensureReceiverServiceState();
+
+        /**add onclick to start listener service*/
+        swRunReplyReceiverService.setOnCheckedChangeListener((v, isChecked) -> {
+            if (isChecked) startReplyListenerService();
+            else stopReplyListenerService();
+        });
     }
 
     @Override
     protected void onStart() {
         super.onStart();
         /**check and show if listener is connected*/
-        showListenerService();
+        showListenerServiceStatus();
+        showReceiverServiceStatus();
+        ensureReceiverServiceState();
+    }
+
+    private void ensureReceiverServiceState() {
+        if (getReplyReceiverServiceStatus()) startReplyListenerService();
+        else stopReplyListenerService();
     }
 
     @Override
     protected void onRestart() {
         super.onRestart();
         /**check and show if listener is connected*/
-        showListenerService();
+        showListenerServiceStatus();
+        showReceiverServiceStatus();
         handleReplyIntent();
     }
 
@@ -249,8 +261,8 @@ public class MainActivity extends AppCompatActivity {
     /**
      * shows if the listener is connected
      */
-    private void showListenerService() {
-        Switch swListenerStatus = findViewById(R.id.swListenerPermission);
+    private void showListenerServiceStatus() {
+        Switch swListenerStatus = findViewById(R.id.swSetListenerPermission);
         swListenerStatus.setChecked(getListenerServiceStatus());
     }
 
@@ -262,6 +274,16 @@ public class MainActivity extends AppCompatActivity {
     private boolean getListenerServiceStatus() {
         SharedPreferences sharedPreferences = getApplicationContext().getSharedPreferences(NotificationReceiver.class.getSimpleName(), Activity.MODE_PRIVATE);
         return sharedPreferences.getBoolean("ListenerStatus", false);
+    }
+
+    private void showReceiverServiceStatus() {
+        Switch swReceiverStatus = findViewById(R.id.swRunReplyReceiverService);
+        swReceiverStatus.setChecked(getReplyReceiverServiceStatus());
+    }
+
+    private boolean getReplyReceiverServiceStatus() {
+        SharedPreferences sharedPreferences = getApplicationContext().getSharedPreferences(NotificationReceiver.class.getSimpleName(), Activity.MODE_PRIVATE);
+        return sharedPreferences.getBoolean("ReceiverStatus", false);
     }
 
     private void createServiceNotificationChannel() {
@@ -305,7 +327,7 @@ public class MainActivity extends AppCompatActivity {
             notificationManager.notify(9001, repliedNotification);
         } catch (NullPointerException e) {
             Log.e(TAG + "handleReplyIntent", "REPLY EXTRACTION FAILED, maybe not a replying intent");
-            Helper.toasted("Not a Reply Intent");
+//            Helper.toasted("Not a Reply Intent");
         }
     }
 }
