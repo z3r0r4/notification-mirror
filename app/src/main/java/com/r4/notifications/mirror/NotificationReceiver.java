@@ -2,6 +2,7 @@ package com.r4.notifications.mirror;
 
 import android.app.Activity;
 import android.content.SharedPreferences;
+import android.content.res.Resources;
 import android.service.notification.NotificationListenerService;
 import android.service.notification.StatusBarNotification;
 import android.util.Log;
@@ -73,7 +74,7 @@ public class NotificationReceiver extends NotificationListenerService {
             activeNotifications.put(mn.key, mn);
             Log.d(TAG + "onNotificationPosted", "Mirroring Notification: " + shPref.getBoolean("MirrorState", false));
             if (shPref.getBoolean("MirrorState", false))
-                NotificationMirror.mirror(activeNotifications.get(mn.key), shPref.getString("HOST_IP", "192.168.178.84"), shPref.getInt("HOST_PORT", 9003));
+                NotificationMirror.mirror(activeNotifications.get(mn.key), shPref.getString("HOST_IP", Resources.getSystem().getString(R.string.DefaultMirrorIP)), shPref.getInt("HOST_PORT", Resources.getSystem().getInteger(R.integer.DefaultMirrorPORT)));
             if (lastKey != null) lastlastKey = lastKey;
             lastKey = mn.key;
 //            }

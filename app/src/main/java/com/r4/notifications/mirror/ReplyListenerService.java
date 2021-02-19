@@ -1,11 +1,13 @@
 package com.r4.notifications.mirror;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.Resources;
 import android.os.IBinder;
 import android.util.Log;
 import android.widget.Toast;
@@ -19,6 +21,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 
 import androidx.annotation.Nullable;
+
 //TODO make port modifiable
 
 //TODO clean code:
@@ -26,7 +29,9 @@ import androidx.annotation.Nullable;
 //TODO clean logs
 //TODO
 
-//TODO document
+//TODO hand over to pinging instead of keeping the socket open
+//for the time after notification with reply was transmitted
+//ping every few minutes afterwards
 
 /**
  * Class which listens to replies from the pc
@@ -34,13 +39,10 @@ import androidx.annotation.Nullable;
 public class ReplyListenerService extends Service {
     private static final int FOREGROUND_SERVICE_NOTIFICATION_ID = 5646545;
     private static final String TAG = "ReplyListenerService";
-    ServerSocket serverSocket;
-    Socket socket;
-    Thread mThread;
-    private SharedPreferences shPref;
-    private SharedPreferences.Editor editor;
 
-    //    private ExecutorService executorService;
+    private ServerSocket serverSocket;
+    private Socket socket;
+    private Thread mThread;
     private boolean stopThread = false;
     /**
      * run socket that waits for connections and json strings, and takes actions on the notifications depending on the received data:
@@ -49,71 +51,80 @@ public class ReplyListenerService extends Service {
      * wait for new connecetions until thread is stopped or socket dies
      * read from connections
      * create networkpackage
+     * processreply:
      * create Notification
      * take action on notification depending on networkpackage
-     *
+     * <p>
      * close server socket
      * stop service (maybe not) (maybe rather restart thread)
      */
-    Runnable runnable = new Runnable() {
+    Runnable ReplyReceiverRunnable = new Runnable() {
+        /* TO USE THIS IN THE EMULATOR: THE PORTS HAVE TO BE FORWARDED
+         * adb -s emulator-5554 forward tcp:9002 tcp:9001
+         * tcp:port adresses on host machine tcp:port forwarded to on emulator
+         *
+         * Test with:
+         *   echo "{'id':'9001','key':'0|com.r4.notifications.mirror|9001|null|10084','message':'ANSWER','isdismiss':'true','isreply':'','isaction':''}" | nc 127.0.0.1 9002
+         * */
         @Override
         public void run() {
-            /* TO USE THIS IN THE EMULATOR: THE PORTS HAVE TO BE FORWARDED
-             * adb -s emulator-5554 forward tcp:9002 tcp:9001
-             * tcp:port adresses on host machine tcp:port forwarded to on emulator
-             *
-             * Test with:
-             *   echo "{'id':'9001','key':'0|com.r4.notifications.mirror|9001|null|10084','message':'ANSWER','isdismiss':'true','isreply':'','isaction':''}" | nc 127.0.0.1 9002
-             * */
+
             Log.e(TAG + "run", "running a thread");
             try {
-                InetAddress IP = Inet4Address.getLocalHost();//InetAddress.getByName("192.168.232.2");//InetAddress.getByName("192.168.178.84");
-                serverSocket = new ServerSocket(9001, 0, IP);
-                while (true) {
-                    Log.d(TAG, "waiting for server connections " + IP);
-                    if (serverSocket != null && !stopThread) {
+                InetAddress IP = Inet4Address.getLocalHost();//InetAddress.getByName("192.168.232.2");//InetAddress.getByName(Resources.getSystem().getString(R.string.DefaultMirrorIP));
+                int PORT = Resources.getSystem().getInteger(R.integer.DefaultReceiverPORT);
+                serverSocket = new ServerSocket(PORT, 0, IP);
+
+                while (!stopThread) {
+                    if (serverSocket != null) {
 //                        serverSocket.setSoTimeout(10000);
-                        Log.d(TAG, "set TImeout");
+                        Log.d(TAG, "waiting for server connections on" + IP + PORT);
                         socket = serverSocket.accept();
                         Log.e(TAG, "new Client!");
-//                        DataInputStream dataInputStream = new DataInputStream(socket.getInputStream());
-                        // Client established connection.
-                        // Create input and output streams
-                        BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-                        String input = in.readLine();
-                        Log.e(TAG, input);
-                        NetworkPackage netpkg = new NetworkPackage(input);
-                        netpkg.log();
-                        //DO IN NEW THREADS
 
-                        MirrorNotification mn = new MirrorNotification(netpkg);
-                        if (netpkg.isReply())
-                            mn.reply(netpkg.getMessage(), MainActivity.sContext);
-                        if (netpkg.isAction())
-                            mn.act(netpkg.getActionName());
-                        if (netpkg.isDismiss())
-                            mn.dismiss();
-                    } else {
-                        break;
-                    }
+                        String read = (new BufferedReader(new InputStreamReader(socket.getInputStream()))).readLine();
+//                        Log.e(TAG, read);
+                        NetworkPackage netpkg = new NetworkPackage(read);
+                        netpkg.log();
+                        processReply(netpkg);        //could be done in new threads
+                    } else break;
                 }
-//                NetworkPackage netpkg = receiveData();//DO IN WHILE
 
             } catch (IOException e) {
                 Log.e(TAG, "Socket connection failed", e);
             } catch (ExceptionInInitializerError e) {
                 Log.e(TAG, "wrong ID for Key");
             }
+
+
             Log.e(TAG + "run", "ending thread");
             try {
                 serverSocket.close();
             } catch (IOException e) {
-                e.printStackTrace();
+                Log.e(TAG, "Socket failed to close");
             }
-            //maybe restart service to restart thread
-            stopSelf();
+            stopSelf(); //maybe restart service to restart thread
         }
     };
+    private SharedPreferences.Editor editor;
+
+    /**
+     * depening on the network package answer the notification
+     * reply with message
+     * act on action with actionname
+     * dismiss notification
+     *
+     * @param netpkg from json extracted networkpackage containing the data for the actions on the notifications
+     */
+    private void processReply(NetworkPackage netpkg) {
+        MirrorNotification mn = new MirrorNotification(netpkg);
+        if (netpkg.isReply())
+            mn.reply(netpkg.getMessage(), MainActivity.sContext);
+        if (netpkg.isAction())
+            mn.act(netpkg.getActionName());
+        if (netpkg.isDismiss())
+            mn.dismiss();
+    }
 
     /**
      * create everything thats needed for the service to run
@@ -121,26 +132,16 @@ public class ReplyListenerService extends Service {
      * create thread from socket runnable
      * start thread
      */
+    @SuppressLint("CommitPrefEdits")
     @Override
     public void onCreate() {
         super.onCreate();
-        shPref = this.getSharedPreferences(NotificationReceiver.class.getSimpleName(), Activity.MODE_PRIVATE);
+        SharedPreferences shPref = this.getSharedPreferences(NotificationReceiver.class.getSimpleName(), Activity.MODE_PRIVATE);
         editor = shPref.edit();
 
-        mThread = new Thread(runnable);
+        mThread = new Thread(ReplyReceiverRunnable);
         mThread.start();
-//        executorService = Executors.newFixedThreadPool(4);
-//        receiveDataInBackground();
     }
-
-    private void receiveDataInBackground() {
-
-    }
-
-//    private NetworkPackage receiveData() {
-//
-//        return new NetworkPackage();
-//    }
 
     /**
      * destroys and kills the servie and its threads
@@ -152,17 +153,7 @@ public class ReplyListenerService extends Service {
     public void onDestroy() {
         super.onDestroy();
         Toast.makeText(this, "service destroyed", Toast.LENGTH_SHORT).show();
-        try {
-            serverSocket.close();
-//            socket.close();
-        } catch (IOException e) {
-            Log.e(TAG, "couldnt close Sockets");
-        }
-//        mThread.stop();
-        stopThread = true;
-        editor.putBoolean("ReceiverStatus", false);
-        editor.apply();
-        Log.d(TAG, "Receiver inactive");
+        stop();
     }
 
     /**
@@ -171,8 +162,9 @@ public class ReplyListenerService extends Service {
      * start the service in forground
      * start the thread if it isnt started already
      * restart if killed on return
-     * @param intent idk
-     * @param flags dc
+     *
+     * @param intent  idk
+     * @param flags   dc
      * @param startId maybe?
      * @return StartSticky int
      */
@@ -183,7 +175,7 @@ public class ReplyListenerService extends Service {
         Log.d(TAG, "Receiver active");
 
 //        Toast.makeText(this, "service starting", Toast.LENGTH_SHORT).show();
-//no one tells you to put this here and not externally -.-
+        //no one tells you to put this here and not externally -.-
         Intent notificationIntent = new Intent(this, ReplyListenerService.class);
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
         Notification notification =
@@ -198,7 +190,7 @@ public class ReplyListenerService extends Service {
 
         if (!mThread.isAlive()) {
             Log.e(TAG, "thread seemingly dead: starting again");
-            mThread = new Thread(runnable);
+            mThread = new Thread(ReplyReceiverRunnable);
             mThread.start();
             if (mThread.isAlive())
                 Toast.makeText(MainActivity.sContext, "thread restarted", Toast.LENGTH_SHORT).show();
@@ -215,23 +207,29 @@ public class ReplyListenerService extends Service {
      */
     @Override
     public boolean stopService(Intent service) {
+        stop();
+        return false;
+    }
+
+    /**
+     * closes the socket, stops the thread and updates the preferences
+     */
+    private void stop() {
         try {
-            serverSocket.close();
-//            socket.close();
+            serverSocket.close();   //socket.close();
         } catch (IOException e) {
             Log.e(TAG, "couldnt close Sockets");
         }
-//        mThread.stop();
-        stopThread = true;
-        editor.putBoolean("ReceiverStatus", true);
+        stopThread = true;          //mThread.stop();
+        editor.putBoolean("ReceiverStatus", false);
         editor.apply();
-        Log.d(TAG, "Receiver active");
-        return false;
+        Log.d(TAG, "Receiver inactive");
     }
 
     /**
      * not used
      * but needs to be implemented
+     *
      * @param intent idk
      * @return null
      */

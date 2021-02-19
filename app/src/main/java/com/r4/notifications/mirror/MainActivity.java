@@ -8,6 +8,7 @@ import android.app.RemoteInput;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.res.Resources;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Button;
@@ -49,6 +50,7 @@ public class MainActivity extends AppCompatActivity {
 
     /**
      * called on App first start to display/ inflate ui
+     *
      * @param savedInstanceState
      */
     @Override
@@ -64,8 +66,8 @@ public class MainActivity extends AppCompatActivity {
         Button btnMsgTest = findViewById(R.id.btnMsgTest);
         Switch swListenerStatus = findViewById(R.id.swSetListenerPermission);
         Switch swMirrorState = findViewById(R.id.swMirrorState);
-        TextView tvIP = findViewById(R.id.tvIP);
-        TextView tvPORT = findViewById(R.id.tvPORT);
+        TextView tvIP = findViewById(R.id.tvMirrorIP);
+        TextView tvPORT = findViewById(R.id.tvMirrorPORT);
         EditText etIP = findViewById(R.id.etIP);
         EditText etPORT = findViewById(R.id.etPort);
         Button btnSaveConnection = findViewById(R.id.btnSave);
@@ -97,8 +99,8 @@ public class MainActivity extends AppCompatActivity {
         handleReplyIntent();
 
         /**show Socket Address in Textviews*/
-        tvIP.setText(shPref.getString("HOST_IP", "192.168.178.84"));
-        tvPORT.setText(String.valueOf(shPref.getInt("HOST_PORT", 9001)));
+        tvIP.setText(shPref.getString("HOST_IP", Resources.getSystem().getString(R.string.DefaultMirrorIP)));
+        tvPORT.setText(String.valueOf(shPref.getInt("HOST_PORT", Resources.getSystem().getInteger(R.integer.DefaultMirrorPORT))));
 
         /**save IP:PORT from edittexts*/
         btnSaveConnection.setOnClickListener(v -> {
@@ -165,11 +167,12 @@ public class MainActivity extends AppCompatActivity {
      * @param etPORT
      */
     private void setSocketAddress(EditText etIP, EditText etPORT) {
-        String IP = etIP.getText().toString().equals("") ? "192.168.178.84" : etIP.getText().toString();
+        String IP = Resources.getSystem().getString(R.string.DefaultMirrorIP);
+        IP = etIP.getText().toString().equals("") ? IP : etIP.getText().toString();
 
-        int PORT = 9003;
+        int PORT = Resources.getSystem().getInteger(R.integer.DefaultMirrorPORT);
         try {
-            PORT = Integer.parseInt(etPORT.getText().toString()) != 0 ? Integer.parseInt(etPORT.getText().toString()) : 9003;
+            PORT = Integer.parseInt(etPORT.getText().toString()) != 0 ? Integer.parseInt(etPORT.getText().toString()) : PORT;
         } catch (NumberFormatException e) {
             Helper.toasted("Input an Integer");
         }
@@ -188,8 +191,8 @@ public class MainActivity extends AppCompatActivity {
      * @param tvPORT
      */
     private void showSocketAddress(TextView tvIP, TextView tvPORT) {
-        tvIP.setText(shPref.getString("HOST_IP", "192.168.178.84"));
-        tvPORT.setText(String.valueOf(shPref.getInt("HOST_PORT", 9003)));
+        tvIP.setText(shPref.getString("HOST_IP", Resources.getSystem().getString(R.string.DefaultMirrorIP)));
+        tvPORT.setText(String.valueOf(shPref.getInt("HOST_PORT", Resources.getSystem().getInteger(R.integer.DefaultMirrorPORT))));
     }
 
     /**
@@ -293,6 +296,7 @@ public class MainActivity extends AppCompatActivity {
 
     /**
      * gets the current state of the receiver preference
+     *
      * @return boo if the receiver should be running
      */
     private boolean getReplyReceiverServiceStatus() {

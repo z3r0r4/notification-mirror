@@ -1,4 +1,6 @@
 <resources>
     <string name="app_name">Notification Mirror</string>
     <string name="service_label">NotificationReceiver</string>
+    <string name="DefaultMirrorIP">192.168.178.84</string>
+    <string name="DefaultReceiverIP">localhost</string><!--unused-->
 </resources>

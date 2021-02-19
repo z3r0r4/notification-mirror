@@ -11,6 +11,12 @@
         android:layout_margin="5dp"
         android:orientation="vertical">
 
+        <TextView
+            android:id="@+id/tVMirrorHeader"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Address of the Mirror" />
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -58,11 +64,11 @@
             android:layout_margin="5dp">
 
             <TextView
-                android:id="@+id/tvIP"
+                android:id="@+id/tvMirrorIP"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight=".7"
-                android:text="IP"
+                android:text="Mirror IP"
                 android:textAlignment="viewStart" />
 
             <TextView
@@ -74,11 +80,53 @@
                 android:textStyle="bold" />
 
             <TextView
-                android:id="@+id/tvPORT"
+                android:id="@+id/tvMirrorPORT"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight=".3"
-                android:text="PORT"
+                android:text="Mirror PORT"
+                android:textAlignment="viewStart" />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="0.21" />
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/tVReplyHeader"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Address of the Reply Receiver" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_margin="5dp">
+
+            <TextView
+                android:id="@+id/tvReplyIP"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight=".7"
+                android:text="Reply IP"
+                android:textAlignment="viewStart" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:padding="5dp"
+                android:text=":"
+                android:textAlignment="center"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/tvReplyPORT"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight=".3"
+                android:text="Reply PORT"
                 android:textAlignment="viewStart" />
 
             <TextView
