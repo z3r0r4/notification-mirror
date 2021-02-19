@@ -75,6 +75,7 @@ public class ReplyListenerService extends Service {
                     } else {
                         break;
                     }
+//                    serverSocket.close();
                 }
 //                NetworkPackage netpkg = receiveData();//DO IN WHILE
 
@@ -84,6 +85,11 @@ public class ReplyListenerService extends Service {
                 Log.e(TAG, "wrong ID for Key");
             }
             Log.e(TAG + "run", "ending a thread and service");
+            try {
+                serverSocket.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
 //            stopSelf();
         }
     };
@@ -145,7 +151,9 @@ public class ReplyListenerService extends Service {
                         .setTicker("Notification Mirror Reply Listener Service: Listening for Replies from the PC")
                         .build();
         startForeground(FOREGROUND_SERVICE_NOTIFICATION_ID, notification);
+
         if(!mThread.isAlive()) {
+            Log.e(TAG,"thread seemingly dead: starting again");
             mThread = new Thread(runnable);
             mThread.start();
         }
