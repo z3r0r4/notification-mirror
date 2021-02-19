@@ -42,10 +42,23 @@ public class ReplyListenerService extends Service {
 
     //    private ExecutorService executorService;
     private boolean stopThread = false;
+    /**
+     * run socket that waits for connections and json strings, and takes actions on the notifications depending on the received data:
+     * get Hostaddress
+     * setup server socket
+     * wait for new connecetions until thread is stopped or socket dies
+     * read from connections
+     * create networkpackage
+     * create Notification
+     * take action on notification depending on networkpackage
+     *
+     * close server socket
+     * stop service (maybe not) (maybe rather restart thread)
+     */
     Runnable runnable = new Runnable() {
         @Override
         public void run() {
-            /* TO USE THIS IN THE EMULATOR THE PORTS HAVE TO BE FORWARDED
+            /* TO USE THIS IN THE EMULATOR: THE PORTS HAVE TO BE FORWARDED
              * adb -s emulator-5554 forward tcp:9002 tcp:9001
              * tcp:port adresses on host machine tcp:port forwarded to on emulator
              *
@@ -102,6 +115,12 @@ public class ReplyListenerService extends Service {
         }
     };
 
+    /**
+     * create everything thats needed for the service to run
+     * get access to the preferences
+     * create thread from socket runnable
+     * start thread
+     */
     @Override
     public void onCreate() {
         super.onCreate();
@@ -123,6 +142,12 @@ public class ReplyListenerService extends Service {
 //        return new NetworkPackage();
 //    }
 
+    /**
+     * destroys and kills the servie and its threads
+     * close the socket
+     * indicate the thread to stop
+     * update receiver preference
+     */
     @Override
     public void onDestroy() {
         super.onDestroy();
@@ -140,6 +165,17 @@ public class ReplyListenerService extends Service {
         Log.d(TAG, "Receiver inactive");
     }
 
+    /**
+     * set the receiver preference to true
+     * post a notification for the foreground service to fullfill android requirements
+     * start the service in forground
+     * start the thread if it isnt started already
+     * restart if killed on return
+     * @param intent idk
+     * @param flags dc
+     * @param startId maybe?
+     * @return StartSticky int
+     */
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) { //Intent should contain the Socket address
         editor.putBoolean("ReceiverStatus", true);
@@ -171,14 +207,34 @@ public class ReplyListenerService extends Service {
         return START_STICKY;
     }
 
+    /**
+     * stops the service by closing the socket, ending the thread in which the socket was running and sets the receiver preference to false
+     *
+     * @param service idk
+     * @return false
+     */
     @Override
     public boolean stopService(Intent service) {
+        try {
+            serverSocket.close();
+//            socket.close();
+        } catch (IOException e) {
+            Log.e(TAG, "couldnt close Sockets");
+        }
+//        mThread.stop();
+        stopThread = true;
         editor.putBoolean("ReceiverStatus", true);
         editor.apply();
         Log.d(TAG, "Receiver active");
         return false;
     }
 
+    /**
+     * not used
+     * but needs to be implemented
+     * @param intent idk
+     * @return null
+     */
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {

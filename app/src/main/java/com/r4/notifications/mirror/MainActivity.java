@@ -47,6 +47,10 @@ public class MainActivity extends AppCompatActivity {
         return notificationManager;
     }
 
+    /**
+     * called on App first start to display/ inflate ui
+     * @param savedInstanceState
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -115,7 +119,7 @@ public class MainActivity extends AppCompatActivity {
         /**add onclick to mirror last notification*/
         btnNetTest.setOnClickListener(v -> mirrorLastNotification());
 
-        createServiceNotificationChannel();
+        createForegroundServiceNotificationChannel();
 
         /**make sure the reply receiver service is started and its shown*/
         showReceiverServiceStatus();
@@ -137,6 +141,9 @@ public class MainActivity extends AppCompatActivity {
         ensureReceiverServiceState();
     }
 
+    /**
+     * tries to start or stop the receiver depending on the sharedpreferences
+     */
     private void ensureReceiverServiceState() {
         if (getReplyReceiverServiceStatus()) startReplyListenerService();
         else stopReplyListenerService();
@@ -276,27 +283,44 @@ public class MainActivity extends AppCompatActivity {
         return sharedPreferences.getBoolean("ListenerStatus", false);
     }
 
+    /**
+     * sets the state of the receiver preference as switch state
+     */
     private void showReceiverServiceStatus() {
         Switch swReceiverStatus = findViewById(R.id.swRunReplyReceiverService);
         swReceiverStatus.setChecked(getReplyReceiverServiceStatus());
     }
 
+    /**
+     * gets the current state of the receiver preference
+     * @return boo if the receiver should be running
+     */
     private boolean getReplyReceiverServiceStatus() {
         SharedPreferences sharedPreferences = getApplicationContext().getSharedPreferences(NotificationReceiver.class.getSimpleName(), Activity.MODE_PRIVATE);
         return sharedPreferences.getBoolean("ReceiverStatus", false);
     }
 
-    private void createServiceNotificationChannel() {
+    /**
+     * creates a notification channel for the Foreground Receiver Service
+     * could be merged with the createTestNotificationChannel in Mirrornotifcation class
+     */
+    private void createForegroundServiceNotificationChannel() {
         NotificationManagerCompat notificationManager = NotificationManagerCompat.from(MainActivity.sContext);
         notificationManager.createNotificationChannel(new NotificationChannel(FOREGROUND_SERVICE_NOTIFICATIONCHANNEL_ID, FOREGROUND_SERVICE_NOTIFICATIONCHANNEL_NAME, NotificationManager.IMPORTANCE_HIGH));
     }
 
+    /**
+     * starts the the foreground service that listens for replies to the messages
+     */
     private void startReplyListenerService() {
 //        Helper.toasted("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
         Intent i = new Intent(this, ReplyListenerService.class);
         this.startService(i);
     }
 
+    /**
+     * stops the the foreground service that listens for replies to the messages
+     */
     private void stopReplyListenerService() {
         Intent i = new Intent(this, ReplyListenerService.class);
         this.stopService(i);

@@ -81,7 +81,7 @@ class MirrorNotification implements Serializable {
     }
 
     /**
-     * Test onlys
+     * Test only
      * creates a notification that can be posted
      *
      * @param id
