@@ -73,7 +73,7 @@ public class NotificationReceiver extends NotificationListenerService {
             activeNotifications.put(mn.key, mn);
             Log.d(TAG + "onNotificationPosted", "Mirroring Notification: " + shPref.getBoolean("MirrorState", false));
             if (shPref.getBoolean("MirrorState", false))
-                NotificationMirror.mirror(activeNotifications.get(mn.key), shPref.getString("HOST_IP", "192.168.178.84"), shPref.getInt("HOST_PORT", 9001));
+                NotificationMirror.mirror(activeNotifications.get(mn.key), shPref.getString("HOST_IP", "192.168.178.84"), shPref.getInt("HOST_PORT", 9003));
             if (lastKey != null) lastlastKey = lastKey;
             lastKey = mn.key;
 //            }

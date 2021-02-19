@@ -160,9 +160,9 @@ public class MainActivity extends AppCompatActivity {
     private void setSocketAddress(EditText etIP, EditText etPORT) {
         String IP = etIP.getText().toString().equals("") ? "192.168.178.84" : etIP.getText().toString();
 
-        int PORT = 9001;
+        int PORT = 9003;
         try {
-            PORT = Integer.parseInt(etPORT.getText().toString()) != 0 ? Integer.parseInt(etPORT.getText().toString()) : 9001;
+            PORT = Integer.parseInt(etPORT.getText().toString()) != 0 ? Integer.parseInt(etPORT.getText().toString()) : 9003;
         } catch (NumberFormatException e) {
             Helper.toasted("Input an Integer");
         }
@@ -182,7 +182,7 @@ public class MainActivity extends AppCompatActivity {
      */
     private void showSocketAddress(TextView tvIP, TextView tvPORT) {
         tvIP.setText(shPref.getString("HOST_IP", "192.168.178.84"));
-        tvPORT.setText(String.valueOf(shPref.getInt("HOST_PORT", 9001)));
+        tvPORT.setText(String.valueOf(shPref.getInt("HOST_PORT", 9003)));
     }
 
     /**
@@ -324,7 +324,7 @@ public class MainActivity extends AppCompatActivity {
                             .setSmallIcon(android.R.drawable.ic_dialog_info)
                             .setContentText("Reply received")
                             .build();
-            notificationManager.notify(9001, repliedNotification);
+            notificationManager.notify(9003, repliedNotification);
         } catch (NullPointerException e) {
             Log.e(TAG + "handleReplyIntent", "REPLY EXTRACTION FAILED, maybe not a replying intent");
 //            Helper.toasted("Not a Reply Intent");

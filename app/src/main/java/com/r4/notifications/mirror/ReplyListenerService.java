@@ -19,6 +19,14 @@ import java.net.ServerSocket;
 import java.net.Socket;
 
 import androidx.annotation.Nullable;
+//TODO make port modifiable
+
+//TODO clean code:
+//TODO extract methods
+//TODO clean logs
+//TODO
+
+//TODO document
 
 /**
  * Class which listens to replies from the pc
@@ -32,7 +40,7 @@ public class ReplyListenerService extends Service {
     private SharedPreferences shPref;
     private SharedPreferences.Editor editor;
 
-//    private ExecutorService executorService;
+    //    private ExecutorService executorService;
     private boolean stopThread = false;
     Runnable runnable = new Runnable() {
         @Override
@@ -51,7 +59,7 @@ public class ReplyListenerService extends Service {
                 while (true) {
                     Log.d(TAG, "waiting for server connections " + IP);
                     if (serverSocket != null && !stopThread) {
-                        serverSocket.setSoTimeout(10000);
+//                        serverSocket.setSoTimeout(10000);
                         Log.d(TAG, "set TImeout");
                         socket = serverSocket.accept();
                         Log.e(TAG, "new Client!");
@@ -75,7 +83,6 @@ public class ReplyListenerService extends Service {
                     } else {
                         break;
                     }
-//                    serverSocket.close();
                 }
 //                NetworkPackage netpkg = receiveData();//DO IN WHILE
 
@@ -84,13 +91,14 @@ public class ReplyListenerService extends Service {
             } catch (ExceptionInInitializerError e) {
                 Log.e(TAG, "wrong ID for Key");
             }
-            Log.e(TAG + "run", "ending a thread and service");
+            Log.e(TAG + "run", "ending thread");
             try {
                 serverSocket.close();
             } catch (IOException e) {
                 e.printStackTrace();
             }
-//            stopSelf();
+            //maybe restart service to restart thread
+            stopSelf();
         }
     };
 
@@ -138,7 +146,7 @@ public class ReplyListenerService extends Service {
         editor.apply();
         Log.d(TAG, "Receiver active");
 
-        Toast.makeText(this, "service starting", Toast.LENGTH_SHORT).show();
+//        Toast.makeText(this, "service starting", Toast.LENGTH_SHORT).show();
 //no one tells you to put this here and not externally -.-
         Intent notificationIntent = new Intent(this, ReplyListenerService.class);
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
@@ -152,10 +160,12 @@ public class ReplyListenerService extends Service {
                         .build();
         startForeground(FOREGROUND_SERVICE_NOTIFICATION_ID, notification);
 
-        if(!mThread.isAlive()) {
-            Log.e(TAG,"thread seemingly dead: starting again");
+        if (!mThread.isAlive()) {
+            Log.e(TAG, "thread seemingly dead: starting again");
             mThread = new Thread(runnable);
             mThread.start();
+            if (mThread.isAlive())
+                Toast.makeText(MainActivity.sContext, "thread restarted", Toast.LENGTH_SHORT).show();
         }
         // If we get killed, after returning from here, restart
         return START_STICKY;
