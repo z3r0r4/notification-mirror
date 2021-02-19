@@ -13,6 +13,7 @@ import android.util.Log;
 import java.io.Serializable;
 import java.lang.annotation.Documented;
 import java.util.List;
+import java.util.logging.Logger;
 
 import androidx.core.app.NotificationManagerCompat;
 
@@ -99,24 +100,41 @@ class MirrorNotification implements Serializable {
      * @param netpkg the json package specifiying the key of the notification
      */
     public MirrorNotification(NetworkPackage netpkg) throws ExceptionInInitializerError {
-        MirrorNotification mn = NotificationReceiver.getactiveNotifications().get(netpkg.getKey());
-        if (mn.id != netpkg.getID()) {
-            Log.e(TAG, "wrong ID for notifiaction retrived by KEY");
-            throw new ExceptionInInitializerError();
+        try {
+            MirrorNotification mn = NotificationReceiver.getactiveNotifications().get(netpkg.getKey());
+            mn.log();
+            if (mn.id != netpkg.getID()) { //crash here if two pkgs are send afteranother bith with a dismiss
+                Log.e(TAG, "wrong ID for notifiaction retrived by KEY");
+                throw new ExceptionInInitializerError();
+            }
+            this.id = mn.id;
+            this.key = mn.key;
+            this.appName = mn.appName;
+            this.title = mn.title;
+            this.text = mn.text;
+            this.ticker = mn.ticker;
+            this.time = mn.time;
+            this.replyAction = mn.replyAction;
+            this.actions = mn.actions;
+            this.isCancel = mn.isCancel;
+            this.isReplyable = mn.isReplyable;
+            this.isActionable = mn.isActionable;
+        }catch (NullPointerException e){
+            Log.e(TAG,"couldnt finde Notification, maybe got dismissed");
         }
-
-        this.id = mn.id;
-        this.key = mn.key;
-        this.appName = mn.appName;
-        this.title = mn.title;
-        this.text = mn.text;
-        this.ticker = mn.ticker;
-        this.time = mn.time;
-        this.replyAction = mn.replyAction;
-        this.actions = mn.actions;
-        this.isCancel = mn.isCancel;
-        this.isReplyable = mn.isReplyable;
-        this.isActionable = mn.isActionable;
+    }
+    public void log(){
+        Log.d(TAG + "MirrorNotification", "to be mirrored:"
+                + "\nID     :" + this.id
+                + "\nkey    :" + this.key
+                + "\nappName:" + this.appName
+                + "\ntime   :" + this.time
+                + "\ntitle  :" + this.title
+                + "\ntext   :" + this.text
+                + "\nticker :" + this.ticker
+                + "\nactions:" + this.isActionable
+                + "\nrepAct :" + this.isReplyable
+        );
     }
 
     /**

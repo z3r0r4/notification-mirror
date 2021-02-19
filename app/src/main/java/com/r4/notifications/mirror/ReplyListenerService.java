@@ -25,9 +25,7 @@ import androidx.annotation.Nullable;
 //TODO make port modifiable
 
 //TODO clean code:
-//TODO extract methods
 //TODO clean logs
-//TODO
 
 //TODO hand over to pinging instead of keeping the socket open
 //for the time after notification with reply was transmitted
@@ -71,8 +69,8 @@ public class ReplyListenerService extends Service {
 
             Log.e(TAG + "run", "running a thread");
             try {
-                InetAddress IP = Inet4Address.getLocalHost();//InetAddress.getByName("192.168.232.2");//InetAddress.getByName(Resources.getSystem().getString(R.string.DefaultMirrorIP));
-                int PORT = Resources.getSystem().getInteger(R.integer.DefaultReceiverPORT);
+                InetAddress IP = Inet4Address.getLocalHost();//InetAddress.getByName("192.168.232.2");//InetAddress.getByName(MainActivity.sContext.getResources().getString(R.string.DefaultMirrorIP));
+                int PORT = MainActivity.sContext.getResources().getInteger(R.integer.DefaultReceiverPORT);
                 serverSocket = new ServerSocket(PORT, 0, IP);
 
                 while (!stopThread) {

@@ -18,17 +18,7 @@ class NotificationMirror {
      * @param PORT         of the socket
      */
     public static void mirror(MirrorNotification notification, String IP, int PORT) {
-        Log.d(TAG + "MirrorNotification", "to be mirrored:"
-                + "\nID     :" + notification.id
-                + "\nkey    :" + notification.key
-                + "\nappName:" + notification.appName
-                + "\ntime   :" + notification.time
-                + "\ntitle  :" + notification.title
-                + "\ntext   :" + notification.text
-                + "\nticker :" + notification.ticker
-                + "\nactions:" + notification.isActionable
-                + "\nrepAct :" + notification.isReplyable
-        );
+        notification.log();
 
         Mirror mirror = new Mirror(IP, PORT);
         mirror.execute(notification);

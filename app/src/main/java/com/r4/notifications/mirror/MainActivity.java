@@ -66,8 +66,10 @@ public class MainActivity extends AppCompatActivity {
         Button btnMsgTest = findViewById(R.id.btnMsgTest);
         Switch swListenerStatus = findViewById(R.id.swSetListenerPermission);
         Switch swMirrorState = findViewById(R.id.swMirrorState);
-        TextView tvIP = findViewById(R.id.tvMirrorIP);
-        TextView tvPORT = findViewById(R.id.tvMirrorPORT);
+        TextView tvMirrorIP = findViewById(R.id.tvMirrorIP);
+        TextView tvMirrorPORT = findViewById(R.id.tvMirrorPORT);
+        TextView tvReceiverIP = findViewById(R.id.tvReplyIP);
+        TextView tvReceiverPORT = findViewById(R.id.tvReplyPORT);
         EditText etIP = findViewById(R.id.etIP);
         EditText etPORT = findViewById(R.id.etPort);
         Button btnSaveConnection = findViewById(R.id.btnSave);
@@ -98,15 +100,18 @@ public class MainActivity extends AppCompatActivity {
         /**handle replyintents from testnotification*/
         handleReplyIntent();
 
-        /**show Socket Address in Textviews*/
-        tvIP.setText(shPref.getString("HOST_IP", Resources.getSystem().getString(R.string.DefaultMirrorIP)));
-        tvPORT.setText(String.valueOf(shPref.getInt("HOST_PORT", Resources.getSystem().getInteger(R.integer.DefaultMirrorPORT))));
+        /**show Mirror Socket Address in Textviews*/
+        showMirrorSocketAddress(tvMirrorIP, tvMirrorPORT);
 
         /**save IP:PORT from edittexts*/
         btnSaveConnection.setOnClickListener(v -> {
             setSocketAddress(etIP, etPORT);
-            showSocketAddress(tvIP, tvPORT);
+            showMirrorSocketAddress(tvMirrorIP, tvMirrorPORT);
         });
+
+        /**show Receiver Socket Address in Textviews*/
+        showReceiverSocketAddress(tvReceiverIP, tvReceiverPORT);
+
 
         if (!getListenerServiceStatus()) return;
         /**add onclick to post Test Notification */
@@ -167,10 +172,10 @@ public class MainActivity extends AppCompatActivity {
      * @param etPORT
      */
     private void setSocketAddress(EditText etIP, EditText etPORT) {
-        String IP = Resources.getSystem().getString(R.string.DefaultMirrorIP);
+        String IP = MainActivity.sContext.getResources().getString(R.string.DefaultMirrorIP);
         IP = etIP.getText().toString().equals("") ? IP : etIP.getText().toString();
 
-        int PORT = Resources.getSystem().getInteger(R.integer.DefaultMirrorPORT);
+        int PORT = MainActivity.sContext.getResources().getInteger(R.integer.DefaultMirrorPORT);
         try {
             PORT = Integer.parseInt(etPORT.getText().toString()) != 0 ? Integer.parseInt(etPORT.getText().toString()) : PORT;
         } catch (NumberFormatException e) {
@@ -185,14 +190,25 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /**
-     * Show the Socket Address in the Textviews
+     * Show the Socket Address the mirror tries to connect to in the Textviews
      *
      * @param tvIP
      * @param tvPORT
      */
-    private void showSocketAddress(TextView tvIP, TextView tvPORT) {
-        tvIP.setText(shPref.getString("HOST_IP", Resources.getSystem().getString(R.string.DefaultMirrorIP)));
-        tvPORT.setText(String.valueOf(shPref.getInt("HOST_PORT", Resources.getSystem().getInteger(R.integer.DefaultMirrorPORT))));
+    private void showMirrorSocketAddress(TextView tvIP, TextView tvPORT) {
+        tvIP.setText(shPref.getString("HOST_IP", sContext.getResources().getString(R.string.DefaultMirrorIP)));
+        tvPORT.setText(String.valueOf(shPref.getInt("HOST_PORT", sContext.getResources().getInteger(R.integer.DefaultMirrorPORT))));
+    }
+
+    /**
+     * Show the Socket Address the Receiver listens to in the Textviews
+     *
+     * @param tvIP
+     * @param tvPORT
+     */
+    private void showReceiverSocketAddress(TextView tvIP, TextView tvPORT) {
+        tvIP.setText(MainActivity.sContext.getResources().getString(R.string.DefaultReceiverIP));//shPref.getString("HOST_IP",
+            tvPORT.setText(String.valueOf(getResources().getInteger(R.integer.DefaultReceiverPORT)));//String.valueOf(shPref.getInt("HOST_PORT",
     }
 
     /**
