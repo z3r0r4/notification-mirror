@@ -8,6 +8,7 @@ import android.app.RemoteInput;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Button;
@@ -15,6 +16,7 @@ import android.widget.EditText;
 import android.widget.Switch;
 import android.widget.TextView;
 
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
@@ -51,10 +53,12 @@ public class MainActivity extends AppCompatActivity {
      *
      * @return NotificationManager with channel for test purposes
      */
+    @RequiresApi(api = Build.VERSION_CODES.O)
     @Deprecated
     public static NotificationManagerCompat createTestNotificationChannel() {
         NotificationManagerCompat notificationManager = NotificationManagerCompat.from(MainActivity.sContext);
-        notificationManager.createNotificationChannel(new NotificationChannel("TestChannel", "Test", NotificationManager.IMPORTANCE_HIGH));
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+            notificationManager.createNotificationChannel(new NotificationChannel("TestChannel", "Test", NotificationManager.IMPORTANCE_HIGH));
         return notificationManager;
     }
 

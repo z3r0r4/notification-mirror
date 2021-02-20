@@ -3,7 +3,6 @@ package com.r4.notifications.mirror;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
-import android.app.RemoteInput;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -13,7 +12,9 @@ import android.util.Log;
 import java.io.Serializable;
 import java.util.List;
 
+import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
+import androidx.core.app.RemoteInput;
 
 class MirrorNotification implements Serializable {
 
@@ -26,7 +27,7 @@ class MirrorNotification implements Serializable {
     public String text;
     public String ticker;
     public String time;
-    public transient Notification.Action replyAction;   //theres only one replyaction
+    public transient NotificationCompat.Action replyAction;   //theres only one replyaction
     public transient List<Notification.Action> actions; //excludes repliable Actions
 
     public boolean isCancel;   //TODO onNotificationRemoved
@@ -137,14 +138,14 @@ class MirrorNotification implements Serializable {
         this.title = title;
         this.text = text;
 
-        RemoteInput remoteInput = new RemoteInput.Builder("reply")
+        androidx.core.app.RemoteInput remoteInput = new androidx.core.app.RemoteInput.Builder("reply")
                 .setLabel("Enter Text Boss")
                 .build();
         Intent replyIntent = new Intent(context, MainActivity.class);
         PendingIntent replyPendingIntent =
                 PendingIntent.getActivity(context, 1, replyIntent, PendingIntent.FLAG_UPDATE_CURRENT);
         this.replyAction =
-                new Notification.Action.Builder(android.R.drawable.ic_dialog_info, "Reply", replyPendingIntent)
+                new NotificationCompat.Action.Builder(android.R.drawable.ic_dialog_info, "Reply", replyPendingIntent)
                         .addRemoteInput(remoteInput)
                         .build();
     }
@@ -208,7 +209,7 @@ class MirrorNotification implements Serializable {
         Intent intent = new Intent();
         intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         Bundle bundle = new Bundle();
-        for (RemoteInput remoteIn : this.replyAction.getRemoteInputs())
+        for (androidx.core.app.RemoteInput remoteIn : this.replyAction.getRemoteInputs())
             bundle.putCharSequence(remoteIn.getResultKey(), message);
 
         RemoteInput.addResultsToIntent(this.replyAction.getRemoteInputs(), intent, bundle);
@@ -229,7 +230,7 @@ class MirrorNotification implements Serializable {
      */
     @Deprecated
     public void post(NotificationManagerCompat notificationManager, Context context) {
-        Notification notification = new Notification.Builder(context, "TestChannel")
+        Notification notification = new NotificationCompat.Builder(context, "TestChannel")
                 .setSmallIcon(android.R.drawable.ic_dialog_info)
                 .setContentTitle(this.title)
                 .setContentText(this.text)

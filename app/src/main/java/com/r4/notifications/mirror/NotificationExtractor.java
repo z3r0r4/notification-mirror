@@ -180,7 +180,7 @@ class NotificationExtractor {
      * @return the replyaction of the given notification
      */
     //RETURNS THE ACTUAL REPLY ACTION WITH THE FiTTING REMOTE INPUT doesnt store all of the actions like smth called k** (still gotta search for the right remoteInput, when replying tho)
-    protected static Notification.Action getReplyAction(StatusBarNotification sbn) {
+    protected static NotificationCompat.Action getReplyAction(StatusBarNotification sbn) {
         MirrorNotification.Logger log = () -> Log.e(TAG + "getReplyAction", "REPLYACTION EXTRACTION FAILED");
 
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
@@ -190,7 +190,7 @@ class NotificationExtractor {
 
         Notification notification = sbn.getNotification();
         if (notification.actions != null && notification.actions.length > 0) {
-            for (Notification.Action action : notification.actions) {
+            for (NotificationCompat.Action action : NotificationCompat.getAction(notification)) {
                 if (action != null && action.getRemoteInputs() != null) {
                     for (RemoteInput remoteInput : action.getRemoteInputs()) {//kde version stores all remoteInputs and uses a different replyfunction
                         String resultKey = remoteInput.getResultKey().toLowerCase();
@@ -207,4 +207,5 @@ class NotificationExtractor {
         log.e();
         return null;
     }
+    
 }
