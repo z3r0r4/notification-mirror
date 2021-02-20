@@ -2,7 +2,6 @@ package com.r4.notifications.mirror;
 
 import android.app.Notification;
 import android.service.notification.StatusBarNotification;
-import android.util.Log;
 
 import androidx.core.app.NotificationCompat;
 

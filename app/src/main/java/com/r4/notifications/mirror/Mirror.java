@@ -13,8 +13,7 @@ import java.net.Socket;
 
 
 //TODO wait for secret
-//TODO receive replies in Background service
-//TODO reply then
+
 class Mirror extends AsyncTask<MirrorNotification, Void, Void> { //deprecated but who cares
     private final static String TAG = "Mirror";
 

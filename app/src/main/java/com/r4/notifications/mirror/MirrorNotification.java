@@ -11,9 +11,7 @@ import android.service.notification.StatusBarNotification;
 import android.util.Log;
 
 import java.io.Serializable;
-import java.lang.annotation.Documented;
 import java.util.List;
-import java.util.logging.Logger;
 
 import androidx.core.app.NotificationManagerCompat;
 
@@ -119,22 +117,9 @@ class MirrorNotification implements Serializable {
             this.isCancel = mn.isCancel;
             this.isReplyable = mn.isReplyable;
             this.isActionable = mn.isActionable;
-        }catch (NullPointerException e){
-            Log.e(TAG,"couldnt finde Notification, maybe got dismissed");
+        } catch (NullPointerException e) {
+            Log.e(TAG, "couldnt finde Notification, maybe got dismissed");
         }
-    }
-    public void log(){
-        Log.d(TAG + "MirrorNotification", "to be mirrored:"
-                + "\nID     :" + this.id
-                + "\nkey    :" + this.key
-                + "\nappName:" + this.appName
-                + "\ntime   :" + this.time
-                + "\ntitle  :" + this.title
-                + "\ntext   :" + this.text
-                + "\nticker :" + this.ticker
-                + "\nactions:" + this.isActionable
-                + "\nrepAct :" + this.isReplyable
-        );
     }
 
     /**
@@ -179,6 +164,20 @@ class MirrorNotification implements Serializable {
     public MirrorNotification(String id, String title, String text, String replyActionName, String actionName, Context context) {
     }
 
+    public void log() {
+        Log.d(TAG + "MirrorNotification", "to be mirrored:"
+                + "\nID     :" + this.id
+                + "\nkey    :" + this.key
+                + "\nappName:" + this.appName
+                + "\ntime   :" + this.time
+                + "\ntitle  :" + this.title
+                + "\ntext   :" + this.text
+                + "\nticker :" + this.ticker
+                + "\nactions:" + this.isActionable
+                + "\nrepAct :" + this.isReplyable
+        );
+    }
+
     /**
      * execute the action of a notification by name
      * writes ? times
@@ -202,7 +201,7 @@ class MirrorNotification implements Serializable {
             Helper.toasted("Not Repliable");
         };
         if (this.replyAction == null || this.replyAction.getRemoteInputs().length == 0) {
-            Log.e(TAG,"no actions or remote inputs to reply to");
+            Log.e(TAG, "no actions or remote inputs to reply to");
             return;
         }
 

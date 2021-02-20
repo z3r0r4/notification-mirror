@@ -31,8 +31,7 @@ public class MainActivity extends AppCompatActivity {
     private NotificationManagerCompat notificationManager;
     private SharedPreferences shPref;
     private SharedPreferences.Editor editor;
-    //TODO replace default IP with 127.0.0.1
-    //TODO create application data graph
+
     //TODO show last replies from pc
 
     /**
