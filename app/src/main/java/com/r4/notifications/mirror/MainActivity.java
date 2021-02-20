@@ -8,7 +8,6 @@ import android.app.RemoteInput;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.res.Resources;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Button;
@@ -32,7 +31,19 @@ public class MainActivity extends AppCompatActivity {
     private SharedPreferences shPref;
     private SharedPreferences.Editor editor;
 
+    //TODO test on other version -> move minsdk to 24
+    //TODO test on real devices
+
+    //TODO extract string and int resources
+    //TODO improve logging
+    //TODO add modifier for timeout
+
     //TODO show last replies from pc
+    //TODO add test for mirror and receiver
+    //TODO package mirror and receiver
+    //TODO add conditional mirroring and receiving based on network name or other things
+    //TODO add encryption?
+    //TODO remove tests in release
 
     /**
      * Test only
@@ -207,7 +218,7 @@ public class MainActivity extends AppCompatActivity {
      */
     private void showReceiverSocketAddress(TextView tvIP, TextView tvPORT) {
         tvIP.setText(MainActivity.sContext.getResources().getString(R.string.DefaultReceiverIP));//shPref.getString("HOST_IP",
-            tvPORT.setText(String.valueOf(getResources().getInteger(R.integer.DefaultReceiverPORT)));//String.valueOf(shPref.getInt("HOST_PORT",
+        tvPORT.setText(String.valueOf(getResources().getInteger(R.integer.DefaultReceiverPORT)));//String.valueOf(shPref.getInt("HOST_PORT",
     }
 
     /**

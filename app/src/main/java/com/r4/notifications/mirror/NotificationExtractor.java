@@ -111,8 +111,7 @@ class NotificationExtractor {
         }
 
         String text = "";
-        //TODO TEST and fix maybe
-        for (Parcelable p : messages) { //for (Bundle message : (Bundle[]) messages) {
+        for (Parcelable p : messages) { //for (Bundle message : (Bundle[]) messages) { //TODO TEST and fix maybe
             Bundle message = (Bundle) p;
             if (isGroupConversation && message.containsKey("sender"))
                 text = (String) message.get("sender") + ": ";

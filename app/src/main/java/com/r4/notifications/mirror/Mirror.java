@@ -12,8 +12,6 @@ import java.net.InetSocketAddress;
 import java.net.Socket;
 
 
-//TODO wait for secret
-
 class Mirror extends AsyncTask<MirrorNotification, Void, Void> { //deprecated but who cares
     private final static String TAG = "Mirror";
 
