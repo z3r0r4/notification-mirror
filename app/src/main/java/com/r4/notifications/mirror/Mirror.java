@@ -1,6 +1,5 @@
 package com.r4.notifications.mirror;
 
-import android.content.res.Resources;
 import android.os.AsyncTask;
 import android.util.Log;
 
@@ -15,8 +14,8 @@ import java.net.Socket;
 class Mirror extends AsyncTask<MirrorNotification, Void, Void> { //deprecated but who cares
     private final static String TAG = "Mirror";
 
-    private String HOST_IP = MainActivity.sContext.getResources().getString(R.string.DefaultMirrorIP);
-    private int HOST_PORT = MainActivity.sContext.getResources().getInteger(R.integer.DefaultMirrorPORT);
+    private String hostIP = MainActivity.sContext.getResources().getString(R.string.DefaultMirrorIP);
+    private int hostPort = MainActivity.sContext.getResources().getInteger(R.integer.DefaultMirrorPORT);
 
     /**
      * needed
@@ -31,8 +30,8 @@ class Mirror extends AsyncTask<MirrorNotification, Void, Void> { //deprecated bu
      * @param PORT
      */
     protected Mirror(String IP, int PORT) {
-        this.HOST_IP = IP;
-        this.HOST_PORT = PORT;
+        this.hostIP = IP;
+        this.hostPort = PORT;
     }
 
     /**
@@ -48,9 +47,9 @@ class Mirror extends AsyncTask<MirrorNotification, Void, Void> { //deprecated bu
         MirrorNotification notification = mnts[0];
         Log.d(TAG, "doInBackground: Starting Async Socket Connection to mirror");
         try {
-            Log.d(TAG, "Trying to Connect to Socket " + HOST_IP + ":" + HOST_PORT);
+            Log.d(TAG, "Trying to Connect to Socket " + hostIP + ":" + hostPort);
             Socket socket = new Socket();//HOST_IP, HOST_PORT);
-            socket.connect(new InetSocketAddress(HOST_IP, HOST_PORT), 10000);
+            socket.connect(new InetSocketAddress(hostIP, hostPort), 10000);
             Log.d(TAG, "Socket Connected");
 
             String jason = new Gson().toJson(notification);
@@ -62,7 +61,7 @@ class Mirror extends AsyncTask<MirrorNotification, Void, Void> { //deprecated bu
             socket.close();
             Log.d(TAG + "doInBackground", "Notification successfully Mirrored");
         } catch (IOException e) {
-            Log.e(TAG + "doInBackground", "SOCKET CONNECTION FAILED\n" + HOST_IP + ":" + HOST_PORT,e);
+            Log.e(TAG + "doInBackground", "SOCKET CONNECTION FAILED\n" + hostIP + ":" + hostPort,e);
 //            Helper.toasted("Couldnt connect to Socket to mirror Notification");
         }
         Log.d(TAG + "doInBackground", "Ending Asynctask, Closed Socket");

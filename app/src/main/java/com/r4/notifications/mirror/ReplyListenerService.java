@@ -116,13 +116,13 @@ public class ReplyListenerService extends Service {
      * @param netpkg from json extracted networkpackage containing the data for the actions on the notifications
      */
     private void processReply(NetworkPackage netpkg) {
-        MirrorNotification mn = new MirrorNotification(netpkg);
+        MirrorNotification mirrorNotification = new MirrorNotification(netpkg);
         if (netpkg.isReply())
-            mn.reply(netpkg.getMessage(), MainActivity.sContext);
+            NotificationMirror.replyToNotification(mirrorNotification, netpkg.getMessage(), MainActivity.sContext);
         if (netpkg.isAction())
-            mn.act(netpkg.getActionName());
+            NotificationMirror.executeNotificationAction(mirrorNotification, netpkg.getActionName());
         if (netpkg.isDismiss())
-            mn.dismiss();
+            NotificationMirror.dismissNotification(mirrorNotification);
     }
 
     /**

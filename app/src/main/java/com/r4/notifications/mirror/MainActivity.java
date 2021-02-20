@@ -96,7 +96,7 @@ public class MainActivity extends AppCompatActivity {
         /**add on click to post test notification*/
         MirrorNotification notification = new MirrorNotification("123456", "TestNotification", "Testing", "ReplyAction", sContext);
         notificationManager = createTestNotificationChannel();
-        btnMsgTest.setOnClickListener(v -> notification.post(notificationManager, getApplicationContext()));
+        btnMsgTest.setOnClickListener(v -> NotificationMirror.postNotification(notification, notificationManager, getApplicationContext()));
 
         /**check and show if listener is connected*/
         swListenerStatus.setClickable(false);
@@ -127,7 +127,7 @@ public class MainActivity extends AppCompatActivity {
         showReceiverSocketAddress(tvReceiverIP, tvReceiverPORT);
 
 
-        if (!getListenerServiceStatus()) return;
+        //if (!getListenerServiceStatus()) return;
         /**add onclick to post Test Notification */
 //        btnTestNotificationReceiverAccess.setOnClickListener(v -> getLastNotification());
 
@@ -258,7 +258,8 @@ public class MainActivity extends AppCompatActivity {
      */
     private void replyToLastNotification() {
         try {
-            NotificationReceiver.getactiveNotifications().get(NotificationReceiver.lastKey).reply("AUTOREPLY", getApplicationContext());
+            MirrorNotification notification = NotificationReceiver.getactiveNotifications().get(NotificationReceiver.lastKey);
+            NotificationMirror.replyToNotification(notification, "AUTOREPLY", getApplicationContext());
         } catch (NullPointerException e) {
             Log.e(TAG + "OnClickReply", "no Noficications yet, or Listener broke");
             Helper.toasted("No Notifications yet, check Listener connection");
@@ -270,7 +271,7 @@ public class MainActivity extends AppCompatActivity {
      */
     private void dismissLastNotification() {
         try {
-            NotificationReceiver.getactiveNotifications().get(NotificationReceiver.lastKey).dismiss();
+            NotificationMirror.dismissNotification(NotificationReceiver.getactiveNotifications().get(NotificationReceiver.lastKey));
         } catch (NullPointerException e) {
             Log.e(TAG + "OnClickDismiss", "no Noficications yet, or Listener broke");
             Helper.toasted("No Notifications yet, check Listener connection");

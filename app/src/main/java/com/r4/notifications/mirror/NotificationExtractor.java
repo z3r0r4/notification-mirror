@@ -13,7 +13,10 @@ import java.util.List;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.RemoteInput;
 
-class NotificationExtractor {
+import org.json.JSONException;
+import org.json.JSONObject;
+
+public class NotificationExtractor {
     private static final String TAG = "Notification Extractor";
 
     /**
@@ -214,5 +217,37 @@ class NotificationExtractor {
             actions[i] = NotificationCompat.getAction(notification, i);
         }
         return actions;
+    }
+
+    /**
+     * gets strings out of json object and catches missing keys safely
+     *
+     * @param json    jsonobject that contains the data
+     * @param jsonKey key that should be lookedup
+     * @return key entry, or empty string "" if keys missing
+     */
+    public static String getString(JSONObject json, String jsonKey) {
+        try {
+            return (String) json.get(jsonKey);
+        } catch (JSONException j) {
+            Log.e(TAG, "key entry missing: " + jsonKey);
+            return "";
+        }
+    }
+
+    /**
+     * gets booleans out of json object and catches missing keys safely
+     *
+     * @param json    jsonobject that contains the data
+     * @param jsonKey key that should be lookedup
+     * @return key entry, or false if keys missing
+     */
+    public static boolean getBoolean(JSONObject json, String jsonKey) {
+        try {
+            return Boolean.parseBoolean((String) json.get(jsonKey));
+        } catch (JSONException j) {
+            Log.e(TAG, "key entry missing: " + jsonKey);
+            return false;
+        }
     }
 }

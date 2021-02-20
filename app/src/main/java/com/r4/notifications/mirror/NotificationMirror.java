@@ -1,12 +1,20 @@
 package com.r4.notifications.mirror;
 
 import android.app.Notification;
+import android.app.NotificationManager;
+import android.app.PendingIntent;
+import android.content.Context;
+import android.content.Intent;
+import android.os.Bundle;
 import android.service.notification.StatusBarNotification;
+import android.util.Log;
 
 import androidx.core.app.NotificationCompat;
+import androidx.core.app.NotificationManagerCompat;
+import androidx.core.app.RemoteInput;
 
 class NotificationMirror {
-    private final static String TAG = "NotifiactionMirror";
+    private final static String TAG = "NotificationMirror";
 
     /**
      * sends the given notification via tcp and the Mirror Class over the network to the specified socket address
@@ -17,8 +25,6 @@ class NotificationMirror {
      * @param PORT         of the socket
      */
     public static void mirror(MirrorNotification notification, String IP, int PORT) {
-        notification.log();
-
         Mirror mirror = new Mirror(IP, PORT);
         mirror.execute(notification);
     }
@@ -30,6 +36,56 @@ class NotificationMirror {
      */
     public static void mirrorCancel(MirrorNotification notification, String IP, int PORT) {
 
+    }
+
+    public static void executeNotificationAction(MirrorNotification mirrorNotification, String actionName) {
+
+    }
+
+    public static void dismissNotification(MirrorNotification mirrorNotification) {
+        NotificationManager notificationManager = (NotificationManager) MainActivity.sContext.getSystemService(Context.NOTIFICATION_SERVICE);
+        notificationManager.cancel(mirrorNotification.getId());
+    }
+
+    public static void postNotification(MirrorNotification mirrorNotification, NotificationManagerCompat notificationManager, Context context) {
+        Notification notification = new NotificationCompat.Builder(context, "TestChannel")
+                .setSmallIcon(android.R.drawable.ic_dialog_info)
+                .setContentTitle(mirrorNotification.getTitle())
+                .setContentText(mirrorNotification.getText())
+//                .setContentIntent(pIntent)
+//                .setPriority(NotificationCompat.PRIORITY_MAX) //For lower androids without channels
+//                .setAutoCancel(true) //close onclick
+                .addAction(mirrorNotification.getReplyAction())
+                .build();
+        notificationManager.notify(9001, notification);
+    }
+
+    public static void replyToNotification(MirrorNotification mirrorNotification, String message, Context context) {
+        MirrorNotification.Logger log = () -> {
+            Log.e(TAG + "reply", "NO REPLYACTIONS or REMOTEINPUTS");
+            Helper.toasted("Not Repliable");
+        };
+
+        final NotificationCompat.Action replyAction = mirrorNotification.getReplyAction();
+
+        if (replyAction == null || replyAction.getRemoteInputs().length == 0) {
+            Log.e(TAG, "no actions or remote inputs to reply to");
+            return;
+        }
+
+        Intent intent = new Intent();
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        Bundle bundle = new Bundle();
+        for (androidx.core.app.RemoteInput remoteIn : replyAction.getRemoteInputs())
+            bundle.putCharSequence(remoteIn.getResultKey(), message);
+
+        RemoteInput.addResultsToIntent(replyAction.getRemoteInputs(), intent, bundle);
+        try {
+            replyAction.actionIntent.send(context, 0, intent); //SET
+        } catch (PendingIntent.CanceledException e) {
+            Log.e(TAG + "reply", "REPLY FAILED" + e.getLocalizedMessage());
+            Helper.toasted("Couldnt reply to Notification");
+        }
     }
 
     /**

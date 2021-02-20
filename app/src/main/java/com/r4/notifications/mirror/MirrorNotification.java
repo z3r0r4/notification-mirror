@@ -16,6 +16,9 @@ import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 import androidx.core.app.RemoteInput;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
 class MirrorNotification implements Serializable {
 
     private final static String TAG = "MirrorNotification";
@@ -53,7 +56,7 @@ class MirrorNotification implements Serializable {
      * isActionable : boo if there are actions
      * isReplyable  : boo if a replyaction was found
      *
-     * @param sbn caought statusbarnotification
+     * @param sbn caught statusbarnotification
      */
     public MirrorNotification(StatusBarNotification sbn) {
         id = sbn.getId();
@@ -68,28 +71,6 @@ class MirrorNotification implements Serializable {
 
         if (actions != null) isActionable = true;
         if (replyAction != null) isReplyable = true;
-    }
-
-    /**
-     * Test only
-     * creates a notification that can be posted and replied to
-     *
-     * @param id
-     */
-    @Deprecated
-    public MirrorNotification(String id) {
-    }
-
-    /**
-     * Test only
-     * creates a notification that can be posted
-     *
-     * @param id
-     * @param title
-     * @param text
-     */
-    @Deprecated
-    public MirrorNotification(String id, String title, String text) {
     }
 
     /**
@@ -120,6 +101,27 @@ class MirrorNotification implements Serializable {
             this.isActionable = mn.isActionable;
         } catch (NullPointerException e) {
             Log.e(TAG, "couldnt finde Notification, maybe got dismissed");
+        }
+    }
+
+    public MirrorNotification(String jsonformatedstring) {
+        try {
+            JSONObject json = new JSONObject(jsonformatedstring);
+            this.id = json.getInt("id");
+            this.key = json.getString("key");
+            this.text = json.getString("message");
+            this.isActionable = json.getBoolean("isaction");
+            this.isReplyable = json.getBoolean("isreply");
+        } catch (JSONException e) {
+            Log.e(TAG, "could not extract");
+        }
+        if (this.key.equals("")) {
+            Log.e(TAG, "key cant be empty, needed for notification extraction");
+            throw new NullPointerException();
+        }
+        if (this.id == 0) {//maybe not that necessary
+            Log.e(TAG, "id cant be 0, needed for notification extraction");
+            throw new NullPointerException();
         }
     }
 
@@ -179,83 +181,62 @@ class MirrorNotification implements Serializable {
         );
     }
 
-    /**
-     * execute the action of a notification by name
-     * writes ? times
-     *
-     * @param actionName name of the action of the notification to be executed
-     */
-    public void act(String actionName) {
-
-    }
-
-    /**
-     * replies to a notification using its replyaction and its remote inputs
-     * writes once
-     *
-     * @param message which should be replied
-     * @param context trash
-     */
-    public void reply(String message, Context context) {//maybe MirrorWorker
-        Logger log = () -> {
-            Log.e(TAG + "reply", "NO REPLYACTIONS or REMOTEINPUTS");
-            Helper.toasted("Not Repliable");
-        };
-        if (this.replyAction == null || this.replyAction.getRemoteInputs().length == 0) {
-            Log.e(TAG, "no actions or remote inputs to reply to");
-            return;
-        }
-
-        Intent intent = new Intent();
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        Bundle bundle = new Bundle();
-        for (androidx.core.app.RemoteInput remoteIn : this.replyAction.getRemoteInputs())
-            bundle.putCharSequence(remoteIn.getResultKey(), message);
-
-        RemoteInput.addResultsToIntent(this.replyAction.getRemoteInputs(), intent, bundle);
-        try {
-            replyAction.actionIntent.send(context, 0, intent); //SET
-        } catch (PendingIntent.CanceledException e) {
-            Log.e(TAG + "reply", "REPLY FAILED" + e.getLocalizedMessage());
-            Helper.toasted("Couldnt reply to Notification");
-        }
-    }
-
-    /**
-     * Test only
-     * posts this notification to the channel of a notification manager
-     *
-     * @param notificationManager with the channel its posted to
-     * @param context             trash
-     */
-    @Deprecated
-    public void post(NotificationManagerCompat notificationManager, Context context) {
-        Notification notification = new NotificationCompat.Builder(context, "TestChannel")
-                .setSmallIcon(android.R.drawable.ic_dialog_info)
-                .setContentTitle(this.title)
-                .setContentText(this.text)
-//                .setContentIntent(pIntent)
-//                .setPriority(NotificationCompat.PRIORITY_MAX) //For lower androids without channels
-//                .setAutoCancel(true) //close onclick
-                .addAction(this.replyAction)
-                .build();
-        notificationManager.notify(9001, notification);
-    }
-
-    /**
-     * dismisses this notification posted which is identified by its id
-     * <p>
-     * //     * @param notificationManager with the channel the notification was posted to
-     */
-    public void dismiss() {
-        NotificationManager notificationManager = (NotificationManager) MainActivity.sContext.getSystemService(Context.NOTIFICATION_SERVICE);
-        notificationManager.cancel(id);
-    }
+    //
 
     /**
      * interface for custom implementation logging in each method
      */
     interface Logger {
         void e();
+    }
+
+    //Getter and Setter
+
+    public int getId() {
+        return id;
+    }
+
+    public String getKey() {
+        return key;
+    }
+
+    public String getAppName() {
+        return appName;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public String getText() {
+        return text;
+    }
+
+    public String getTicker() {
+        return ticker;
+    }
+
+    public String getTime() {
+        return time;
+    }
+
+    public NotificationCompat.Action getReplyAction() {
+        return replyAction;
+    }
+
+    public List<Notification.Action> getActions() {
+        return actions;
+    }
+
+    public boolean isCancel() {
+        return isCancel;
+    }
+
+    public boolean isReplyable() {
+        return isReplyable;
+    }
+
+    public boolean isActionable() {
+        return isActionable;
     }
 }
