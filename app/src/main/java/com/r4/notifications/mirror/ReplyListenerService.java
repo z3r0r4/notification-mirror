@@ -21,6 +21,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 
 import androidx.annotation.Nullable;
+import androidx.core.app.NotificationCompat;
 
 //TODO make port modifiable
 
@@ -177,7 +178,7 @@ public class ReplyListenerService extends Service {
         Intent notificationIntent = new Intent(this, ReplyListenerService.class);
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
         Notification notification =
-                new Notification.Builder(this, MainActivity.FOREGROUND_SERVICE_NOTIFICATIONCHANNEL_ID)
+                new NotificationCompat.Builder(this, MainActivity.FOREGROUND_SERVICE_NOTIFICATIONCHANNEL_ID)
                         .setContentTitle("Notification Mirror Reply Listener Service")
                         .setContentText("Listening for Replies from the PC")
                         .setSmallIcon(R.drawable.ic_launcher_background) //very necessary

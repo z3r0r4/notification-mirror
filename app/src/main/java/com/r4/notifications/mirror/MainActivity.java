@@ -87,7 +87,7 @@ public class MainActivity extends AppCompatActivity {
         EditText etIP = findViewById(R.id.etIP);
         EditText etPORT = findViewById(R.id.etPort);
         Button btnSaveConnection = findViewById(R.id.btnSave);
-        Button btnTestNotificationReceiverAccess = findViewById(R.id.btnTestBinding);
+//        Button btnTestNotificationReceiverAccess = findViewById(R.id.btnTestBinding);
         Button btnReply = findViewById(R.id.btnReply);
         Button btnDismiss = findViewById(R.id.btnDismiss);
         Button btnNetTest = findViewById(R.id.btnNetTest);
@@ -129,7 +129,7 @@ public class MainActivity extends AppCompatActivity {
 
         if (!getListenerServiceStatus()) return;
         /**add onclick to post Test Notification */
-        btnTestNotificationReceiverAccess.setOnClickListener(v -> getLastNotification());
+//        btnTestNotificationReceiverAccess.setOnClickListener(v -> getLastNotification());
 
         /**add onclick to reply to last notification */
         btnReply.setOnClickListener(v -> replyToLastNotification());
@@ -338,8 +338,10 @@ public class MainActivity extends AppCompatActivity {
      * creates a notification channel for the Foreground Receiver Service
      * could be merged with the createTestNotificationChannel in Mirrornotifcation class
      */
+    @RequiresApi(api = Build.VERSION_CODES.O)
     private void createForegroundServiceNotificationChannel() {
         NotificationManagerCompat notificationManager = NotificationManagerCompat.from(MainActivity.sContext);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
         notificationManager.createNotificationChannel(new NotificationChannel(FOREGROUND_SERVICE_NOTIFICATIONCHANNEL_ID, FOREGROUND_SERVICE_NOTIFICATIONCHANNEL_NAME, NotificationManager.IMPORTANCE_HIGH));
     }
 

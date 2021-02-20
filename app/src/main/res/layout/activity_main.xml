@@ -190,20 +190,20 @@
             android:layout_height="wrap_content"
             android:text="Test NetWork" />
 
-        <Switch
-            android:id="@+id/swTestNetwork"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:padding="5dp"
-            android:text="Test Network on Listener Start"
-            tools:ignore="UseSwitchCompatOrMaterialXml" />
+<!--        <Switch-->
+<!--            android:id="@+id/swTestNetwork"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:padding="5dp"-->
+<!--            android:text="Test Network on Listener Start"-->
+<!--            tools:ignore="UseSwitchCompatOrMaterialXml" />-->
 
-        <!-- @deprecated -->
-        <Button
-            android:id="@+id/btnTestBinding"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Test Access to Notifications" />
+<!--        &lt;!&ndash; @deprecated &ndash;&gt;-->
+<!--        <Button-->
+<!--            android:id="@+id/btnTestBinding"-->
+<!--            android:layout_width="match_parent"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:text="Test Access to Notifications" />-->
 
         <TextView
             android:id="@+id/tvRepliedText"

@@ -1,7 +1,6 @@
 package com.r4.notifications.mirror;
 
 import android.app.Notification;
-import android.app.RemoteInput;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcelable;
@@ -12,6 +11,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import androidx.core.app.NotificationCompat;
+import androidx.core.app.RemoteInput;
 
 class NotificationExtractor {
     private static final String TAG = "Notification Extractor";
@@ -190,7 +190,7 @@ class NotificationExtractor {
 
         Notification notification = sbn.getNotification();
         if (notification.actions != null && notification.actions.length > 0) {
-            for (NotificationCompat.Action action : NotificationCompat.getAction(notification)) {
+            for (NotificationCompat.Action action : getActions(notification)) {
                 if (action != null && action.getRemoteInputs() != null) {
                     for (RemoteInput remoteInput : action.getRemoteInputs()) {//kde version stores all remoteInputs and uses a different replyfunction
                         String resultKey = remoteInput.getResultKey().toLowerCase();
@@ -207,5 +207,12 @@ class NotificationExtractor {
         log.e();
         return null;
     }
-    
+
+    private static NotificationCompat.Action[] getActions(Notification notification) {
+        NotificationCompat.Action[] actions = new NotificationCompat.Action[NotificationCompat.getActionCount(notification)];
+        for (int i = 0; i < NotificationCompat.getActionCount(notification); i++) {
+            actions[i] = NotificationCompat.getAction(notification, i);
+        }
+        return actions;
+    }
 }
