@@ -59,11 +59,11 @@ public class ReplyListenerService extends Service {
      */
     Runnable ReplyReceiverRunnable = new Runnable() {
         /* TO USE THIS IN THE EMULATOR: THE PORTS HAVE TO BE FORWARDED
-         * adb -s emulator-5554 forward tcp:9002 tcp:9001
+         * adb -s emulator-5556 forward tcp:9002 tcp:9001
          * tcp:port adresses on host machine tcp:port forwarded to on emulator
          *
          * Test with:
-         *   echo "{'id':'9001','key':'0|com.r4.notifications.mirror|9001|null|10084','message':'ANSWER','isdismiss':'true','isreply':'','isaction':''}" | nc 127.0.0.1 9002
+         *   echo "{'id':'9001','key':'0|com.r4.notifications.mirror|9001|null|10064','message':'ANSWER','isdismiss':'true','isreply':'','isaction':''}" | nc 127.0.0.1 9002
          * */
         @Override
         public void run() {
