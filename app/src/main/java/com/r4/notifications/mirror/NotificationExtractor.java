@@ -120,6 +120,7 @@ class NotificationExtractor {
         if (text.equals(""))
             log.e();//, new NullPointerException());
         return text;
+//        https://stackoverflow.com/questions/28047767/notificationlistenerservice-not-reading-text-of-stacked-notifications
     }
 
     /**

@@ -7,7 +7,6 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.res.Resources;
 import android.os.IBinder;
 import android.util.Log;
 import android.widget.Toast;
@@ -37,9 +36,11 @@ import androidx.annotation.Nullable;
 public class ReplyListenerService extends Service {
     private static final int FOREGROUND_SERVICE_NOTIFICATION_ID = 5646545;
     private static final String TAG = "ReplyListenerService";
+    private SharedPreferences.Editor editor;
 
     private ServerSocket serverSocket;
     private Socket socket;
+
     private Thread mThread;
     private boolean stopThread = false;
     /**
@@ -104,7 +105,6 @@ public class ReplyListenerService extends Service {
             stopSelf(); //maybe restart service to restart thread
         }
     };
-    private SharedPreferences.Editor editor;
 
     /**
      * depening on the network package answer the notification

@@ -60,20 +60,4 @@ class NotificationMirror {
         }
         return false;
     }
-
-    /**
-     * reacts to a answer from the pc
-     * replies to notifications
-     * actions
-     * dismisses
-     *
-     * @param networkPackage
-     */
-    private void onReceive(NetworkPackage networkPackage) {//maybe not here
-//        MirrorNotification notification = getNotification(networkPackage.getID());
-//        if (networkPackage.isReply())
-//            notification.reply(networkPackage.getMessage());
-//        else if (networkPackage.isAction())
-//            notification.act(networkPackage.getActionName());
-    }
 }

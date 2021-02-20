@@ -122,8 +122,7 @@ public class MainActivity extends AppCompatActivity {
         /**show Receiver Socket Address in Textviews*/
         showReceiverSocketAddress(tvReceiverIP, tvReceiverPORT);
 
-
-        if (!getListenerServiceStatus()) return;
+        if (!getListenerServiceStatus()) return; //Problematic
         /**add onclick to post Test Notification */
         btnTestNotificationReceiverAccess.setOnClickListener(v -> getLastNotification());
 
