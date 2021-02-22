@@ -4,6 +4,7 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.os.Build;
+import android.util.Log;
 
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
@@ -11,6 +12,8 @@ import androidx.core.app.NotificationManagerCompat;
 import static androidx.core.content.ContextCompat.getSystemService;
 
 public class NotificationGenerator {
+    private static final String TAG = "nm.NotificationGenerator";
+
     static int GENERATOR_ID = 0;
 
     NotificationCompat.Builder builder;
@@ -61,6 +64,8 @@ public class NotificationGenerator {
     public void show(String title, String content) {
         builder.setContentTitle(title).setContentText(content);
         notificationManager.notify(4, builder.build());
+
+        Log.d(TAG, "Test Notification sent!");
     }
 
     public boolean isInitialized()

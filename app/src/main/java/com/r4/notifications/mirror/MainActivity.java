@@ -1,18 +1,15 @@
 package com.r4.notifications.mirror;
 
-import android.app.Activity;
 import android.app.Notification;
 import android.app.RemoteInput;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.util.Log;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
@@ -106,7 +103,7 @@ public class MainActivity extends AppCompatActivity {
      */
     private void replyToLastNotification() {
         try {
-            MirrorNotification notification = NotificationReceiver.getactiveNotifications().get(NotificationReceiver.lastKey);
+            MirrorNotification notification = SystemNotificationReceiver.getactiveNotifications().get(SystemNotificationReceiver.lastKey);
             NotificationMirror.replyToNotification(notification, "AUTOREPLY", getApplicationContext());
         } catch (NullPointerException e) {
             Log.e(TAG + "OnClickReply", "no Noficications yet, or Listener broke");
@@ -119,7 +116,7 @@ public class MainActivity extends AppCompatActivity {
      */
     private void dismissLastNotification() {
         try {
-            NotificationMirror.dismissNotification(NotificationReceiver.getactiveNotifications().get(NotificationReceiver.lastKey));
+            NotificationMirror.dismissNotification(SystemNotificationReceiver.getactiveNotifications().get(SystemNotificationReceiver.lastKey));
         } catch (NullPointerException e) {
             Log.e(TAG + "OnClickDismiss", "no Noficications yet, or Listener broke");
             Helper.toasted("No Notifications yet, check Listener connection");
@@ -148,7 +145,7 @@ public class MainActivity extends AppCompatActivity {
      * @return state of the listener connection
      */
     private boolean getListenerServiceStatus() {
-        ComponentName cn = new ComponentName(this, NotificationReceiver.class);
+        ComponentName cn = new ComponentName(this, SystemNotificationReceiver.class);
         String flat = Settings.Secure.getString(this.getContentResolver(), "enabled_notification_listeners");
         return flat != null && flat.contains(cn.flattenToString());
     }
@@ -159,7 +156,7 @@ public class MainActivity extends AppCompatActivity {
      * @return boo if the receiver should be running
      */
     private boolean getReplyReceiverServiceStatus() {
-        SharedPreferences sharedPreferences = getApplicationContext().getSharedPreferences(NotificationReceiver.class.getSimpleName(), AppCompatActivity.MODE_PRIVATE);
+        SharedPreferences sharedPreferences = getApplicationContext().getSharedPreferences(SystemNotificationReceiver.class.getSimpleName(), AppCompatActivity.MODE_PRIVATE);
         return sharedPreferences.getBoolean("ReceiverStatus", false);
     }
 
@@ -168,7 +165,7 @@ public class MainActivity extends AppCompatActivity {
      */
     private void startReplyListenerService() {
 //        Helper.toasted("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
-        Intent i = new Intent(this, ReplyListenerService.class);
+        Intent i = new Intent(this, NetworkNotificationReceiver.class);
         this.startService(i);
     }
 
@@ -176,7 +173,7 @@ public class MainActivity extends AppCompatActivity {
      * stops the the foreground service that listens for replies to the messages
      */
     private void stopReplyListenerService() {
-        Intent i = new Intent(this, ReplyListenerService.class);
+        Intent i = new Intent(this, NetworkNotificationReceiver.class);
         this.stopService(i);
     }
 

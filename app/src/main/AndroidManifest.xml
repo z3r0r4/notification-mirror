@@ -21,7 +21,7 @@
             </intent-filter>
         </activity>
         <service
-            android:name="com.r4.notifications.mirror.NotificationReceiver"
+            android:name="com.r4.notifications.mirror.SystemNotificationReceiver"
             android:label="@string/service_label"
             android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE">
             <intent-filter>
@@ -29,7 +29,7 @@
             </intent-filter>
         </service>
         <service
-            android:name="com.r4.notifications.mirror.ReplyListenerService"
+            android:name="com.r4.notifications.mirror.NetworkNotificationReceiver"
             android:exported="false">
             <!--            android:description="Service"-->
             <!--            exported false makes it only internally accessible-->

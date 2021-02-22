@@ -7,7 +7,6 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.res.Resources;
 import android.os.IBinder;
 import android.util.Log;
 import android.widget.Toast;
@@ -35,9 +34,9 @@ import androidx.core.app.NotificationCompat;
 /**
  * Class which listens to replies from the pc
  */
-public class ReplyListenerService extends Service {
+public class NetworkNotificationReceiver extends Service {
     private static final int FOREGROUND_SERVICE_NOTIFICATION_ID = 5646545;
-    private static final String TAG = "ReplyListenerService";
+    private static final String TAG = "nm.NetworkNotificationReceiver";
 
     private ServerSocket serverSocket;
     private Socket socket;
@@ -135,7 +134,7 @@ public class ReplyListenerService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
-        SharedPreferences shPref = this.getSharedPreferences(NotificationReceiver.class.getSimpleName(), Activity.MODE_PRIVATE);
+        SharedPreferences shPref = this.getSharedPreferences(SystemNotificationReceiver.class.getSimpleName(), Activity.MODE_PRIVATE);
         editor = shPref.edit();
 
         mThread = new Thread(ReplyReceiverRunnable);
@@ -175,7 +174,7 @@ public class ReplyListenerService extends Service {
 
 //        Toast.makeText(this, "service starting", Toast.LENGTH_SHORT).show();
         //no one tells you to put this here and not externally -.-
-        Intent notificationIntent = new Intent(this, ReplyListenerService.class);
+        Intent notificationIntent = new Intent(this, NetworkNotificationReceiver.class);
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
         Notification notification =
                 new NotificationCompat.Builder(this, "TestChannel_0")

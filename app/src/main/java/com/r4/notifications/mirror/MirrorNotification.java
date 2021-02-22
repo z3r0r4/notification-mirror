@@ -1,11 +1,9 @@
 package com.r4.notifications.mirror;
 
 import android.app.Notification;
-import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
-import android.os.Bundle;
 import android.service.notification.StatusBarNotification;
 import android.util.Log;
 
@@ -13,15 +11,13 @@ import java.io.Serializable;
 import java.util.List;
 
 import androidx.core.app.NotificationCompat;
-import androidx.core.app.NotificationManagerCompat;
-import androidx.core.app.RemoteInput;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 class MirrorNotification implements Serializable {
 
-    private final static String TAG = "MirrorNotification";
+    private final static String TAG = "nm.MirrorNotification";
     public int id;
     //    public String tag;
     public String key;
@@ -81,7 +77,7 @@ class MirrorNotification implements Serializable {
      */
     public MirrorNotification(NetworkPackage netpkg) throws ExceptionInInitializerError {
         try {
-            MirrorNotification mn = NotificationReceiver.getactiveNotifications().get(netpkg.getKey());
+            MirrorNotification mn = SystemNotificationReceiver.getactiveNotifications().get(netpkg.getKey());
             mn.log();
             if (mn.id != netpkg.getID()) { //crash here if two pkgs are send afteranother bith with a dismiss
                 Log.e(TAG, "wrong ID for notifiaction retrived by KEY");

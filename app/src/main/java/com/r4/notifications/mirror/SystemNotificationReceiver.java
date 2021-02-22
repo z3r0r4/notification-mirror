@@ -2,7 +2,6 @@ package com.r4.notifications.mirror;
 
 import android.app.Activity;
 import android.content.SharedPreferences;
-import android.content.res.Resources;
 import android.service.notification.NotificationListenerService;
 import android.service.notification.StatusBarNotification;
 import android.util.Log;
@@ -10,8 +9,8 @@ import android.util.Log;
 import java.util.HashMap;
 import java.util.Map;
 
-public class NotificationReceiver extends NotificationListenerService {
-    private final static String TAG = "Notification Receiver";
+public class SystemNotificationReceiver extends NotificationListenerService {
+    private final static String TAG = "nm.SystemNotificationReceiver";
 
     public static Map<String, MirrorNotification> activeNotifications = new HashMap<String, MirrorNotification>();
     public static String lastKey;
@@ -55,7 +54,7 @@ public class NotificationReceiver extends NotificationListenerService {
      * init the shared preferences to store listener status
      */
     public void onCreate() {
-        shPref = this.getSharedPreferences(NotificationReceiver.class.getSimpleName(), Activity.MODE_PRIVATE);
+        shPref = this.getSharedPreferences(SystemNotificationReceiver.class.getSimpleName(), Activity.MODE_PRIVATE);
         editor = shPref.edit();
     }
 

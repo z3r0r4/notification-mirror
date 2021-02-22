@@ -14,7 +14,7 @@ import androidx.core.app.NotificationManagerCompat;
 import androidx.core.app.RemoteInput;
 
 class NotificationMirror {
-    private final static String TAG = "NotificationMirror";
+    private final static String TAG = "nm.NotificationMirror";
 
     /**
      * sends the given notification via tcp and the Mirror Class over the network to the specified socket address

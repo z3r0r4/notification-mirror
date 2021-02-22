@@ -12,7 +12,7 @@ import java.net.Socket;
 
 
 class Mirror extends AsyncTask<MirrorNotification, Void, Void> { //deprecated but who cares
-    private final static String TAG = "Mirror";
+    private final static String TAG = "nm.Mirror";
 
     private String hostIP = MainActivity.sContext.getResources().getString(R.string.DefaultMirrorIP);
     private int hostPort = MainActivity.sContext.getResources().getInteger(R.integer.DefaultMirrorPORT);
