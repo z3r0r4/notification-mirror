@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -11,215 +12,49 @@
         android:layout_margin="5dp"
         android:orientation="vertical">
 
-        <TextView
-            android:id="@+id/tVMirrorHeader"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Address of the Mirror" />
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal">
-
-            <EditText
-                android:id="@+id/etIP"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:hint="IP"
-                android:layout_weight=".70"
-                android:inputType="textPersonName" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text=":"
-                android:textAlignment="center"
-                android:textStyle="bold" />
-
-            <EditText
-                android:id="@+id/etPort"
-                android:layout_width="0dp"
-                android:layout_weight=".30"
-                android:layout_height="wrap_content"
-                android:textAlignment="gravity"
-                android:inputType="number"
-                android:maxLength="5"
-                android:hint="PORT" />
-
-            <Button
-                android:id="@+id/btnSave"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="0.22"
-                android:text="SAVE" />
-
-        </LinearLayout>
-
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_margin="5dp">
-
-            <TextView
-                android:id="@+id/tvMirrorIP"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight=".7"
-                android:text="Mirror IP"
-                android:textAlignment="viewStart" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:padding="5dp"
-                android:text=":"
-                android:textAlignment="center"
-                android:textStyle="bold" />
-
-            <TextView
-                android:id="@+id/tvMirrorPORT"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight=".3"
-                android:text="Mirror PORT"
-                android:textAlignment="viewStart" />
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="0.21" />
-        </LinearLayout>
-
-        <TextView
-            android:id="@+id/tVReplyHeader"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Address of the Reply Receiver" />
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_margin="5dp">
-
-            <TextView
-                android:id="@+id/tvReplyIP"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight=".7"
-                android:text="Reply IP"
-                android:textAlignment="viewStart" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:padding="5dp"
-                android:text=":"
-                android:textAlignment="center"
-                android:textStyle="bold" />
-
-            <TextView
-                android:id="@+id/tvReplyPORT"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight=".3"
-                android:text="Reply PORT"
-                android:textAlignment="viewStart" />
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="0.21" />
-        </LinearLayout>
-
-        <Switch
-            android:id="@+id/swMirrorState"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:padding="5dp"
-            android:text="Mirror over Network"
-            tools:ignore="UseSwitchCompatOrMaterialXml" />
-
-        <Switch
+        <androidx.appcompat.widget.SwitchCompat
             android:id="@+id/swSetListenerPermission"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="5dp"
-            android:text="Listener Service"
+            android:text="@string/listener_service"
             tools:ignore="UseSwitchCompatOrMaterialXml" />
 
-
-        <Switch
-            android:id="@+id/swRunReplyReceiverService"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:padding="5dp"
-            android:text="Reply Receiver Service"
-            tools:ignore="UseSwitchCompatOrMaterialXml" />
 
         <Button
             android:id="@+id/btnMsgTest"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Send TEST Notification" />
+            android:text="@string/send_test_notification" />
 
         <Button
             android:id="@+id/btnReply"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="REPLY to last Notification" />
+            android:text="@string/reply_to_last_notification" />
 
         <Button
             android:id="@+id/btnAction"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Action on last Notification" />
+            android:text="@string/action_on_last_notification" />
 
         <Button
             android:id="@+id/btnDismiss"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Dismiss last Notification" />
-
-        <Button
-            android:id="@+id/btnNetTest"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Test NetWork" />
-
-<!--        <Switch-->
-<!--            android:id="@+id/swTestNetwork"-->
-<!--            android:layout_width="match_parent"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:padding="5dp"-->
-<!--            android:text="Test Network on Listener Start"-->
-<!--            tools:ignore="UseSwitchCompatOrMaterialXml" />-->
-
-<!--        &lt;!&ndash; @deprecated &ndash;&gt;-->
-<!--        <Button-->
-<!--            android:id="@+id/btnTestBinding"-->
-<!--            android:layout_width="match_parent"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:text="Test Access to Notifications" />-->
+            android:text="@string/dismiss_last_notification" />
 
         <TextView
             android:id="@+id/tvRepliedText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
-            android:text="Replied Text" />
+            android:text="@string/replied_text" />
 
 
         <!-- @deprecated -->
-        <TextView
-            android:id="@+id/tvInfoText"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:text="Info Text " />
 
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>
