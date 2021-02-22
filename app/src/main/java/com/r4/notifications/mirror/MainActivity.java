@@ -33,6 +33,7 @@ public class MainActivity extends AppCompatActivity {
 
     //TODO test on other version -> move minsdk to 24
     //TODO test on real devices
+    //TODO change accent color of switches to bluuue
 
     //TODO extract string and int resources
     //TODO improve logging
