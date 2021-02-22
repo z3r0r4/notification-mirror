@@ -77,7 +77,7 @@ class MirrorNotification implements Serializable {
      */
     public MirrorNotification(NetworkPackage netpkg) throws ExceptionInInitializerError {
         try {
-            MirrorNotification mn = SystemNotificationReceiver.getactiveNotifications().get(netpkg.getKey());
+            MirrorNotification mn = DeviceNotificationReceiver.getactiveNotifications().get(netpkg.getKey());
             mn.log();
             if (mn.id != netpkg.getID()) { //crash here if two pkgs are send afteranother bith with a dismiss
                 Log.e(TAG, "wrong ID for notifiaction retrived by KEY");

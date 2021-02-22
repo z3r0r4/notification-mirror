@@ -21,7 +21,7 @@
             </intent-filter>
         </activity>
         <service
-            android:name="com.r4.notifications.mirror.SystemNotificationReceiver"
+            android:name="com.r4.notifications.mirror.DeviceNotificationReceiver"
             android:label="@string/service_label"
             android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE">
             <intent-filter>

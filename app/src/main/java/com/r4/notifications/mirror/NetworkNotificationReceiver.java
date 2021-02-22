@@ -134,7 +134,7 @@ public class NetworkNotificationReceiver extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
-        SharedPreferences shPref = this.getSharedPreferences(SystemNotificationReceiver.class.getSimpleName(), Activity.MODE_PRIVATE);
+        SharedPreferences shPref = this.getSharedPreferences(DeviceNotificationReceiver.class.getSimpleName(), Activity.MODE_PRIVATE);
         editor = shPref.edit();
 
         mThread = new Thread(ReplyReceiverRunnable);

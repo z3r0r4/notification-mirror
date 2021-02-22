@@ -9,7 +9,7 @@ import android.util.Log;
 import java.util.HashMap;
 import java.util.Map;
 
-public class SystemNotificationReceiver extends NotificationListenerService {
+public class DeviceNotificationReceiver extends NotificationListenerService {
     private final static String TAG = "nm.SystemNotificationReceiver";
 
     public static Map<String, MirrorNotification> activeNotifications = new HashMap<String, MirrorNotification>();
@@ -54,7 +54,7 @@ public class SystemNotificationReceiver extends NotificationListenerService {
      * init the shared preferences to store listener status
      */
     public void onCreate() {
-        shPref = this.getSharedPreferences(SystemNotificationReceiver.class.getSimpleName(), Activity.MODE_PRIVATE);
+        shPref = this.getSharedPreferences(DeviceNotificationReceiver.class.getSimpleName(), Activity.MODE_PRIVATE);
         editor = shPref.edit();
     }
 
