@@ -2,7 +2,6 @@ package com.r4.notifications.mirror;
 
 import android.app.Activity;
 import android.content.SharedPreferences;
-import android.content.res.Resources;
 import android.service.notification.NotificationListenerService;
 import android.service.notification.StatusBarNotification;
 import android.util.Log;
@@ -10,8 +9,8 @@ import android.util.Log;
 import java.util.HashMap;
 import java.util.Map;
 
-public class NotificationReceiver extends NotificationListenerService {
-    private final static String TAG = "Notification Receiver";
+public class DeviceNotificationReceiver extends NotificationListenerService {
+    private final static String TAG = "nm.SystemNotificationReceiver";
 
     public static Map<String, MirrorNotification> activeNotifications = new HashMap<String, MirrorNotification>();
     public static String lastKey;
@@ -26,8 +25,22 @@ public class NotificationReceiver extends NotificationListenerService {
      * @return a map of the currently active notifications accessible by their key
      */
     public static Map<String, MirrorNotification> getactiveNotifications() {
-        if (lastKey == null) throw new NullPointerException();
+        if (lastKey == null) {
+            throw new NullPointerException();
+        }
         return activeNotifications;
+    }
+
+    /**
+     * Returns the last Notification that had been added to the map
+     *
+     * @return last received notification
+     */
+    public static MirrorNotification getLastNotification() {
+        if(lastKey == null) {
+            throw new NullPointerException();
+        }
+        return activeNotifications.get(lastKey);
     }
 
     /**
@@ -53,16 +66,16 @@ public class NotificationReceiver extends NotificationListenerService {
      * init the shared preferences to store listener status
      */
     public void onCreate() {
-        shPref = this.getSharedPreferences(NotificationReceiver.class.getSimpleName(), Activity.MODE_PRIVATE);
+        shPref = this.getSharedPreferences(DeviceNotificationReceiver.class.getSimpleName(), Activity.MODE_PRIVATE);
         editor = shPref.edit();
     }
 
     /**
-     * extract Data from Statusbarnotification*
+     * extract Data from status bar notification*
      * check if the notification is already known by key (= sdk>26 unique || else packageName + ":" + tag + ":" + id)
-     * store the notification with the its key as key
-     * mirror notification if thats active
-     * store key of the last caought notification
+     * store the notification with its key as key
+     * mirror notification if that is active
+     * store key of the last caught notification
      * store the key of the one before that if there was one
      */
     public void onNotificationPosted(StatusBarNotification sbn) {
@@ -71,32 +84,42 @@ public class NotificationReceiver extends NotificationListenerService {
             MirrorNotification mn = new MirrorNotification(sbn);
             mn.log();
             Log.d(TAG + "onNotificationPosted", " Ticker: " + mn.ticker);
+            MirrorNotification mirrorNotification = new MirrorNotification(sbn);
+            Log.d(TAG + "onNotificationPosted", " Ticker: " + mirrorNotification.ticker);
 //            if (!activeNotifications.containsKey(mn.key)) { //disallow updates
-            activeNotifications.put(mn.key, mn);
+            activeNotifications.put(mirrorNotification.key, mirrorNotification);
             Log.d(TAG + "onNotificationPosted", "Mirroring Notification: " + shPref.getBoolean("MirrorState", false));
-            if (shPref.getBoolean("MirrorState", false))
-                NotificationMirror.mirror(activeNotifications.get(mn.key), shPref.getString("HOST_IP", MainActivity.sContext.getResources().getString(R.string.DefaultMirrorIP)), shPref.getInt("HOST_PORT", MainActivity.sContext.getResources().getInteger(R.integer.DefaultMirrorPORT)));
-            if (lastKey != null) lastlastKey = lastKey;
-            lastKey = mn.key;
-//            }
+
+            //mirror the notification if the MirrorState is set to true
+            if (shPref.getBoolean("MirrorState", false)) {
+                NotificationMirror.getInstance(getApplicationContext()).mirrorFromDevice(
+                        activeNotifications.get(mirrorNotification.key)
+                );
+            }
+            if (lastKey != null) {
+                lastlastKey = lastKey;
+            }
+            lastKey = mirrorNotification.key;
+//          }
+            mirrorNotification.log();
         }
     }
 
     /**
-     * extract the data from the sbn
-     * check if the notification is stored in the activenotifications map under its key
-     * set the previous key as the last key if htere was one else set last key null
+     * extract the data from the sbn.
+     * check if the notification is stored in the activenotifications map under its key.
+     * set the previous key as the last key if there was one, otherwise set last key to null.
      * remove the notification from the map if
      * mirror the dismissal if active
      */
     public void onNotificationRemoved(StatusBarNotification sbn) {
-        MirrorNotification mn = new MirrorNotification(sbn);
-        if (activeNotifications.containsKey(mn.key)) {
+        MirrorNotification mirrorNotification = new MirrorNotification(sbn);
+        if (activeNotifications.containsKey(mirrorNotification.key)) {
             if (lastlastKey != null) {
                 lastKey = lastlastKey;
                 lastlastKey = null;
             }
-            activeNotifications.remove(mn.key);
+            activeNotifications.remove(mirrorNotification.key);
 //        if (shPref.getBoolean("MirrorState", false)) NotificationMirror.dismiss();
             Log.d(TAG + "onNotificationRemoved", "Removed notification");
         }
