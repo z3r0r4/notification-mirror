@@ -7,7 +7,6 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.content.res.Resources;
 import android.os.IBinder;
 import android.util.Log;
 import android.widget.Toast;
@@ -35,9 +34,11 @@ import androidx.core.app.NotificationCompat;
 /**
  * Class which listens to replies from the pc
  */
-public class ReplyListenerService extends Service {
+public class NetworkNotificationReceiver extends Service {
     private static final int FOREGROUND_SERVICE_NOTIFICATION_ID = 5646545;
-    private static final String TAG = "ReplyListenerService";
+    private static final String FOREGROUND_SERVICE_CHANNEL_NAME = "FgChannel01";
+    private static final String FOREGROUND_SERVICE_CHANNEL_ID = "FgChannelID01";
+    private static final String TAG = "nm.NetworkNotificationReceiver";
 
     private ServerSocket serverSocket;
     private Socket socket;
@@ -77,7 +78,7 @@ public class ReplyListenerService extends Service {
                 while (!stopThread) {
                     if (serverSocket != null) {
 //                        serverSocket.setSoTimeout(10000);
-                        Log.d(TAG, "waiting for server connections on" + IP + PORT);
+                        Log.d(TAG, "Listening on:  " + IP.getHostAddress() + ":" + PORT);
                         socket = serverSocket.accept();
                         Log.e(TAG, "new Client!");
 
@@ -116,13 +117,13 @@ public class ReplyListenerService extends Service {
      * @param netpkg from json extracted networkpackage containing the data for the actions on the notifications
      */
     private void processReply(NetworkPackage netpkg) {
-        MirrorNotification mn = new MirrorNotification(netpkg);
+        MirrorNotification mirrorNotification = new MirrorNotification(netpkg);
         if (netpkg.isReply())
-            mn.reply(netpkg.getMessage(), MainActivity.sContext);
+            NotificationMirror.getInstance(this).replyToNotification(mirrorNotification, netpkg.getMessage(), MainActivity.sContext);
         if (netpkg.isAction())
-            mn.act(netpkg.getActionName());
+            NotificationMirror.getInstance(this).executeNotificationAction(mirrorNotification, netpkg.getActionName());
         if (netpkg.isDismiss())
-            mn.dismiss();
+            NotificationMirror.getInstance(this).dismissNotification(mirrorNotification);
     }
 
     /**
@@ -135,8 +136,11 @@ public class ReplyListenerService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
-        SharedPreferences shPref = this.getSharedPreferences(NotificationReceiver.class.getSimpleName(), Activity.MODE_PRIVATE);
+        SharedPreferences shPref = this.getSharedPreferences(DeviceNotificationReceiver.class.getSimpleName(), Activity.MODE_PRIVATE);
         editor = shPref.edit();
+
+        //create some funny channel
+        NotificationMirror.getInstance(this).createNotificationChannel(FOREGROUND_SERVICE_CHANNEL_NAME, "", FOREGROUND_SERVICE_CHANNEL_ID, this);
 
         mThread = new Thread(ReplyReceiverRunnable);
         mThread.start();
@@ -175,10 +179,10 @@ public class ReplyListenerService extends Service {
 
 //        Toast.makeText(this, "service starting", Toast.LENGTH_SHORT).show();
         //no one tells you to put this here and not externally -.-
-        Intent notificationIntent = new Intent(this, ReplyListenerService.class);
+        Intent notificationIntent = new Intent(this, NetworkNotificationReceiver.class);
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
         Notification notification =
-                new NotificationCompat.Builder(this, MainActivity.FOREGROUND_SERVICE_NOTIFICATIONCHANNEL_ID)
+                new NotificationCompat.Builder(this, FOREGROUND_SERVICE_CHANNEL_ID)
                         .setContentTitle("Notification Mirror Reply Listener Service")
                         .setContentText("Listening for Replies from the PC")
                         .setSmallIcon(R.drawable.ic_launcher_background) //very necessary

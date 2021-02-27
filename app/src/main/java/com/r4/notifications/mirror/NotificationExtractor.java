@@ -13,8 +13,11 @@ import java.util.List;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.RemoteInput;
 
-class NotificationExtractor {
-    private static final String TAG = "Notification Extractor";
+import org.json.JSONException;
+import org.json.JSONObject;
+
+public class NotificationExtractor {
+    private static final String TAG = "nm.NotificationExtractor";
 
     /**
      * extracts the key          : "A unique instance key for this notification record" (0|com.r4.notifications.mirror|9001|null|10084)
