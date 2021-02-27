@@ -165,7 +165,10 @@ class MirrorNotification implements Serializable {
         void e();
     }
 
-    //Getter and Setter
+    /**
+     * Getter and Setter
+     *
+     */
 
     public int getId() {
         return id;

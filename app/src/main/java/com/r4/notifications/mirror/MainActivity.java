@@ -125,20 +125,20 @@ public class MainActivity extends AppCompatActivity {
         ensureReceiverServiceState();
     }
 
-    /**
-     * tries to start or stop the receiver depending on the sharedpreferences
-     */
-    private void ensureReceiverServiceState() {
-        if (getReplyReceiverServiceStatus()) startReplyListenerService();
-        else stopReplyListenerService();
-    }
-
     @Override
     protected void onRestart() {
         super.onRestart();
         /**check and show if listener is connected*/
         showListenerServiceStatus();
         handleReplyIntent();
+    }
+
+    /**
+     * tries to start or stop the receiver depending on the sharedpreferences
+     */
+    private void ensureReceiverServiceState() {
+        if (getReplyReceiverServiceStatus()) startReplyListenerService();
+        else stopReplyListenerService();
     }
 
     /**
@@ -277,8 +277,7 @@ public class MainActivity extends AppCompatActivity {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             SharedPreferences sharedPreferences = getApplicationContext().getSharedPreferences(DeviceNotificationReceiver.class.getSimpleName(), Activity.MODE_PRIVATE);
             return sharedPreferences.getBoolean("ListenerStatus", false);
-        }
-        else {
+        } else {
             ComponentName cn = new ComponentName(this, DeviceNotificationReceiver.class);
             String flat = Settings.Secure.getString(this.getContentResolver(), "enabled_notification_listeners");
             return flat != null && flat.contains(cn.flattenToString());
