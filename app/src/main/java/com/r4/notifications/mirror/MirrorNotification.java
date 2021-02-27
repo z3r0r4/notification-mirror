@@ -100,27 +100,6 @@ class MirrorNotification implements Serializable {
         }
     }
 
-    public MirrorNotification(String jsonformatedstring) {
-        try {
-            JSONObject json = new JSONObject(jsonformatedstring);
-            this.id = json.getInt("id");
-            this.key = json.getString("key");
-            this.text = json.getString("message");
-            this.isActionable = json.getBoolean("isaction");
-            this.isReplyable = json.getBoolean("isreply");
-        } catch (JSONException e) {
-            Log.e(TAG, "could not extract");
-        }
-        if (this.key.equals("")) {
-            Log.e(TAG, "key cant be empty, needed for notification extraction");
-            throw new NullPointerException();
-        }
-        if (this.id == 0) {//maybe not that necessary
-            Log.e(TAG, "id cant be 0, needed for notification extraction");
-            throw new NullPointerException();
-        }
-    }
-
     /**
      * Test only
      * Creates a notification that can be posted and replied to

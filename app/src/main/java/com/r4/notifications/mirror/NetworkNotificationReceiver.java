@@ -36,6 +36,8 @@ import androidx.core.app.NotificationCompat;
  */
 public class NetworkNotificationReceiver extends Service {
     private static final int FOREGROUND_SERVICE_NOTIFICATION_ID = 5646545;
+    private static final String FOREGROUND_SERVICE_CHANNEL_NAME = "FgChannel01";
+    private static final String FOREGROUND_SERVICE_CHANNEL_ID = "FgChannelID01";
     private static final String TAG = "nm.NetworkNotificationReceiver";
 
     private ServerSocket serverSocket;
@@ -76,7 +78,7 @@ public class NetworkNotificationReceiver extends Service {
                 while (!stopThread) {
                     if (serverSocket != null) {
 //                        serverSocket.setSoTimeout(10000);
-                        Log.d(TAG, "waiting for server connections on" + IP + PORT);
+                        Log.d(TAG, "Listening on:  " + IP.getHostAddress() + ":" + PORT);
                         socket = serverSocket.accept();
                         Log.e(TAG, "new Client!");
 
@@ -117,11 +119,11 @@ public class NetworkNotificationReceiver extends Service {
     private void processReply(NetworkPackage netpkg) {
         MirrorNotification mirrorNotification = new MirrorNotification(netpkg);
         if (netpkg.isReply())
-            NotificationMirror.replyToNotification(mirrorNotification, netpkg.getMessage(), MainActivity.sContext);
+            NotificationMirror.getInstance(this).replyToNotification(mirrorNotification, netpkg.getMessage(), MainActivity.sContext);
         if (netpkg.isAction())
-            NotificationMirror.executeNotificationAction(mirrorNotification, netpkg.getActionName());
+            NotificationMirror.getInstance(this).executeNotificationAction(mirrorNotification, netpkg.getActionName());
         if (netpkg.isDismiss())
-            NotificationMirror.dismissNotification(mirrorNotification);
+            NotificationMirror.getInstance(this).dismissNotification(mirrorNotification);
     }
 
     /**
@@ -136,6 +138,9 @@ public class NetworkNotificationReceiver extends Service {
         super.onCreate();
         SharedPreferences shPref = this.getSharedPreferences(DeviceNotificationReceiver.class.getSimpleName(), Activity.MODE_PRIVATE);
         editor = shPref.edit();
+
+        //create some funny channel
+        NotificationMirror.getInstance(this).createNotificationChannel(FOREGROUND_SERVICE_CHANNEL_NAME, "", FOREGROUND_SERVICE_CHANNEL_ID, this);
 
         mThread = new Thread(ReplyReceiverRunnable);
         mThread.start();
@@ -177,7 +182,7 @@ public class NetworkNotificationReceiver extends Service {
         Intent notificationIntent = new Intent(this, NetworkNotificationReceiver.class);
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
         Notification notification =
-                new NotificationCompat.Builder(this, "TestChannel_0")
+                new NotificationCompat.Builder(this, FOREGROUND_SERVICE_CHANNEL_ID)
                         .setContentTitle("Notification Mirror Reply Listener Service")
                         .setContentText("Listening for Replies from the PC")
                         .setSmallIcon(R.drawable.ic_launcher_background) //very necessary

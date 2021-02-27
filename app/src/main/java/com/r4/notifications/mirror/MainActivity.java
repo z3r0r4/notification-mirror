@@ -7,6 +7,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.os.Build;
 import android.os.Bundle;
 import android.provider.Settings;
 import android.util.Log;
@@ -23,12 +24,12 @@ public class MainActivity extends AppCompatActivity {
     private final static String TAG = "nm.MainActivity";
 
     public static Context sContext;
+    public static NotificationMirror notificationMirror;
 
     private NotificationManagerCompat notificationManager;
     private SharedPreferences shPref;
     private SharedPreferences.Editor editor;
-
-    private NotificationGenerator notificationGenerator;
+    private Notification testNotification;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,8 +39,13 @@ public class MainActivity extends AppCompatActivity {
         sContext = getApplicationContext();
         shPref = getApplicationContext().getSharedPreferences(DeviceNotificationReceiver.class.getSimpleName(), Activity.MODE_PRIVATE);
         editor = shPref.edit();
-        //Shows a test notification when the "show notification" button is clicked
-        notificationGenerator = new NotificationGenerator(this, "title", "content");
+
+        //get an instance of the notification mirror
+        notificationMirror = NotificationMirror.getInstance(getApplicationContext());
+        //create the notification channel for the test notifications
+        notificationMirror.createNotificationChannel(Helper.TESTCHANNEL_NAME, Helper.TESTCHANNEL_DESCRIPTION, Helper.TESTCHANNEL_ID, sContext);
+        //create a basic test notification that can be posted
+        testNotification = Helper.createTestNotification(this);
 
         /**declare buttons and views*/
         Button btnMsgTest = findViewById(R.id.btnMsgTest);
@@ -60,10 +66,6 @@ public class MainActivity extends AppCompatActivity {
         TextView tvReceiverIP = findViewById(R.id.tvReplyIP);
         TextView tvReceiverPORT = findViewById(R.id.tvReplyPORT);
 
-        if(notificationGenerator.isInitialized()) {
-            btnMsgTest.setOnClickListener(v -> notificationGenerator.show());
-        }
-
         /**check and show if listener is connected*/
         swListenerStatus.setClickable(false);
         showListenerServiceStatus();
@@ -83,6 +85,9 @@ public class MainActivity extends AppCompatActivity {
             else stopReplyListenerService();
         });
 
+        //post the test notification when the "send test notification" button is clicked
+        btnMsgTest.setOnClickListener(v -> notificationMirror.showTestNotification(testNotification));
+
         /**add onclick to reply to last notification */
         btnReply.setOnClickListener(v -> replyToLastNotification());
 
@@ -96,6 +101,7 @@ public class MainActivity extends AppCompatActivity {
         btnSaveConnection.setOnClickListener(v -> {
             setSocketAddress(etIP, etPORT);
             showMirrorSocketAddress(tvMirrorIP, tvMirrorPORT);
+            notificationMirror.updateHostCredentials(this);
         });
 
         /**handle replyintents from testnotification*/
@@ -214,8 +220,8 @@ public class MainActivity extends AppCompatActivity {
      */
     private void replyToLastNotification() {
         try {
-            MirrorNotification notification = DeviceNotificationReceiver.getactiveNotifications().get(DeviceNotificationReceiver.lastKey);
-            NotificationMirror.replyToNotification(notification, "AUTOREPLY", getApplicationContext());
+            MirrorNotification notification = DeviceNotificationReceiver.getLastNotification();
+            notificationMirror.replyToNotification(notification, "AUTOREPLY", getApplicationContext());
         } catch (NullPointerException e) {
             Log.e(TAG + "OnClickReply", "no Noficications yet, or Listener broke");
             Helper.toasted("No Notifications yet, check Listener connection");
@@ -227,8 +233,7 @@ public class MainActivity extends AppCompatActivity {
      */
     private void mirrorLastNotification() {
         try {
-            Mirror mirror = new Mirror();
-            mirror.execute(DeviceNotificationReceiver.getactiveNotifications().get(DeviceNotificationReceiver.lastKey));
+            notificationMirror.mirrorFromDevice(DeviceNotificationReceiver.getLastNotification());
         } catch (NullPointerException e) {
             Log.e(TAG + "OnClickNetTest", "no Noficications yet, or Listener broke");
             Helper.toasted("No Notifications yet, check Listener connection");
@@ -240,7 +245,7 @@ public class MainActivity extends AppCompatActivity {
      */
     private void dismissLastNotification() {
         try {
-            NotificationMirror.dismissNotification(DeviceNotificationReceiver.getactiveNotifications().get(DeviceNotificationReceiver.lastKey));
+            notificationMirror.dismissNotification(DeviceNotificationReceiver.getLastNotification());
         } catch (NullPointerException e) {
             Log.e(TAG + "OnClickDismiss", "no Noficications yet, or Listener broke");
             Helper.toasted("No Notifications yet, check Listener connection");
@@ -269,9 +274,15 @@ public class MainActivity extends AppCompatActivity {
      * @return state of the listener connection
      */
     private boolean getListenerServiceStatus() {
-        ComponentName cn = new ComponentName(this, DeviceNotificationReceiver.class);
-        String flat = Settings.Secure.getString(this.getContentResolver(), "enabled_notification_listeners");
-        return flat != null && flat.contains(cn.flattenToString());
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            SharedPreferences sharedPreferences = getApplicationContext().getSharedPreferences(DeviceNotificationReceiver.class.getSimpleName(), Activity.MODE_PRIVATE);
+            return sharedPreferences.getBoolean("ListenerStatus", false);
+        }
+        else {
+            ComponentName cn = new ComponentName(this, DeviceNotificationReceiver.class);
+            String flat = Settings.Secure.getString(this.getContentResolver(), "enabled_notification_listeners");
+            return flat != null && flat.contains(cn.flattenToString());
+        }
     }
 
     /**

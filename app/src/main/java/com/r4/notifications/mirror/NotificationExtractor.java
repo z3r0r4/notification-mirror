@@ -218,36 +218,4 @@ public class NotificationExtractor {
         }
         return actions;
     }
-
-    /**
-     * gets strings out of json object and catches missing keys safely
-     *
-     * @param json    jsonobject that contains the data
-     * @param jsonKey key that should be lookedup
-     * @return key entry, or empty string "" if keys missing
-     */
-    public static String getString(JSONObject json, String jsonKey) {
-        try {
-            return (String) json.get(jsonKey);
-        } catch (JSONException j) {
-            Log.e(TAG, "key entry missing: " + jsonKey);
-            return "";
-        }
-    }
-
-    /**
-     * gets booleans out of json object and catches missing keys safely
-     *
-     * @param json    jsonobject that contains the data
-     * @param jsonKey key that should be lookedup
-     * @return key entry, or false if keys missing
-     */
-    public static boolean getBoolean(JSONObject json, String jsonKey) {
-        try {
-            return Boolean.parseBoolean((String) json.get(jsonKey));
-        } catch (JSONException j) {
-            Log.e(TAG, "key entry missing: " + jsonKey);
-            return false;
-        }
-    }
 }

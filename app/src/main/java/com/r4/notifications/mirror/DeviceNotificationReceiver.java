@@ -32,6 +32,18 @@ public class DeviceNotificationReceiver extends NotificationListenerService {
     }
 
     /**
+     * Returns the last Notification that had been added to the map
+     *
+     * @return last received notification
+     */
+    public static MirrorNotification getLastNotification() {
+        if(lastKey == null) {
+            throw new NullPointerException();
+        }
+        return activeNotifications.get(lastKey);
+    }
+
+    /**
      * set the listener status preference as ensabled
      */
     public void onListenerConnected() {
@@ -77,12 +89,8 @@ public class DeviceNotificationReceiver extends NotificationListenerService {
 
             //mirror the notification if the MirrorState is set to true
             if (shPref.getBoolean("MirrorState", false)) {
-                String defaultMirrorIP = MainActivity.sContext.getResources().getString(R.string.DefaultMirrorIP);
-                int defaultMirrorPort = MainActivity.sContext.getResources().getInteger(R.integer.DefaultMirrorPORT);
-                NotificationMirror.mirror(
-                        activeNotifications.get(mirrorNotification.key),
-                        shPref.getString("HOST_IP", defaultMirrorIP),
-                        shPref.getInt("HOST_PORT", defaultMirrorPort)
+                NotificationMirror.getInstance(getApplicationContext()).mirrorFromDevice(
+                        activeNotifications.get(mirrorNotification.key)
                 );
             }
             if (lastKey != null) {
