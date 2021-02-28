@@ -17,6 +17,9 @@ import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 import androidx.core.app.RemoteInput;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
 import static androidx.core.content.ContextCompat.getSystemService;
 
 class NotificationMirror {
@@ -30,9 +33,11 @@ class NotificationMirror {
     //ID of the next test notification
     private int currentTestNotificationId = 0;
     //ip of the PC that receives the notifications via tcp
-    private String hostIP;
+    private String hostname;
     //port of the PC that receives the notifications via tcp
     private int hostPort;
+    //handles the execution in the background
+    ExecutorService executor;
 
     /**
      * Constructor for the Notification Mirror
@@ -43,8 +48,12 @@ class NotificationMirror {
         //update the host credentials from the shared preferences
         updateHostCredentials(context);
 
+        //create a single thread executor, since only one of the same ports can be opened anyways
+        this.executor = Executors.newSingleThreadExecutor();
+
         //initialize the notificationManager
         notificationManager = NotificationManagerCompat.from(context);
+
     }
 
     /**
@@ -97,9 +106,11 @@ class NotificationMirror {
      * @param mirrorNotification notification to
      */
     public void mirrorFromDevice(MirrorNotification mirrorNotification) {
+        executor.execute(new NetworkNotificationRunnable(mirrorNotification, hostname, hostPort));
+
         //create a new mirror task and start it to send the notification via tcp.
-        Mirror mirror = new Mirror(hostIP, hostPort);
-        mirror.execute(mirrorNotification);
+        /*Mirror mirror = new Mirror(hostIP, hostPort);
+        mirror.execute(mirrorNotification);*/
     }
 
     /**
@@ -234,7 +245,7 @@ class NotificationMirror {
         SharedPreferences sharedPreferences = context.getSharedPreferences(DeviceNotificationReceiver.class.getSimpleName(), Activity.MODE_PRIVATE);
 
         //assign ip and port from the shared preferences or from the default value
-        hostIP = sharedPreferences.getString("HOST_IP", defaultMirrorIP);
+        hostname = sharedPreferences.getString("HOST_IP", defaultMirrorIP);
         hostPort = sharedPreferences.getInt("HOST_PORT", defaultMirrorPort);
     }
 
