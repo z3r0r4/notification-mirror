@@ -1,6 +1,7 @@
 package com.r4.notifications.mirror;
 
 import android.app.Activity;
+import android.app.Notification;
 import android.content.SharedPreferences;
 import android.service.notification.NotificationListenerService;
 import android.service.notification.StatusBarNotification;
@@ -79,7 +80,7 @@ public class DeviceNotificationReceiver extends NotificationListenerService {
      * store the key of the one before that if there was one
      */
     public void onNotificationPosted(StatusBarNotification sbn) {
-        if (!NotificationMirror.inFilter(sbn)) {
+        if (!NotificationFilter.isBlacklisted(sbn)) {
             Log.d(TAG + "onNotificationPosted", "RECEIVED Notification");
             MirrorNotification mirrorNotification = new MirrorNotification(sbn);
             Log.d(TAG + "onNotificationPosted", " Ticker: " + mirrorNotification.ticker);

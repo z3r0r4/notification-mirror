@@ -166,35 +166,6 @@ class NotificationMirror {
     }
 
     /**
-     * checks if the notification is one that is sensible to store
-     * excludes charging state updates, low battery warnings and mobile data warnings
-     *
-     * @param sbn notification to be checked
-     * @return if the notification may pass the filter
-     */
-    public static boolean inFilter(StatusBarNotification sbn) {//here?
-        Notification notification = sbn.getNotification();
-
-        if ((notification.flags & Notification.FLAG_FOREGROUND_SERVICE) != 0
-                || (notification.flags & Notification.FLAG_ONGOING_EVENT) != 0
-                || (notification.flags & Notification.FLAG_LOCAL_ONLY) != 0
-                || (notification.flags & NotificationCompat.FLAG_GROUP_SUMMARY) != 0
-        )
-            return true;
-        if (sbn.getPackageName().equals("android"))
-            return true;
-        if (sbn.getPackageName().equals("com.android.systemui")) {
-            if (sbn.getTag().equals("low_battery"))
-                return true;
-            else if (sbn.getTag().equals("charging_state"))
-                return true;
-            else if (sbn.getTag().contains("NetworkPolicy"))
-                return true;
-        }
-        return false;
-    }
-
-    /**
      * Create a Notification to speperate different kinds of notifications.
      * E.g the device notifications and the test notifications.
      *

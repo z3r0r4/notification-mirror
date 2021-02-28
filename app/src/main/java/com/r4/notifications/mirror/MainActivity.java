@@ -47,6 +47,9 @@ public class MainActivity extends AppCompatActivity {
         //create a basic test notification that can be posted
         testNotification = Helper.createTestNotification(this);
 
+        //load the notification filter that classifies which notifications to mirror
+        NotificationFilter.loadFilter(getApplicationContext());
+
         /**declare buttons and views*/
         Button btnMsgTest = findViewById(R.id.btnMsgTest);
         Button btnReply = findViewById(R.id.btnReply);
@@ -323,7 +326,8 @@ public class MainActivity extends AppCompatActivity {
 
     /**
      * Test only
-     * handles an incoming intent and replies to the notification if its an intent from an reply to the notification
+     * handles an incoming intent and replies to the notification if its an intent from an reply to the notification.
+     * TODO: add the feature to replace the 'replied-to-notification' with a notification that says 'it was replied to'
      */
     @Deprecated
     private void handleReplyIntent() {
@@ -343,7 +347,7 @@ public class MainActivity extends AppCompatActivity {
                             .setSmallIcon(android.R.drawable.ic_dialog_info)
                             .setContentText("Reply received")
                             .build();
-            notificationManager.notify(9003, repliedNotification);
+            //notificationManager.notify(9003, repliedNotification);
         } catch (NullPointerException e) {
             Log.e(TAG + "handleReplyIntent", "REPLY EXTRACTION FAILED, maybe not a replying intent");
 //            Helper.toasted("Not a Reply Intent");

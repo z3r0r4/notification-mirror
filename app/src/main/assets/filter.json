@@ -1,0 +1,5 @@
+{
+  "package-names": ["android", "com.android.systemui"],
+  "tags": ["low_battery", "charging_state", "NetworkPolicy"],
+  "flags": [2, 64, 256, 512]
+}
