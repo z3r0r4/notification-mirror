@@ -140,7 +140,7 @@ class NotificationMirror {
     public void replyToNotification(MirrorNotification mirrorNotification, String message, Context context) {
         MirrorNotification.Logger log = () -> {
             Log.e(TAG + "reply", "NO REPLYACTIONS or REMOTEINPUTS");
-            Helper.toasted("Not Repliable");
+            Helper.toasted(context,"Not Repliable");
         };
 
         final NotificationCompat.Action replyAction = mirrorNotification.getReplyAction();
@@ -161,7 +161,7 @@ class NotificationMirror {
             replyAction.actionIntent.send(context, 0, intent); //SET
         } catch (PendingIntent.CanceledException e) {
             Log.e(TAG + "reply", "REPLY FAILED" + e.getLocalizedMessage());
-            Helper.toasted("Couldnt reply to Notification");
+            Helper.toasted(context,"Couldnt reply to Notification");
         }
     }
 
@@ -197,8 +197,8 @@ class NotificationMirror {
      */
     public void updateHostCredentials(Context context) {
         //get the default ip and port from the resources
-        String defaultMirrorIP = MainActivity.sContext.getResources().getString(R.string.DefaultMirrorIP);
-        int defaultMirrorPort = MainActivity.sContext.getResources().getInteger(R.integer.DefaultMirrorPORT);
+        String defaultMirrorIP = context.getResources().getString(R.string.DefaultMirrorIP);
+        int defaultMirrorPort = context.getResources().getInteger(R.integer.DefaultMirrorPORT);
 
         //get access to the shared preferences where the ip and port are saved
         SharedPreferences sharedPreferences = context.getSharedPreferences(DeviceNotificationReceiver.class.getSimpleName(), Activity.MODE_PRIVATE);

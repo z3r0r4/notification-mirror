@@ -13,8 +13,8 @@ class Helper {
     public static final String TESTCHANNEL_NAME = "TestChannel01";
     public static final String TESTCHANNEL_DESCRIPTION = "TestChannel";
 
-    protected static void toasted(String text){
-        Toast.makeText(MainActivity.sContext, text, Toast.LENGTH_LONG).show();
+    protected static void toasted(Context context, String text){
+        Toast.makeText(context, text, Toast.LENGTH_LONG).show();
     }
 
     /**

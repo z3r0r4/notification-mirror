@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.app.Service;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.IBinder;
@@ -44,6 +45,7 @@ public class NetworkNotificationReceiver extends Service {
     private Socket socket;
     private Thread mThread;
     private boolean stopThread = false;
+    private Context context;
     /**
      * run socket that waits for connections and json strings, and takes actions on the notifications depending on the received data:
      * get Hostaddress
@@ -72,7 +74,7 @@ public class NetworkNotificationReceiver extends Service {
             Log.e(TAG + "run", "running a thread");
             try {
                 InetAddress IP = Inet4Address.getLocalHost();//InetAddress.getByName("192.168.232.2");//InetAddress.getByName(MainActivity.sContext.getResources().getString(R.string.DefaultMirrorIP));
-                int PORT = MainActivity.sContext.getResources().getInteger(R.integer.DefaultReceiverPORT);
+                int PORT = context.getResources().getInteger(R.integer.DefaultReceiverPORT);
                 serverSocket = new ServerSocket(PORT, 0, IP);
 
                 while (!stopThread) {
@@ -119,7 +121,7 @@ public class NetworkNotificationReceiver extends Service {
     private void processReply(NetworkPackage netpkg) {
         MirrorNotification mirrorNotification = new MirrorNotification(netpkg);
         if (netpkg.isReply())
-            NotificationMirror.getInstance(this).replyToNotification(mirrorNotification, netpkg.getMessage(), MainActivity.sContext);
+            NotificationMirror.getInstance(this).replyToNotification(mirrorNotification, netpkg.getMessage(), context);
         if (netpkg.isAction())
             NotificationMirror.getInstance(this).executeNotificationAction(mirrorNotification, netpkg.getActionName());
         if (netpkg.isDismiss())
@@ -136,11 +138,14 @@ public class NetworkNotificationReceiver extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
+
+        context = getApplicationContext();
+
         SharedPreferences shPref = this.getSharedPreferences(DeviceNotificationReceiver.class.getSimpleName(), Activity.MODE_PRIVATE);
         editor = shPref.edit();
 
         //create some funny channel
-        NotificationMirror.getInstance(this).createNotificationChannel(FOREGROUND_SERVICE_CHANNEL_NAME, "", FOREGROUND_SERVICE_CHANNEL_ID, this);
+        NotificationMirror.getInstance(context).createNotificationChannel(FOREGROUND_SERVICE_CHANNEL_NAME, "", FOREGROUND_SERVICE_CHANNEL_ID, context);
 
         mThread = new Thread(ReplyReceiverRunnable);
         mThread.start();
@@ -196,7 +201,7 @@ public class NetworkNotificationReceiver extends Service {
             mThread = new Thread(ReplyReceiverRunnable);
             mThread.start();
             if (mThread.isAlive())
-                Toast.makeText(MainActivity.sContext, "thread restarted", Toast.LENGTH_SHORT).show();
+                Toast.makeText(context, "thread restarted", Toast.LENGTH_SHORT).show();
         }
         // If we get killed, after returning from here, restart
         return START_STICKY;
