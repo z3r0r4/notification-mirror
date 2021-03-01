@@ -60,7 +60,7 @@ public class DeviceNotificationReceiver extends NotificationListenerService {
         editor.putBoolean("ListenerStatus", false);
         editor.apply();
         Log.e(TAG, "Listener Disconnected");
-        Helper.toasted("LISTENER Disconnected");
+        Helper.toasted(getApplicationContext(),"LISTENER Disconnected");
     }
 
     /**
