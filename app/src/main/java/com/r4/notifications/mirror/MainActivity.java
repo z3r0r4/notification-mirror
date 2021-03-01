@@ -23,7 +23,6 @@ import androidx.core.app.NotificationManagerCompat;
 public class MainActivity extends AppCompatActivity {
     private final static String TAG = "nm.MainActivity";
 
-    //public static Context sContext;
     public static NotificationMirror notificationMirror;
 
     private NotificationManagerCompat notificationManager;
@@ -31,27 +30,28 @@ public class MainActivity extends AppCompatActivity {
     private SharedPreferences.Editor editor;
     private Notification testNotification;
 
-    private Context context;
+    //instance of the application context
+    private Context applicationContext;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        context = getApplicationContext();
+        applicationContext = getApplicationContext();
         
-        shPref = context.getSharedPreferences(DeviceNotificationReceiver.class.getSimpleName(), Activity.MODE_PRIVATE);
+        shPref = applicationContext.getSharedPreferences(DeviceNotificationReceiver.class.getSimpleName(), Activity.MODE_PRIVATE);
         editor = shPref.edit();
 
         //get an instance of the notification mirror
-        notificationMirror = NotificationMirror.getInstance(context);
+        notificationMirror = NotificationMirror.getInstance(applicationContext);
         //create the notification channel for the test notifications
-        notificationMirror.createNotificationChannel(Helper.TESTCHANNEL_NAME, Helper.TESTCHANNEL_DESCRIPTION, Helper.TESTCHANNEL_ID, context);
+        notificationMirror.createNotificationChannel(Helper.TESTCHANNEL_NAME, Helper.TESTCHANNEL_DESCRIPTION, Helper.TESTCHANNEL_ID, applicationContext);
         //create a basic test notification that can be posted
         testNotification = Helper.createTestNotification(this);
 
         //load the notification filter that classifies which notifications to mirror
-        NotificationFilter.loadFilter(context);
+        NotificationFilter.loadFilter(applicationContext);
 
         /**declare buttons and views*/
         Button btnMsgTest = findViewById(R.id.btnMsgTest);
@@ -154,14 +154,14 @@ public class MainActivity extends AppCompatActivity {
      * @param etPORT
      */
     private void setSocketAddress(EditText etIP, EditText etPORT) {
-        String IP = context.getResources().getString(R.string.DefaultMirrorIP);
+        String IP = applicationContext.getResources().getString(R.string.DefaultMirrorIP);
         IP = etIP.getText().toString().equals("") ? IP : etIP.getText().toString();
 
-        int PORT = context.getResources().getInteger(R.integer.DefaultMirrorPORT);
+        int PORT = applicationContext.getResources().getInteger(R.integer.DefaultMirrorPORT);
         try {
             PORT = Integer.parseInt(etPORT.getText().toString()) != 0 ? Integer.parseInt(etPORT.getText().toString()) : PORT;
         } catch (NumberFormatException e) {
-            Helper.toasted(context,"Input an Integer");
+            Helper.toasted(applicationContext,"Input an Integer");
         }
 
         editor.putString("HOST_IP", IP);
@@ -178,8 +178,8 @@ public class MainActivity extends AppCompatActivity {
      * @param tvPORT
      */
     private void showMirrorSocketAddress(TextView tvIP, TextView tvPORT) {
-        tvIP.setText(shPref.getString("HOST_IP", context.getResources().getString(R.string.DefaultMirrorIP)));
-        tvPORT.setText(String.valueOf(shPref.getInt("HOST_PORT", context.getResources().getInteger(R.integer.DefaultMirrorPORT))));
+        tvIP.setText(shPref.getString("HOST_IP", applicationContext.getResources().getString(R.string.DefaultMirrorIP)));
+        tvPORT.setText(String.valueOf(shPref.getInt("HOST_PORT", applicationContext.getResources().getInteger(R.integer.DefaultMirrorPORT))));
     }
 
     /**
@@ -189,7 +189,7 @@ public class MainActivity extends AppCompatActivity {
      * @param tvPORT
      */
     private void showReceiverSocketAddress(TextView tvIP, TextView tvPORT) {
-        tvIP.setText(context.getResources().getString(R.string.DefaultReceiverIP));//shPref.getString("HOST_IP",
+        tvIP.setText(applicationContext.getResources().getString(R.string.DefaultReceiverIP));//shPref.getString("HOST_IP",
         tvPORT.setText(String.valueOf(getResources().getInteger(R.integer.DefaultReceiverPORT)));//String.valueOf(shPref.getInt("HOST_PORT",
     }
 
@@ -202,7 +202,7 @@ public class MainActivity extends AppCompatActivity {
             Log.d("Test By extracting Last Notification", DeviceNotificationReceiver.getactiveNotifications().get(DeviceNotificationReceiver.lastKey).toString());
         } catch (NullPointerException e) {
             Log.e(TAG + "OnClickReceiverAccess", "no Noficications yet, or Listener broke");
-            Helper.toasted(context,"No Notifications yet, check Listener connection");
+            Helper.toasted(applicationContext,"No Notifications yet, check Listener connection");
         }
     }
 
@@ -227,10 +227,10 @@ public class MainActivity extends AppCompatActivity {
     private void replyToLastNotification() {
         try {
             MirrorNotification notification = DeviceNotificationReceiver.getLastNotification();
-            notificationMirror.replyToNotification(notification, "AUTOREPLY", context);
+            notificationMirror.replyToNotification(notification, "AUTOREPLY", applicationContext);
         } catch (NullPointerException e) {
             Log.e(TAG + "OnClickReply", "no Noficications yet, or Listener broke");
-            Helper.toasted(context,"No Notifications yet, check Listener connection");
+            Helper.toasted(applicationContext,"No Notifications yet, check Listener connection");
         }
     }
 
@@ -242,7 +242,7 @@ public class MainActivity extends AppCompatActivity {
             notificationMirror.mirrorFromDevice(DeviceNotificationReceiver.getLastNotification());
         } catch (NullPointerException e) {
             Log.e(TAG + "OnClickNetTest", "no Noficications yet, or Listener broke");
-            Helper.toasted(context,"No Notifications yet, check Listener connection");
+            Helper.toasted(applicationContext,"No Notifications yet, check Listener connection");
         }
     }
 
@@ -254,7 +254,7 @@ public class MainActivity extends AppCompatActivity {
             notificationMirror.dismissNotification(DeviceNotificationReceiver.getLastNotification());
         } catch (NullPointerException e) {
             Log.e(TAG + "OnClickDismiss", "no Noficications yet, or Listener broke");
-            Helper.toasted(context,"No Notifications yet, check Listener connection");
+            Helper.toasted(applicationContext,"No Notifications yet, check Listener connection");
         }
     }
 
@@ -281,7 +281,7 @@ public class MainActivity extends AppCompatActivity {
      */
     private boolean getListenerServiceStatus() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            SharedPreferences sharedPreferences = context.getSharedPreferences(DeviceNotificationReceiver.class.getSimpleName(), Activity.MODE_PRIVATE);
+            SharedPreferences sharedPreferences = applicationContext.getSharedPreferences(DeviceNotificationReceiver.class.getSimpleName(), Activity.MODE_PRIVATE);
             return sharedPreferences.getBoolean("ListenerStatus", false);
         } else {
             ComponentName cn = new ComponentName(this, DeviceNotificationReceiver.class);
@@ -305,7 +305,7 @@ public class MainActivity extends AppCompatActivity {
      * @return boo if the receiver should be running
      */
     private boolean getReplyReceiverServiceStatus() {
-        SharedPreferences sharedPreferences = context.getSharedPreferences(DeviceNotificationReceiver.class.getSimpleName(), AppCompatActivity.MODE_PRIVATE);
+        SharedPreferences sharedPreferences = applicationContext.getSharedPreferences(DeviceNotificationReceiver.class.getSimpleName(), AppCompatActivity.MODE_PRIVATE);
         return sharedPreferences.getBoolean("ReceiverStatus", false);
     }
 
