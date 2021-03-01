@@ -13,13 +13,22 @@ class Helper {
     public static final String TESTCHANNEL_NAME = "TestChannel01";
     public static final String TESTCHANNEL_DESCRIPTION = "TestChannel";
 
-    protected static void toasted(Context context, String text){
-        Toast.makeText(context, text, Toast.LENGTH_LONG).show();
+    /**
+     * helps in creating and showing a toast
+     *
+     * @param text
+     */
+    protected static void toasted(String text) {
+        Toast.makeText(MainActivity.sContext, text, Toast.LENGTH_LONG).show();
     }
 
     /**
      * Returns a test notification that can be used to test if all functionalities of the
-     * app are working properly
+     * app are working properly:
+     * catching
+     * replies
+     * dismiss
+     * actions
      *
      * @param context the application context
      * @return test notification

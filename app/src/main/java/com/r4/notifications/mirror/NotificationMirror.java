@@ -41,6 +41,7 @@ class NotificationMirror {
 
     /**
      * Constructor for the Notification Mirror
+     *
      * @param context application context
      */
     private NotificationMirror(Context context) {
@@ -63,10 +64,39 @@ class NotificationMirror {
      * @return singleton instance of the notification mirror
      */
     public static NotificationMirror getInstance(Context context) {
-        if(singleton_instance == null) {
+        if (singleton_instance == null) {
             singleton_instance = new NotificationMirror(context);
         }
         return singleton_instance;
+    }
+
+    /**
+     * checks if the notification is one that is sensible to store
+     * excludes charging state updates, low battery warnings and mobile data warnings
+     *
+     * @param sbn notification to be checked
+     * @return if the notification may pass the filter
+     */
+    public static boolean inFilter(StatusBarNotification sbn) {//here?
+        Notification notification = sbn.getNotification();
+
+        if ((notification.flags & Notification.FLAG_FOREGROUND_SERVICE) != 0
+                || (notification.flags & Notification.FLAG_ONGOING_EVENT) != 0
+                || (notification.flags & Notification.FLAG_LOCAL_ONLY) != 0
+                || (notification.flags & NotificationCompat.FLAG_GROUP_SUMMARY) != 0
+        )
+            return true;
+        if (sbn.getPackageName().equals("android"))
+            return true;
+        if (sbn.getPackageName().equals("com.android.systemui")) {
+            if (sbn.getTag().equals("low_battery"))
+                return true;
+            else if (sbn.getTag().equals("charging_state"))
+                return true;
+            else if (sbn.getTag().contains("NetworkPolicy"))
+                return true;
+        }
+        return false;
     }
 
     /**
@@ -88,8 +118,8 @@ class NotificationMirror {
      * Displays the notification in the statusbar.
      *
      * @param mirrorNotification the notification to be displayed
-     * @param channelID the channel where the notification will be sent in
-     * @param context application context
+     * @param channelID          the channel where the notification will be sent in
+     * @param context            application context
      */
     public void mirrorFromNetwork(MirrorNotification mirrorNotification, String channelID, Context context) {
         Notification notification = new NotificationCompat.Builder(context, channelID)
@@ -122,10 +152,21 @@ class NotificationMirror {
 
     }
 
+    /**
+     * Exectutes the action with the given action name
+     *
+     * @param mirrorNotification
+     * @param actionName
+     */
     public void executeNotificationAction(MirrorNotification mirrorNotification, String actionName) {
 
     }
 
+    /**
+     * dismisses the given notification from the statusbar and active notification list (not directly but through the notification listener)
+     *
+     * @param mirrorNotification
+     */
     public void dismissNotification(MirrorNotification mirrorNotification) {
         notificationManager.cancel(mirrorNotification.getId());
     }
@@ -134,8 +175,8 @@ class NotificationMirror {
      * Replies to a notification that has a reply action.
      *
      * @param mirrorNotification the notification to be replied to
-     * @param message the reply message
-     * @param context application context
+     * @param message            the reply message
+     * @param context            application context
      */
     public void replyToNotification(MirrorNotification mirrorNotification, String message, Context context) {
         MirrorNotification.Logger log = () -> {
@@ -169,10 +210,10 @@ class NotificationMirror {
      * Create a Notification to speperate different kinds of notifications.
      * E.g the device notifications and the test notifications.
      *
-     * @param channelName the name of the channel
+     * @param channelName        the name of the channel
      * @param channelDescription a short description of the channel
-     * @param channelID the unique ID of the channel
-     * @param context application context
+     * @param channelID          the unique ID of the channel
+     * @param context            application context
      */
     public void createNotificationChannel(String channelName, String channelDescription, String channelID, Context context) {
         // Create the NotificationChannel, but only on API 26+ because

@@ -61,13 +61,19 @@ public class NetworkNotificationReceiver extends Service {
      * stop service (maybe not) (maybe rather restart thread)
      */
     Runnable ReplyReceiverRunnable = new Runnable() {
+        //TODO add logs to the networkpackage reaction execution
+
         /* TO USE THIS IN THE EMULATOR: THE PORTS HAVE TO BE FORWARDED
-         * adb -s emulator-5554 forward tcp:9002 tcp:9001
+         * adb -s emulator-5556 forward tcp:9002 tcp:9001
          * tcp:port adresses on host machine tcp:port forwarded to on emulator
          *
          * Test with:
-         *   echo "{'id':'9001','key':'0|com.r4.notifications.mirror|9001|null|10084','message':'ANSWER','isdismiss':'true','isreply':'','isaction':''}" | nc 127.0.0.1 9002
-         * */
+         *   echo "{'id':'9001','key':'0|com.r4.notifications.mirror|9001|null|10064','message':'ANSWER','isdismiss':'true','isreply':'','isaction':''}" | nc 127.0.0.1 9002
+
+         * on s10:
+         *
+         * echo "{'id':'9001','key':'0|com.r4.notifications.mirror|7|null|10317','message':'ANSWER','isdismiss':'true','isreply':'','isaction':''}" | nc 127.0.0.1 9001
+         * * */
         @Override
         public void run() {
 
@@ -182,7 +188,7 @@ public class NetworkNotificationReceiver extends Service {
         editor.apply();
         Log.d(TAG, "Receiver active");
 
-//        Toast.makeText(this, "service starting", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "service received StartCommand", Toast.LENGTH_SHORT).show();
         //no one tells you to put this here and not externally -.-
         Intent notificationIntent = new Intent(this, NetworkNotificationReceiver.class);
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);

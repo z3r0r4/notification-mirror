@@ -211,6 +211,11 @@ public class NotificationExtractor {
         return null;
     }
 
+    /**
+     * gets the actions of a Notification
+     * @param notification
+     * @return NotificationCompat.Action[] array of the passed notification
+     */
     private static NotificationCompat.Action[] getActions(Notification notification) {
         NotificationCompat.Action[] actions = new NotificationCompat.Action[NotificationCompat.getActionCount(notification)];
         for (int i = 0; i < NotificationCompat.getActionCount(notification); i++) {
