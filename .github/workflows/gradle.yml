@@ -9,6 +9,9 @@ on:
     branches:
       - master
       - api24
+  release:
+    types:
+      - created
 
 jobs:
   build:
