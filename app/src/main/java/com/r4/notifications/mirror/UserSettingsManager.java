@@ -6,8 +6,6 @@ import android.content.SharedPreferences;
 import android.util.Log;
 import android.widget.EditText;
 
-import androidx.appcompat.app.AppCompatActivity;
-
 /**
  * Manages the user settings that are stored in the shared preferences
  *

@@ -75,10 +75,8 @@ public class DeviceNotificationReceiver extends NotificationListenerService {
     public void onNotificationPosted(StatusBarNotification sbn) {
         if (!NotificationFilter.isBlacklisted(sbn)) {
             Log.d(TAG + "onNotificationPosted", "RECEIVED Notification");
-            MirrorNotification mn = new MirrorNotification(sbn);
-            mn.log();
-            Log.d(TAG + "onNotificationPosted", " Ticker: " + mn.ticker);
             MirrorNotification mirrorNotification = new MirrorNotification(sbn);
+            mirrorNotification.log();
             Log.d(TAG + "onNotificationPosted", " Ticker: " + mirrorNotification.ticker);
 //            if (!activeNotifications.containsKey(mn.key)) { //disallow updates
             activeNotifications.put(mirrorNotification.key, mirrorNotification);
@@ -95,7 +93,6 @@ public class DeviceNotificationReceiver extends NotificationListenerService {
             }
             lastKey = mirrorNotification.key;
 //          }
-            mirrorNotification.log();
         }
     }
 
