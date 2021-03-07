@@ -7,14 +7,11 @@ import android.os.Parcelable;
 import android.service.notification.StatusBarNotification;
 import android.util.Log;
 
-import java.util.LinkedList;
-import java.util.List;
-
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.RemoteInput;
 
-import org.json.JSONException;
-import org.json.JSONObject;
+import java.util.LinkedList;
+import java.util.List;
 
 public class NotificationExtractor {
     private static final String TAG = "nm.NotificationExtractor";

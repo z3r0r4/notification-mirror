@@ -1,16 +1,17 @@
 package com.r4.notifications.mirror;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.IBinder;
 import android.util.Log;
 import android.widget.Toast;
+
+import androidx.annotation.Nullable;
+import androidx.core.app.NotificationCompat;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -19,9 +20,6 @@ import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
-
-import androidx.annotation.Nullable;
-import androidx.core.app.NotificationCompat;
 
 //TODO make port modifiable
 
@@ -42,7 +40,6 @@ public class NetworkNotificationReceiver extends Service {
     private static final String TAG = "nm.NetworkNotificationReceiver";
 
     private ServerSocket serverSocket;
-    private Socket socket;
     private Thread mThread;
     private boolean stopThread = false;
     private Context context;
@@ -87,7 +84,7 @@ public class NetworkNotificationReceiver extends Service {
                     if (serverSocket != null) {
 //                        serverSocket.setSoTimeout(10000);
                         Log.d(TAG, "Listening on:  " + IP.getHostAddress() + ":" + PORT);
-                        socket = serverSocket.accept();
+                        Socket socket = serverSocket.accept();
                         Log.e(TAG, "new Client!");
 
                         String read = (new BufferedReader(new InputStreamReader(socket.getInputStream()))).readLine();
@@ -114,7 +111,6 @@ public class NetworkNotificationReceiver extends Service {
             stopSelf(); //maybe restart service to restart thread
         }
     };
-    private SharedPreferences.Editor editor;
 
     /**
      * depening on the network package answer the notification
@@ -146,9 +142,6 @@ public class NetworkNotificationReceiver extends Service {
         super.onCreate();
 
         context = getApplicationContext();
-
-        SharedPreferences shPref = this.getSharedPreferences(DeviceNotificationReceiver.class.getSimpleName(), Activity.MODE_PRIVATE);
-        editor = shPref.edit();
 
         //create some funny channel
         NotificationMirror.getInstance(context).createNotificationChannel(FOREGROUND_SERVICE_CHANNEL_NAME, "", FOREGROUND_SERVICE_CHANNEL_ID, context);
@@ -184,8 +177,7 @@ public class NetworkNotificationReceiver extends Service {
      */
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) { //Intent should contain the Socket address
-        editor.putBoolean("ReceiverStatus", true);
-        editor.apply();
+        UserSettingsManager.getInstance(context).setNetworkNotificationReceiverStatus(true);
         Log.d(TAG, "Receiver active");
 
         Toast.makeText(this, "service received StartCommand", Toast.LENGTH_SHORT).show();
@@ -235,8 +227,7 @@ public class NetworkNotificationReceiver extends Service {
             Log.e(TAG, "couldnt close Sockets");
         }
         stopThread = true;          //mThread.stop();
-        editor.putBoolean("ReceiverStatus", false);
-        editor.apply();
+        UserSettingsManager.getInstance(context).setNetworkNotificationReceiverStatus(false);
         Log.d(TAG, "Receiver inactive");
     }
 

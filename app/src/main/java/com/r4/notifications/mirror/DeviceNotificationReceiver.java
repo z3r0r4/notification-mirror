@@ -1,8 +1,5 @@
 package com.r4.notifications.mirror;
 
-import android.app.Activity;
-import android.app.Notification;
-import android.content.SharedPreferences;
 import android.service.notification.NotificationListenerService;
 import android.service.notification.StatusBarNotification;
 import android.util.Log;
@@ -11,14 +8,13 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class DeviceNotificationReceiver extends NotificationListenerService {
-    private final static String TAG = "nm.SystemNotificationReceiver";
+    private final static String TAG = "nm.DeviceNotificationReceiver";
 
-    public static Map<String, MirrorNotification> activeNotifications = new HashMap<String, MirrorNotification>();
+    public static Map<String, MirrorNotification> activeNotifications = new HashMap<>();
     public static String lastKey;
     private static String lastlastKey;
 
-    private SharedPreferences shPref;
-    private SharedPreferences.Editor editor;
+    private UserSettingsManager userSettingsManager;
 
     /**
      * checks if any notificaitons have been received yet and returns
@@ -48,8 +44,7 @@ public class DeviceNotificationReceiver extends NotificationListenerService {
      * set the listener status preference as ensabled
      */
     public void onListenerConnected() {
-        editor.putBoolean("ListenerStatus", true);
-        editor.apply();
+        userSettingsManager.setDeviceNotificationReceiverStatus(true);
         Log.d(TAG, "Listener Connected");
     }
 
@@ -57,8 +52,7 @@ public class DeviceNotificationReceiver extends NotificationListenerService {
      * set the listener status preference as disabled
      */
     public void onListenerDisconnected() {
-        editor.putBoolean("ListenerStatus", false);
-        editor.apply();
+        userSettingsManager.setDeviceNotificationReceiverStatus(false);
         Log.e(TAG, "Listener Disconnected");
         Helper.toasted(getApplicationContext(),"LISTENER Disconnected");
     }
@@ -67,8 +61,7 @@ public class DeviceNotificationReceiver extends NotificationListenerService {
      * init the shared preferences to store listener status
      */
     public void onCreate() {
-        shPref = this.getSharedPreferences(DeviceNotificationReceiver.class.getSimpleName(), Activity.MODE_PRIVATE);
-        editor = shPref.edit();
+        userSettingsManager = UserSettingsManager.getInstance(getApplicationContext());
     }
 
     /**
@@ -89,10 +82,10 @@ public class DeviceNotificationReceiver extends NotificationListenerService {
             Log.d(TAG + "onNotificationPosted", " Ticker: " + mirrorNotification.ticker);
 //            if (!activeNotifications.containsKey(mn.key)) { //disallow updates
             activeNotifications.put(mirrorNotification.key, mirrorNotification);
-            Log.d(TAG + "onNotificationPosted", "Mirroring Notification: " + shPref.getBoolean("MirrorState", false));
+            Log.d(TAG + "onNotificationPosted", "Mirroring Notification: " + userSettingsManager.getMirrorState());
 
             //mirror the notification if the MirrorState is set to true
-            if (shPref.getBoolean("MirrorState", false)) {
+            if (userSettingsManager.getMirrorState()) {
                 NotificationMirror.getInstance(getApplicationContext()).mirrorFromDevice(
                         activeNotifications.get(mirrorNotification.key)
                 );

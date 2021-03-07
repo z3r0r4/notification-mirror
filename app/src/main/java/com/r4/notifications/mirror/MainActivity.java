@@ -26,9 +26,9 @@ public class MainActivity extends AppCompatActivity {
     public static NotificationMirror notificationMirror;
 
     private NotificationManagerCompat notificationManager;
-    private SharedPreferences shPref;
-    private SharedPreferences.Editor editor;
     private Notification testNotification;
+
+    UserSettingsManager userSettingsManager;
 
     //instance of the application context
     private Context applicationContext;
@@ -39,9 +39,8 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         applicationContext = getApplicationContext();
-        
-        shPref = applicationContext.getSharedPreferences(DeviceNotificationReceiver.class.getSimpleName(), Activity.MODE_PRIVATE);
-        editor = shPref.edit();
+
+        userSettingsManager = UserSettingsManager.getInstance(applicationContext);
 
         //get an instance of the notification mirror
         notificationMirror = NotificationMirror.getInstance(applicationContext);
@@ -53,7 +52,7 @@ public class MainActivity extends AppCompatActivity {
         //load the notification filter that classifies which notifications to mirror
         NotificationFilter.loadFilter(applicationContext);
 
-        /**declare buttons and views*/
+        //declare buttons and views
         Button btnMsgTest = findViewById(R.id.btnMsgTest);
         Button btnReply = findViewById(R.id.btnReply);
         Button btnDismiss = findViewById(R.id.btnDismiss);
@@ -72,20 +71,20 @@ public class MainActivity extends AppCompatActivity {
         TextView tvReceiverIP = findViewById(R.id.tvReplyIP);
         TextView tvReceiverPORT = findViewById(R.id.tvReplyPORT);
 
-        /**check and show if listener is connected*/
+        //check and show if listener is connected
         swListenerStatus.setClickable(false);
         showListenerServiceStatus();
 
-        /**add onclick to open notification listener settings*/
+        //add onclick to open notification listener settings
         swListenerStatus.setOnClickListener(v -> openListenerSettings());
 
-        /**check if notifications should be mirrored*/
-        swMirrorState.setChecked(shPref.getBoolean("MirrorState", false));
+        //check if notifications should be mirrored
+        swMirrorState.setChecked(userSettingsManager.getMirrorState());
 
-        /**add onclick to set mirroring state on toggle*/
-        swMirrorState.setOnCheckedChangeListener((v, isChecked) -> setMirrorState(isChecked));
+        //add onclick to set mirroring state on toggle
+        swMirrorState.setOnCheckedChangeListener((v, isChecked) -> userSettingsManager.setMirrorState(isChecked));
 
-        /**add onclick to start listener service*/
+        //add onclick to start listener service
         swRunReplyReceiverService.setOnCheckedChangeListener((v, isChecked) -> {
             if (isChecked) startReplyListenerService();
             else stopReplyListenerService();
@@ -94,30 +93,28 @@ public class MainActivity extends AppCompatActivity {
         //post the test notification when the "send test notification" button is clicked
         btnMsgTest.setOnClickListener(v -> notificationMirror.showTestNotification(testNotification));
 
-        /**add onclick to reply to last notification */
+        //add onclick to reply to last notification
         btnReply.setOnClickListener(v -> replyToLastNotification());
 
-        /**add onclick to dismiss last notifiaction */
+        //add onclick to dismiss last notifiaction
         btnDismiss.setOnClickListener(v -> dismissLastNotification());
 
-        /**add onclick to mirror last notification*/
+        //add onclick to mirror last notification
         btnNetTest.setOnClickListener(v -> mirrorLastNotification());
 
-        /**save IP:PORT from edittexts*/
+        //save IP:PORT from edittexts
         btnSaveConnection.setOnClickListener(v -> {
-            setSocketAddress(etIP, etPORT);
+            userSettingsManager.setSocketAddress(applicationContext, etIP, etPORT);
             showMirrorSocketAddress(tvMirrorIP, tvMirrorPORT);
             notificationMirror.updateHostCredentials(this);
         });
 
-        /**handle replyintents from testnotification*/
+        //handle replyintents from testnotification
         handleReplyIntent();
 
-        /**show Mirror Socket Address in Textviews*/
+        //show Mirror Socket Address in Textviews
         showMirrorSocketAddress(tvMirrorIP, tvMirrorPORT);
-        /**show Receiver Socket Address in Textviews*/
-        showReceiverSocketAddress(tvReceiverIP, tvReceiverPORT);
-        /**make sure the reply receiver service is started and its shown*/
+        //make sure the reply receiver service is started and its shown
         showReceiverServiceStatus();
         ensureReceiverServiceState();
 
@@ -126,7 +123,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onStart() {
         super.onStart();
-        /**check and show if listener is connected*/
+        //check and show if listener is connected
         showListenerServiceStatus();
         ensureReceiverServiceState();
     }
@@ -134,7 +131,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onRestart() {
         super.onRestart();
-        /**check and show if listener is connected*/
+        //check and show if listener is connected
         showListenerServiceStatus();
         handleReplyIntent();
     }
@@ -143,54 +140,23 @@ public class MainActivity extends AppCompatActivity {
      * tries to start or stop the receiver depending on the sharedpreferences
      */
     private void ensureReceiverServiceState() {
-        if (getReplyReceiverServiceStatus()) startReplyListenerService();
-        else stopReplyListenerService();
-    }
-
-    /**
-     * Parse the editTexts as Socket address and store them or defaults in the sharedpreferences
-     *
-     * @param etIP
-     * @param etPORT
-     */
-    private void setSocketAddress(EditText etIP, EditText etPORT) {
-        String IP = applicationContext.getResources().getString(R.string.DefaultMirrorIP);
-        IP = etIP.getText().toString().equals("") ? IP : etIP.getText().toString();
-
-        int PORT = applicationContext.getResources().getInteger(R.integer.DefaultMirrorPORT);
-        try {
-            PORT = Integer.parseInt(etPORT.getText().toString()) != 0 ? Integer.parseInt(etPORT.getText().toString()) : PORT;
-        } catch (NumberFormatException e) {
-            Helper.toasted(applicationContext,"Input an Integer");
+        if (userSettingsManager.getReplyReceiverServiceStatus()) {
+            startReplyListenerService();
         }
-
-        editor.putString("HOST_IP", IP);
-        editor.putInt("HOST_PORT", PORT);
-        editor.apply();
-        Log.d(TAG, "changed HOST_IP to:" + IP);
-        Log.d(TAG, "changed HOST_PORT to:" + PORT);
+        else {
+            stopReplyListenerService();
+        }
     }
 
     /**
      * Show the Socket Address the mirror tries to connect to in the Textviews
      *
-     * @param tvIP
-     * @param tvPORT
+     * @param tvIP TextView where the ip will be displayed in
+     * @param tvPORT TextView where the port will be displayed in
      */
     private void showMirrorSocketAddress(TextView tvIP, TextView tvPORT) {
-        tvIP.setText(shPref.getString("HOST_IP", applicationContext.getResources().getString(R.string.DefaultMirrorIP)));
-        tvPORT.setText(String.valueOf(shPref.getInt("HOST_PORT", applicationContext.getResources().getInteger(R.integer.DefaultMirrorPORT))));
-    }
-
-    /**
-     * Show the Socket Address the Receiver listens to in the Textviews
-     *
-     * @param tvIP
-     * @param tvPORT
-     */
-    private void showReceiverSocketAddress(TextView tvIP, TextView tvPORT) {
-        tvIP.setText(applicationContext.getResources().getString(R.string.DefaultReceiverIP));//shPref.getString("HOST_IP",
-        tvPORT.setText(String.valueOf(getResources().getInteger(R.integer.DefaultReceiverPORT)));//String.valueOf(shPref.getInt("HOST_PORT",
+        tvIP.setText(userSettingsManager.getMirrorIP(applicationContext));
+        tvPORT.setText(String.valueOf(userSettingsManager.getMirrorPort(applicationContext)));
     }
 
     /**
@@ -204,20 +170,6 @@ public class MainActivity extends AppCompatActivity {
             Log.e(TAG + "OnClickReceiverAccess", "no Noficications yet, or Listener broke");
             Helper.toasted(applicationContext,"No Notifications yet, check Listener connection");
         }
-    }
-
-    /**
-     * store and log if the notifications should be mirrored
-     *
-     * @param isChecked
-     */
-    private void setMirrorState(boolean isChecked) {
-        editor.putBoolean("MirrorState", isChecked);
-        editor.apply();
-        if (isChecked)
-            Log.d(TAG, "onCreate: Mirroring now");
-        if (!isChecked)
-            Log.d(TAG, "onCreate: NOT Mirroring now");
     }
 
     /**
@@ -295,35 +247,23 @@ public class MainActivity extends AppCompatActivity {
      */
     private void showReceiverServiceStatus() {
         SwitchCompat swReceiverStatus = findViewById(R.id.swRunReplyReceiverService);
-        swReceiverStatus.setChecked(getReplyReceiverServiceStatus());
-    }
-
-
-    /**
-     * gets the current state of the receiver preference
-     *
-     * @return boo if the receiver should be running
-     */
-    private boolean getReplyReceiverServiceStatus() {
-        SharedPreferences sharedPreferences = applicationContext.getSharedPreferences(DeviceNotificationReceiver.class.getSimpleName(), AppCompatActivity.MODE_PRIVATE);
-        return sharedPreferences.getBoolean("ReceiverStatus", false);
+        swReceiverStatus.setChecked(userSettingsManager.getReplyReceiverServiceStatus());
     }
 
     /**
      * starts the the foreground service that listens for replies to the messages
      */
     private void startReplyListenerService() {
-//        Helper.toasted("AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
-        Intent i = new Intent(this, NetworkNotificationReceiver.class);
-        this.startService(i);
+        Intent replyListenerIntent = new Intent(this, NetworkNotificationReceiver.class);
+        this.startService(replyListenerIntent);
     }
 
     /**
      * stops the the foreground service that listens for replies to the messages
      */
     private void stopReplyListenerService() {
-        Intent i = new Intent(this, NetworkNotificationReceiver.class);
-        this.stopService(i);
+        Intent replyListenerIntent = new Intent(this, NetworkNotificationReceiver.class);
+        this.stopService(replyListenerIntent);
     }
 
     /**
@@ -341,7 +281,7 @@ public class MainActivity extends AppCompatActivity {
         try {//TODO dont react to every intent (use broadcasts?)
             String inputString = remoteInput.getCharSequence("reply").toString();
 
-            TextView replyTV = (TextView) findViewById(R.id.tvRepliedText);
+            TextView replyTV = findViewById(R.id.tvRepliedText);
             replyTV.setText(inputString);
 
             Notification repliedNotification =  //update Notifiaction to stop sending loading circle

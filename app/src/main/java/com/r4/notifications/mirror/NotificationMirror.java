@@ -1,16 +1,13 @@
 package com.r4.notifications.mirror;
 
-import android.app.Activity;
 import android.app.Notification;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.os.Build;
 import android.os.Bundle;
-import android.service.notification.StatusBarNotification;
 import android.util.Log;
 
 import androidx.core.app.NotificationCompat;
@@ -100,9 +97,9 @@ class NotificationMirror {
     }
 
     /**
-     * Displays a Notification in the statusbar.
+     * Displays a Notification in the status bar.
      *
-     * @param notification
+     * @param notification test notification to be shown
      */
     public void showTestNotification(Notification notification) {
 
@@ -122,17 +119,17 @@ class NotificationMirror {
     /**
      * Exectutes the action with the given action name
      *
-     * @param mirrorNotification
-     * @param actionName
+     * @param mirrorNotification notification whose action to execute
+     * @param actionName name of the action to be executed
      */
     public void executeNotificationAction(MirrorNotification mirrorNotification, String actionName) {
 
     }
 
     /**
-     * dismisses the given notification from the statusbar and active notification list (not directly but through the notification listener)
+     * dismisses the given notification from the status bar and active notification list (not directly but through the notification listener)
      *
-     * @param mirrorNotification
+     * @param mirrorNotification notification to be dismissed
      */
     public void dismissNotification(MirrorNotification mirrorNotification) {
         notificationManager.cancel(mirrorNotification.getId());
@@ -191,6 +188,7 @@ class NotificationMirror {
             // Register the channel with the system; you can't change the importance
             // or other notification behaviors after this
             NotificationManager notificationManager = getSystemService(context, NotificationManager.class);
+            assert notificationManager != null;
             notificationManager.createNotificationChannel(channel);
         }
     }
@@ -204,16 +202,11 @@ class NotificationMirror {
      * @param context application context
      */
     public void updateHostCredentials(Context context) {
-        //get the default ip and port from the resources
-        String defaultMirrorIP = context.getResources().getString(R.string.DefaultMirrorIP);
-        int defaultMirrorPort = context.getResources().getInteger(R.integer.DefaultMirrorPORT);
-
-        //get access to the shared preferences where the ip and port are saved
-        SharedPreferences sharedPreferences = context.getSharedPreferences(DeviceNotificationReceiver.class.getSimpleName(), Activity.MODE_PRIVATE);
+        UserSettingsManager userSettingsManager = UserSettingsManager.getInstance(context);
 
         //assign ip and port from the shared preferences or from the default value
-        hostname = sharedPreferences.getString("HOST_IP", defaultMirrorIP);
-        hostPort = sharedPreferences.getInt("HOST_PORT", defaultMirrorPort);
+        hostname = userSettingsManager.getMirrorIP(context);
+        hostPort = userSettingsManager.getMirrorPort(context);
     }
 
 }

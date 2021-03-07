@@ -1,11 +1,8 @@
 package com.r4.notifications.mirror;
 
-import android.app.Notification;
 import android.content.Context;
 import android.service.notification.StatusBarNotification;
 import android.util.Log;
-
-import androidx.core.app.NotificationCompat;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -20,16 +17,14 @@ import java.util.List;
 public class NotificationFilter {
     private static final String TAG = "nm.NotificationFilter";
 
-    private static final List<String> filteredTags = new ArrayList<String>();
-    private static final List<String> filteredPackageNames = new ArrayList<String>();
-    private static final List<Integer> filteredFlags  = new ArrayList<Integer>();
+    private static final List<String> filteredTags = new ArrayList<>();
+    private static final List<String> filteredPackageNames = new ArrayList<>();
+    private static final List<Integer> filteredFlags  = new ArrayList<>();
 
     public static void loadFilter(Context context) {
         String jsonformattedstring = "";
-        BufferedReader reader = null;
-        try {
-            reader = new BufferedReader(
-                    new InputStreamReader(context.getAssets().open("filter.json")));
+        try (BufferedReader reader = new BufferedReader(
+                new InputStreamReader(context.getAssets().open("filter.json")))) {
 
             // do reading, usually loop until end of file reading
             String mLine;
@@ -38,15 +33,8 @@ public class NotificationFilter {
             }
         } catch (IOException e) {
             //log the exception
-        } finally {
-            if (reader != null) {
-                try {
-                    reader.close();
-                } catch (IOException e) {
-                    //log the exception
-                }
-            }
         }
+        //log the exception
 
         Log.d(TAG, jsonformattedstring);
 
@@ -103,11 +91,7 @@ public class NotificationFilter {
             return true;
         }
 
-        if(containsBlacklistedPackageName(sbn.getPackageName())) {
-            return true;
-        }
-
-        return false;
+        return containsBlacklistedPackageName(sbn.getPackageName());
     }
 
     private static boolean containsNecessaryFlag(int flags) {
