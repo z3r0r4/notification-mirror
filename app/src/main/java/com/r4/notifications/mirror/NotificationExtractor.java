@@ -8,6 +8,9 @@ import android.os.Parcelable;
 import android.service.notification.StatusBarNotification;
 import android.util.Log;
 
+import androidx.core.app.NotificationCompat;
+import androidx.core.app.RemoteInput;
+
 import java.util.LinkedList;
 import java.util.List;
 
@@ -19,8 +22,8 @@ import androidx.core.app.NotificationCompat;
  * STATIC
  */
 
-class NotificationExtractor {
-    private static final String TAG = "Notification Extractor";
+public class NotificationExtractor {
+    private static final String TAG = "nm.NotificationExtractor";
 
     /**
      * extracts the key          : "A unique instance key for this notification record" (0|com.r4.notifications.mirror|9001|null|10084)
@@ -187,7 +190,7 @@ class NotificationExtractor {
      * @return the replyaction of the given notification
      */
     //RETURNS THE ACTUAL REPLY ACTION WITH THE FiTTING REMOTE INPUT doesnt store all of the actions like smth called k** (still gotta search for the right remoteInput, when replying tho)
-    protected static Notification.Action getReplyAction(StatusBarNotification sbn) {
+    protected static NotificationCompat.Action getReplyAction(StatusBarNotification sbn) {
         MirrorNotification.Logger log = () -> Log.e(TAG + "getReplyAction", "REPLYACTION EXTRACTION FAILED");
 
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
@@ -197,7 +200,7 @@ class NotificationExtractor {
 
         Notification notification = sbn.getNotification();
         if (notification.actions != null && notification.actions.length > 0) {
-            for (Notification.Action action : notification.actions) {
+            for (NotificationCompat.Action action : getActions(notification)) {
                 if (action != null && action.getRemoteInputs() != null) {
                     for (RemoteInput remoteInput : action.getRemoteInputs()) {//kde version stores all remoteInputs and uses a different replyfunction
                         String resultKey = remoteInput.getResultKey().toLowerCase();
@@ -213,5 +216,18 @@ class NotificationExtractor {
         }
         log.e();
         return null;
+    }
+
+    /**
+     * gets the actions of a Notification
+     * @param notification
+     * @return NotificationCompat.Action[] array of the passed notification
+     */
+    private static NotificationCompat.Action[] getActions(Notification notification) {
+        NotificationCompat.Action[] actions = new NotificationCompat.Action[NotificationCompat.getActionCount(notification)];
+        for (int i = 0; i < NotificationCompat.getActionCount(notification); i++) {
+            actions[i] = NotificationCompat.getAction(notification, i);
+        }
+        return actions;
     }
 }

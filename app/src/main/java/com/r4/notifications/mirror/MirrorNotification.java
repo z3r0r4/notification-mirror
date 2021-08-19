@@ -1,19 +1,19 @@
 package com.r4.notifications.mirror;
 
 import android.app.Notification;
-import android.app.NotificationManager;
 import android.app.PendingIntent;
-import android.app.RemoteInput;
 import android.content.Context;
 import android.content.Intent;
-import android.os.Bundle;
 import android.service.notification.StatusBarNotification;
 import android.util.Log;
 
 import java.io.Serializable;
 import java.util.List;
 
-import androidx.core.app.NotificationManagerCompat;
+import androidx.core.app.NotificationCompat;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 /**
  * @since 20210719
@@ -23,7 +23,7 @@ import androidx.core.app.NotificationManagerCompat;
 
 class MirrorNotification implements Serializable {
 
-    private final static String TAG = "MirrorNotification";
+    private final static String TAG = "nm.MirrorNotification";
     public int id;
     //    public String tag;
     public String key;
@@ -32,7 +32,7 @@ class MirrorNotification implements Serializable {
     public String text;
     public String ticker;
     public String time;
-    public transient Notification.Action replyAction;   //theres only one replyaction
+    public transient NotificationCompat.Action replyAction;   //theres only one replyaction
     public transient List<Notification.Action> actions; //excludes repliable Actions
 
     public boolean isCancel;   //TODO onNotificationRemoved
@@ -58,7 +58,7 @@ class MirrorNotification implements Serializable {
      * isActionable : boo if there are actions
      * isReplyable  : boo if a replyaction was found
      *
-     * @param sbn caought statusbarnotification
+     * @param sbn caught statusbarnotification
      */
     public MirrorNotification(StatusBarNotification sbn) {
         id = sbn.getId();
@@ -76,28 +76,6 @@ class MirrorNotification implements Serializable {
     }
 
     /**
-     * Test only
-     * creates a notification that can be posted and replied to
-     *
-     * @param id
-     */
-    @Deprecated
-    public MirrorNotification(String id) {
-    }
-
-    /**
-     * Test only
-     * creates a notification that can be posted
-     *
-     * @param id
-     * @param title
-     * @param text
-     */
-    @Deprecated
-    public MirrorNotification(String id, String title, String text) {
-    }
-
-    /**
      * creates a Notification from a networkpackage which can be used to dismiss or reply or act to a notification
      * basically a copy constructor
      *
@@ -105,7 +83,7 @@ class MirrorNotification implements Serializable {
      */
     public MirrorNotification(NetworkPackage netpkg) throws ExceptionInInitializerError {
         try {
-            MirrorNotification mn = NotificationReceiver.getactiveNotifications().get(netpkg.getKey());
+            MirrorNotification mn = DeviceNotificationReceiver.getactiveNotifications().get(netpkg.getKey());
             mn.log();
             if (mn.id != netpkg.getID()) { //crash here if two pkgs are send afteranother bith with a dismiss
                 Log.e(TAG, "wrong ID for notifiaction retrived by KEY");
@@ -143,14 +121,14 @@ class MirrorNotification implements Serializable {
         this.title = title;
         this.text = text;
 
-        RemoteInput remoteInput = new RemoteInput.Builder("reply")
+        androidx.core.app.RemoteInput remoteInput = new androidx.core.app.RemoteInput.Builder("reply")
                 .setLabel("Enter Text Boss")
                 .build();
         Intent replyIntent = new Intent(context, MainActivity.class);
         PendingIntent replyPendingIntent =
                 PendingIntent.getActivity(context, 1, replyIntent, PendingIntent.FLAG_UPDATE_CURRENT);
         this.replyAction =
-                new Notification.Action.Builder(android.R.drawable.ic_dialog_info, "Reply", replyPendingIntent)
+                new NotificationCompat.Action.Builder(android.R.drawable.ic_dialog_info, "Reply", replyPendingIntent)
                         .addRemoteInput(remoteInput)
                         .build();
     }
@@ -184,83 +162,65 @@ class MirrorNotification implements Serializable {
         );
     }
 
-    /**
-     * execute the action of a notification by name
-     * writes ? times
-     *
-     * @param actionName name of the action of the notification to be executed
-     */
-    public void act(String actionName) {
-
-    }
-
-    /**
-     * replies to a notification using its replyaction and its remote inputs
-     * writes once
-     *
-     * @param message which should be replied
-     * @param context trash
-     */
-    public void reply(String message, Context context) {//maybe MirrorWorker
-        Logger log = () -> {
-            Log.e(TAG + "reply", "NO REPLYACTIONS or REMOTEINPUTS");
-            Helper.toasted("Not Repliable");
-        };
-        if (this.replyAction == null || this.replyAction.getRemoteInputs().length == 0) {
-            Log.e(TAG, "no actions or remote inputs to reply to");
-            return;
-        }
-
-        Intent intent = new Intent();
-        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        Bundle bundle = new Bundle();
-        for (RemoteInput remoteIn : this.replyAction.getRemoteInputs())
-            bundle.putCharSequence(remoteIn.getResultKey(), message);
-
-        RemoteInput.addResultsToIntent(this.replyAction.getRemoteInputs(), intent, bundle);
-        try {
-            replyAction.actionIntent.send(context, 0, intent); //SET
-        } catch (PendingIntent.CanceledException e) {
-            Log.e(TAG + "reply", "REPLY FAILED" + e.getLocalizedMessage());
-            Helper.toasted("Couldnt reply to Notification");
-        }
-    }
-
-    /**
-     * Test only
-     * posts this notification to the channel of a notification manager
-     *
-     * @param notificationManager with the channel its posted to
-     * @param context             trash
-     */
-    @Deprecated
-    public void post(NotificationManagerCompat notificationManager, Context context) {
-        Notification notification = new Notification.Builder(context, "TestChannel")
-                .setSmallIcon(android.R.drawable.ic_dialog_info)
-                .setContentTitle(this.title)
-                .setContentText(this.text)
-//                .setContentIntent(pIntent)
-//                .setPriority(NotificationCompat.PRIORITY_MAX) //For lower androids without channels
-//                .setAutoCancel(true) //close onclick
-                .addAction(this.replyAction)
-                .build();
-        notificationManager.notify(9001, notification);
-    }
-
-    /**
-     * dismisses this notification posted which is identified by its id
-     * <p>
-     * //     * @param notificationManager with the channel the notification was posted to
-     */
-    public void dismiss() {
-        NotificationManager notificationManager = (NotificationManager) MainActivity.sContext.getSystemService(Context.NOTIFICATION_SERVICE);
-        notificationManager.cancel(id);
-    }
+    //
 
     /**
      * interface for custom implementation logging in each method
      */
     interface Logger {
         void e();
+    }
+
+    /**
+     * Getter and Setter
+     *
+     */
+
+    public int getId() {
+        return id;
+    }
+
+    public String getKey() {
+        return key;
+    }
+
+    public String getAppName() {
+        return appName;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public String getText() {
+        return text;
+    }
+
+    public String getTicker() {
+        return ticker;
+    }
+
+    public String getTime() {
+        return time;
+    }
+
+    public NotificationCompat.Action getReplyAction() {
+        return replyAction;
+    }
+
+    public List<Notification.Action> getActions() {
+        return actions;
+    }
+
+    public boolean isCancel() {
+        return isCancel;
+    }
+
+    public boolean isReplyable() {
+        return isReplyable;
+    }
+
+    public boolean isActionable() {
+        return isActionable;
     }
 }

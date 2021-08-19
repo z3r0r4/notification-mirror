@@ -1,6 +1,27 @@
 <resources>
     <string name="app_name">Notification Mirror</string>
+    <string name="address_title">Address of the Mirror</string>
+    <string name="all_divider">:</string>
+    <string name="listener_service_toggle">Listener Service</string>
+    <string name="btn_send_test_notification">Send TEST Notification</string>
+    <string name="btn_reply_to_last_notification">REPLY to last Notification</string>
+    <string name="btn_action_on_last_notification">Action on last Notification</string>
+    <string name="btn_dismiss_last_notification">Dismiss last Notification</string>
+    <string name="replied_text">Replied Text</string>
+    <string name="info_text">Info Text</string>
     <string name="service_label">NotificationReceiver</string>
-    <string name="DefaultMirrorIP">192.168.178.84</string>
-    <string name="DefaultReceiverIP">localhost</string><!--unused-->
+    <string name="DefaultMirrorIP">192.168.178.49</string>
+    <string name="DefaultReceiverIP">localhost</string>
+    <string name="address_mirror_title">Address of the Mirror</string>
+    <string name="ip_input_hint">IP</string>
+    <string name="input_port_hint">PORT</string>
+    <string name="btn_save_title">SAVE</string>
+    <string name="mirror_ip_text">Mirror IP</string>
+    <string name="mirror_port_text">Mirror PORT</string>
+    <string name="address_receiver_title">Address of the Reply Receiver</string>
+    <string name="reply_ip_text">Reply IP</string>
+    <string name="reply_port_text">Reply PORT</string>
+    <string name="mirror_over_network_toggle">Mirror over Network</string>
+    <string name="reply_receiver_service_toggle">Reply Receiver Service</string>
+    <string name="btn_test_network">Test NetWork</string><!--unused-->
 </resources>

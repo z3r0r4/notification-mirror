@@ -13,7 +13,7 @@ import org.json.JSONObject;
 //TODO maybe merge with mirrornotification
 class NetworkPackage {
 
-    private static final String TAG = "NetworkPackage";
+    private static final String TAG = "nm.NetworkPackage";
 
     private String key;
     private int id;

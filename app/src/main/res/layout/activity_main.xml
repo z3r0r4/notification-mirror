@@ -15,7 +15,7 @@
             android:id="@+id/tVMirrorHeader"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Address of the Mirror" />
+            android:text="@string/address_mirror_title" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -26,14 +26,15 @@
                 android:id="@+id/etIP"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:hint="IP"
+                android:hint="@string/ip_input_hint"
                 android:layout_weight=".70"
-                android:inputType="textPersonName" />
+                android:inputType="text"
+                android:autofillHints="ip" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text=":"
+                android:text="@string/all_divider"
                 android:textAlignment="center"
                 android:textStyle="bold" />
 
@@ -45,14 +46,15 @@
                 android:textAlignment="gravity"
                 android:inputType="number"
                 android:maxLength="5"
-                android:hint="PORT" />
+                android:hint="@string/input_port_hint"
+                android:autofillHints="port" />
 
             <Button
                 android:id="@+id/btnSave"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="0.22"
-                android:text="SAVE" />
+                android:text="@string/btn_save_title" />
 
         </LinearLayout>
 
@@ -68,14 +70,14 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight=".7"
-                android:text="Mirror IP"
+                android:text="@string/mirror_ip_text"
                 android:textAlignment="viewStart" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:padding="5dp"
-                android:text=":"
+                android:text="@string/all_divider"
                 android:textAlignment="center"
                 android:textStyle="bold" />
 
@@ -84,7 +86,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight=".3"
-                android:text="Mirror PORT"
+                android:text="@string/mirror_port_text"
                 android:textAlignment="viewStart" />
 
             <TextView
@@ -97,7 +99,7 @@
             android:id="@+id/tVReplyHeader"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Address of the Reply Receiver" />
+            android:text="@string/address_receiver_title" />
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -110,14 +112,14 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight=".7"
-                android:text="Reply IP"
+                android:text="@string/reply_ip_text"
                 android:textAlignment="viewStart" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:padding="5dp"
-                android:text=":"
+                android:text="@string/all_divider"
                 android:textAlignment="center"
                 android:textStyle="bold" />
 
@@ -126,7 +128,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight=".3"
-                android:text="Reply PORT"
+                android:text="@string/reply_port_text"
                 android:textAlignment="viewStart" />
 
             <TextView
@@ -135,91 +137,69 @@
                 android:layout_weight="0.21" />
         </LinearLayout>
 
-        <Switch
+        <androidx.appcompat.widget.SwitchCompat
             android:id="@+id/swMirrorState"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="5dp"
-            android:text="Mirror over Network"
+            android:text="@string/mirror_over_network_toggle"
             tools:ignore="UseSwitchCompatOrMaterialXml" />
 
-        <Switch
+        <androidx.appcompat.widget.SwitchCompat
             android:id="@+id/swSetListenerPermission"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="5dp"
-            android:text="Listener Service"
+            android:text="@string/listener_service_toggle"
             tools:ignore="UseSwitchCompatOrMaterialXml" />
 
-
-        <Switch
+        <androidx.appcompat.widget.SwitchCompat
             android:id="@+id/swRunReplyReceiverService"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="5dp"
-            android:text="Reply Receiver Service"
+            android:text="@string/reply_receiver_service_toggle"
             tools:ignore="UseSwitchCompatOrMaterialXml" />
 
         <Button
             android:id="@+id/btnMsgTest"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Send TEST Notification" />
+            android:text="@string/btn_send_test_notification" />
 
         <Button
             android:id="@+id/btnReply"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="REPLY to last Notification" />
+            android:text="@string/btn_reply_to_last_notification" />
 
         <Button
             android:id="@+id/btnAction"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Action on last Notification" />
+            android:text="@string/btn_action_on_last_notification" />
 
         <Button
             android:id="@+id/btnDismiss"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Dismiss last Notification" />
+            android:text="@string/btn_dismiss_last_notification" />
 
         <Button
             android:id="@+id/btnNetTest"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Test NetWork" />
-
-        <Switch
-            android:id="@+id/swTestNetwork"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:padding="5dp"
-            android:text="Test Network on Listener Start"
-            tools:ignore="UseSwitchCompatOrMaterialXml" />
-
-        <!-- @deprecated -->
-        <Button
-            android:id="@+id/btnTestBinding"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Test Access to Notifications" />
+            android:text="@string/btn_test_network" />
 
         <TextView
             android:id="@+id/tvRepliedText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:gravity="center"
-            android:text="Replied Text" />
+            android:text="@string/replied_text" />
 
 
         <!-- @deprecated -->
-        <TextView
-            android:id="@+id/tvInfoText"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:text="Info Text " />
 
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

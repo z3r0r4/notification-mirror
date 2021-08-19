@@ -15,6 +15,8 @@ import java.util.Map;
  * Receives notifications from the listenerservice and stores them and mirrors them as MirrorNotifications
  * saves last reveived key
  * dismiss notifications
+ *
+ * DEPRECTATEETETED
  */
 
 public class NotificationReceiver extends NotificationListenerService {
