@@ -13,6 +13,12 @@ import java.util.List;
 
 import androidx.core.app.NotificationCompat;
 
+/**
+ * @since 20210719
+ * extracts Notification Data and Actions
+ * STATIC
+ */
+
 class NotificationExtractor {
     private static final String TAG = "Notification Extractor";
 

@@ -10,6 +10,13 @@ import android.util.Log;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * @since 20210719
+ * Receives notifications from the listenerservice and stores them and mirrors them as MirrorNotifications
+ * saves last reveived key
+ * dismiss notifications
+ */
+
 public class NotificationReceiver extends NotificationListenerService {
     private final static String TAG = "Notification Receiver";
 

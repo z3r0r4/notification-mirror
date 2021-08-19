@@ -20,7 +20,12 @@ import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
 
 /**
- * @since 2021-02-17
+ * @since 2021-07-19
+ * the Main Activity of the app
+ *      displays the main activity and handles its buttons
+ *          shows and gets config of the app
+ *      sets the config of the app
+ *      handles the replying intents of test notifications
  */
 public class MainActivity extends AppCompatActivity {
     public static final String FOREGROUND_SERVICE_NOTIFICATIONCHANNEL_ID = "45654654464";
@@ -123,7 +128,7 @@ public class MainActivity extends AppCompatActivity {
         /**show Receiver Socket Address in Textviews*/
         showReceiverSocketAddress(tvReceiverIP, tvReceiverPORT);
 
-        if (!getListenerServiceStatus()) return; //Problematic
+        if (!getListenerServiceStatus()) return; //Problematic Y?
         /**add onclick to post Test Notification */
         btnTestNotificationReceiverAccess.setOnClickListener(v -> getLastNotification());
 

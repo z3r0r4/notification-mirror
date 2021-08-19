@@ -11,7 +11,11 @@ import java.io.PrintWriter;
 import java.net.InetSocketAddress;
 import java.net.Socket;
 
-
+/**
+ * @since 20210719
+ * sends jsonfied {@link MirrorNotification} 's over the network sockets
+ * async
+ */
 class Mirror extends AsyncTask<MirrorNotification, Void, Void> { //deprecated but who cares
     private final static String TAG = "Mirror";
 

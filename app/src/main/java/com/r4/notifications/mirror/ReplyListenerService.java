@@ -21,6 +21,13 @@ import java.net.Socket;
 
 import androidx.annotation.Nullable;
 
+/**
+ * @since 20210719
+ * is a service that waits for repiles from the PC side
+ * acts on the locally stored notifications when receiving stuff
+ * async
+ */
+
 //TODO make port modifiable
 
 //TODO clean code:

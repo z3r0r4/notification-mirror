@@ -5,6 +5,12 @@ import android.service.notification.StatusBarNotification;
 
 import androidx.core.app.NotificationCompat;
 
+/**
+ * @since 20210719
+ * works the mirror and manages what shall be send(mirrored over the nextwork)
+ * synchronious
+ */
+
 class NotificationMirror {
     private final static String TAG = "NotifiactionMirror";
 

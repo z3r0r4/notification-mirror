@@ -15,6 +15,12 @@ import java.util.List;
 
 import androidx.core.app.NotificationManagerCompat;
 
+/**
+ * @since 20210719
+ * stores data from a Android StatusbarNotification extracted using the NotificationExtractor
+ * reply and action and dismiss on this
+ */
+
 class MirrorNotification implements Serializable {
 
     private final static String TAG = "MirrorNotification";

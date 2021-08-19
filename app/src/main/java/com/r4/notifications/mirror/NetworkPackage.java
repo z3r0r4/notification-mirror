@@ -5,6 +5,11 @@ import android.util.Log;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+/**
+ * @since 20210719
+ * extract data from the pcs answer so that the replylistenerservice can act on the local notifications
+ */
+
 //TODO maybe merge with mirrornotification
 class NetworkPackage {
 
