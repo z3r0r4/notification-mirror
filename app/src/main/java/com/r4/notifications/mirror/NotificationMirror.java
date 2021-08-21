@@ -128,10 +128,10 @@ class NotificationMirror {
     }
 
     public void updateTestNotification(Notification notification) {
-        postNotification(notification, currentTestNotificationId);
+        postNotification(currentTestNotificationId - 1, notification);
     }
 
-    public void postNotification(Notification notification, int id) {
+    public void postNotification(int id, Notification notification) {
         notificationManager.notify(id, notification);
     }
 
