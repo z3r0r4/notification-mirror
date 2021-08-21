@@ -1,7 +1,6 @@
 package com.r4.notifications.mirror;
 
 import android.app.Notification;
-import android.app.RemoteInput;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcelable;
@@ -202,7 +201,7 @@ public class NotificationExtractor {
         if (notification.actions != null && notification.actions.length > 0) {
             for (NotificationCompat.Action action : getActions(notification)) {
                 if (action != null && action.getRemoteInputs() != null) {
-                    for (RemoteInput remoteInput : action.getRemoteInputs()) {//kde version stores all remoteInputs and uses a different replyfunction
+                    for (RemoteInput remoteInput : action.getRemoteInputs()) {//kde version stores all remoteInputs and uses a different replyfunction //might need the not androidx version
                         String resultKey = remoteInput.getResultKey().toLowerCase();
                         if (resultKey.contains("reply"))
                             return action;

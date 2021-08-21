@@ -24,4 +24,6 @@
     <string name="mirror_over_network_toggle">Mirror over Network</string>
     <string name="reply_receiver_service_toggle">Reply Receiver Service</string>
     <string name="btn_test_network">Test NetWork</string><!--unused-->
+
+
 </resources>

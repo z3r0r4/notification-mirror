@@ -50,15 +50,10 @@ class Helper {
                 .build();
         Intent replyIntent = new Intent(context, MainActivity.class);
         PendingIntent replyPendingIntent = PendingIntent.getActivity(
-                context,
-                1,
-                replyIntent,
-                PendingIntent.FLAG_UPDATE_CURRENT
-        );
+                    context, 1, replyIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+
         NotificationCompat.Action replyAction = new NotificationCompat.Action.Builder(
-                android.R.drawable.ic_dialog_info,
-                "Reply", replyPendingIntent
-        )
+                    android.R.drawable.ic_dialog_info, "Reply", replyPendingIntent)
                 .addRemoteInput(remoteInput)
                 .build();
 

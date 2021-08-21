@@ -14,7 +14,7 @@ public class DeviceNotificationReceiver extends NotificationListenerService {
     public static String lastKey;
     private static String lastlastKey;
 
-    private UserSettingsManager userSettingsManager;
+    private SharedPreferencesManager mSharedPreferencesManager;
 
     /**
      * checks if any notificaitons have been received yet and returns
@@ -44,7 +44,7 @@ public class DeviceNotificationReceiver extends NotificationListenerService {
      * set the listener status preference as ensabled
      */
     public void onListenerConnected() {
-        userSettingsManager.setDeviceNotificationReceiverStatus(true);
+        mSharedPreferencesManager.setDeviceNotificationReceiverStatus(true);
         Log.d(TAG, "Listener Connected");
     }
 
@@ -52,7 +52,7 @@ public class DeviceNotificationReceiver extends NotificationListenerService {
      * set the listener status preference as disabled
      */
     public void onListenerDisconnected() {
-        userSettingsManager.setDeviceNotificationReceiverStatus(false);
+        mSharedPreferencesManager.setDeviceNotificationReceiverStatus(false);
         Log.e(TAG, "Listener Disconnected");
         Helper.toasted(getApplicationContext(),"LISTENER Disconnected");
     }
@@ -61,7 +61,7 @@ public class DeviceNotificationReceiver extends NotificationListenerService {
      * init the shared preferences to store listener status
      */
     public void onCreate() {
-        userSettingsManager = UserSettingsManager.getInstance(getApplicationContext());
+        mSharedPreferencesManager = SharedPreferencesManager.getSingleInstance(getApplicationContext());
     }
 
     /**
@@ -80,11 +80,11 @@ public class DeviceNotificationReceiver extends NotificationListenerService {
             Log.d(TAG + "onNotificationPosted", " Ticker: " + mirrorNotification.ticker);
 //            if (!activeNotifications.containsKey(mn.key)) { //disallow updates
             activeNotifications.put(mirrorNotification.key, mirrorNotification);
-            Log.d(TAG + "onNotificationPosted", "Mirroring Notification: " + userSettingsManager.getMirrorState());
+            Log.d(TAG + "onNotificationPosted", "Mirroring Notification: " + mSharedPreferencesManager.getMirrorState(false));
 
             //mirror the notification if the MirrorState is set to true
-            if (userSettingsManager.getMirrorState()) {
-                NotificationMirror.getInstance(getApplicationContext()).mirrorFromDevice(
+            if (mSharedPreferencesManager.getMirrorState(false)) {
+                NotificationMirror.getSingleInstance(getApplicationContext()).mirrorFromDevice(
                         activeNotifications.get(mirrorNotification.key)
                 );
             }

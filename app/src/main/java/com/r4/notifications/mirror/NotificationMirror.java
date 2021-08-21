@@ -8,11 +8,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
+import android.service.notification.StatusBarNotification;
 import android.util.Log;
 
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.NotificationManagerCompat;
-import androidx.core.app.RemoteInput;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -66,7 +66,7 @@ class NotificationMirror {
      * @param context application context
      * @return singleton instance of the notification mirror
      */
-    public static NotificationMirror getInstance(Context context) {
+    public static NotificationMirror getSingleInstance(Context context) {
         if (singleton_instance == null) {
             singleton_instance = new NotificationMirror(context);
         }
@@ -122,10 +122,19 @@ class NotificationMirror {
      *
      * @param notification test notification to be shown
      */
-
-    public void showTestNotification(Notification notification) {
+    public void postTestNotification(Notification notification) {
         notificationManager.notify(currentTestNotificationId, notification);
         currentTestNotificationId++;
+    }
+
+    public void updateTestNotification(Notification notification) {
+        postNotification(notification, currentTestNotificationId);
+    }
+
+    public void postNotification(Notification notification, int id) {
+        notificationManager.notify(id, notification);
+    }
+
 
     /**
      * sends a notification over the network which dismisses the target notification
@@ -209,7 +218,7 @@ class NotificationMirror {
         for (androidx.core.app.RemoteInput remoteIn : replyAction.getRemoteInputs())
             bundle.putCharSequence(remoteIn.getResultKey(), message);
 
-        RemoteInput.addResultsToIntent(replyAction.getRemoteInputs(), intent, bundle);
+        androidx.core.app.RemoteInput.addResultsToIntent(replyAction.getRemoteInputs(), intent, bundle); //maybe not androidx
         try {
             replyAction.actionIntent.send(context, 0, intent); //SET
         } catch (PendingIntent.CanceledException e) {
@@ -234,7 +243,7 @@ class NotificationMirror {
             channel.setDescription(channelDescription);
             // Register the channel with the system; you can't change the importance
             // or other notification behaviors after this
-            NotificationManager notificationManager = getSystemService(context, NotificationManager.class);
+            NotificationManager notificationManager = getSystemService(context, NotificationManager.class); //TODO use the whole class scope one
             assert notificationManager != null;
             notificationManager.createNotificationChannel(channel);
         }
@@ -249,11 +258,11 @@ class NotificationMirror {
      * @param context application context
      */
     public void updateHostCredentials(Context context) {
-        UserSettingsManager userSettingsManager = UserSettingsManager.getInstance(context);
+        SharedPreferencesManager sharedPreferencesManager = SharedPreferencesManager.getSingleInstance(context);
 
         //assign ip and port from the shared preferences or from the default value
-        hostname = userSettingsManager.getMirrorIP(context);
-        hostPort = userSettingsManager.getMirrorPort(context);
+        hostname = sharedPreferencesManager.getMirrorIP(context);
+        hostPort = sharedPreferencesManager.getMirrorPort(context);
     }
 
 

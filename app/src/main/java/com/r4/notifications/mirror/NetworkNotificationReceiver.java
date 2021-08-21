@@ -1,14 +1,11 @@
 package com.r4.notifications.mirror;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.content.res.Resources;
 import android.os.IBinder;
 import android.util.Log;
 import android.widget.Toast;
@@ -23,8 +20,6 @@ import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
-
-import androidx.annotation.Nullable;
 
 /**
  * @since 20210719
@@ -52,9 +47,7 @@ public class NetworkNotificationReceiver extends Service {
     private static final int FOREGROUND_SERVICE_NOTIFICATION_ID = 5646545;
     private static final String FOREGROUND_SERVICE_CHANNEL_NAME = "FgChannel01";
     private static final String FOREGROUND_SERVICE_CHANNEL_ID = "FgChannelID01";
-    private static final String TAG = "nm.NetworkNotificationReceiver";//dont like this scheme
-    private static final String TAG = "ReplyListenerService";
-    private SharedPreferences.Editor editor;
+    private static final String TAG = "NetworkNotificationReceiver";//dont like this scheme
 
     private ServerSocket serverSocket;
     private Socket socket;
@@ -149,11 +142,11 @@ public class NetworkNotificationReceiver extends Service {
 //            mn.dismiss();
         MirrorNotification mirrorNotification = new MirrorNotification(netpkg);
         if (netpkg.isReply())
-            NotificationMirror.getInstance(this).replyToNotification(mirrorNotification, netpkg.getMessage(), context);
+            NotificationMirror.getSingleInstance(this).replyToNotification(mirrorNotification, netpkg.getMessage(), context);
         if (netpkg.isAction())
-            NotificationMirror.getInstance(this).executeNotificationAction(mirrorNotification, netpkg.getActionName());
+            NotificationMirror.getSingleInstance(this).executeNotificationAction(mirrorNotification, netpkg.getActionName());
         if (netpkg.isDismiss())
-            NotificationMirror.getInstance(this).dismissNotification(mirrorNotification);
+            NotificationMirror.getSingleInstance(this).dismissNotification(mirrorNotification);
         //K
         //Dont like this
     }
@@ -171,11 +164,8 @@ public class NetworkNotificationReceiver extends Service {
 
         context = getApplicationContext();
 
-        SharedPreferences shPref = this.getSharedPreferences(NotificationReceiver.class.getSimpleName(), Activity.MODE_PRIVATE);
-        editor = shPref.edit();
-
         //create some funny channel
-        NotificationMirror.getInstance(context).createNotificationChannel(FOREGROUND_SERVICE_CHANNEL_NAME, "", FOREGROUND_SERVICE_CHANNEL_ID, context);
+        NotificationMirror.getSingleInstance(context).createNotificationChannel(FOREGROUND_SERVICE_CHANNEL_NAME, "", FOREGROUND_SERVICE_CHANNEL_ID, context);
         //K
         //dont like this
 
@@ -212,7 +202,7 @@ public class NetworkNotificationReceiver extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) { //Intent should contain the Socket address
 //        editor.putBoolean("ReceiverStatus", true);
 //        editor.apply();
-        UserSettingsManager.getInstance(context).setNetworkNotificationReceiverStatus(true);
+        SharedPreferencesManager.getSingleInstance(context).setNetworkNotificationReceiverStatus(true);
         //K
         //i dont like get instance
         Log.d(TAG, "Receiver active");
@@ -267,7 +257,7 @@ public class NetworkNotificationReceiver extends Service {
         stopThread = true;          //mThread.stop();
 //        editor.putBoolean("ReceiverStatus", false);
 //        editor.apply();
-        UserSettingsManager.getInstance(context).setNetworkNotificationReceiverStatus(false);
+        SharedPreferencesManager.getSingleInstance(context).setNetworkNotificationReceiverStatus(false);
         Log.d(TAG, "Receiver inactive");
     }
 

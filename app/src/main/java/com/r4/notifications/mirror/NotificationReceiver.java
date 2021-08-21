@@ -55,7 +55,7 @@ public class NotificationReceiver extends NotificationListenerService {
         editor.putBoolean("ListenerStatus", false);
         editor.apply();
         Log.e(TAG, "Listener Disconnected");
-        Helper.toasted("LISTENER Disconnected");
+        Helper.toasted(getApplicationContext(),"LISTENER Disconnected");
     }
 
     /**
@@ -63,7 +63,7 @@ public class NotificationReceiver extends NotificationListenerService {
      */
     public void onCreate() {
         shPref = this.getSharedPreferences(NotificationReceiver.class.getSimpleName(), Activity.MODE_PRIVATE);
-        editor = shPref.edit();
+        editor = shPref.edit();//switch to Shrdprfmannger
     }
 
     /**

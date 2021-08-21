@@ -1,28 +1,34 @@
 package com.r4.notifications.mirror;
 
 import android.app.Activity;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.os.Build;
+import android.provider.Settings;
 import android.util.Log;
 import android.widget.EditText;
 
 /**
  * Manages the user settings that are stored in the shared preferences
- *
+ * Getters and Setters
+ * As a singleton
  */
-public class UserSettingsManager {
+public class SharedPreferencesManager {
     private static final String TAG = "nm.UserSettingsManager";
     final private SharedPreferences shPref;
+    final private SharedPreferences.Editor editor;
 
-    private static UserSettingsManager singleton_instance;
+    private static SharedPreferencesManager singleton_instance;
 
     /**
      * Constructor
      *
      * @param context the application context
      */
-    private UserSettingsManager(Context context) {
+    private SharedPreferencesManager(Context context) {
         shPref = context.getSharedPreferences(DeviceNotificationReceiver.class.getSimpleName(), Activity.MODE_PRIVATE);
+        editor = shPref.edit();
     }
 
     /**
@@ -31,9 +37,9 @@ public class UserSettingsManager {
      * @param context the application context
      * @return instance of the UserSettingsManager
      */
-    public static UserSettingsManager getInstance(Context context) {
+    public static SharedPreferencesManager getSingleInstance(Context context) {
         if(singleton_instance == null) {
-            singleton_instance = new UserSettingsManager(context);
+            singleton_instance = new SharedPreferencesManager(context);
         }
 
         return singleton_instance;
@@ -47,11 +53,11 @@ public class UserSettingsManager {
      * @param etPort the text field that contains the mirror port
      */
     public void setSocketAddress(Context context, EditText etIP, EditText etPort) {
-        final String mirrorIP = extractMirrorIpFromEditText(context, etIP);
-        final int mirrorPort = extractMirrorPortFromEditText(context, etPort);
+        final String mirrorIP = extractMirrorIp(context, etIP);
+        final int mirrorPort = extractMirrorPort(context, etPort);
 
         //open an editor for the shared preferences
-        SharedPreferences.Editor editor = shPref.edit();
+//        SharedPreferences.Editor editor = shPref.edit();
 
         editor.putString("HOST_IP", mirrorIP);
         editor.putInt("HOST_PORT", mirrorPort);
@@ -70,7 +76,7 @@ public class UserSettingsManager {
      */
     public void setMirrorState(boolean isChecked) {
         //open an editor for the shared preferences
-        SharedPreferences.Editor editor = shPref.edit();
+//        SharedPreferences.Editor editor = shPref.edit();
         editor.putBoolean("MirrorState", isChecked);
         //apply the changes to the shared preferences
         editor.apply();
@@ -89,7 +95,7 @@ public class UserSettingsManager {
      * @param status status
      */
     public void setDeviceNotificationReceiverStatus(Boolean status) {
-        shPref.edit().putBoolean("ListenerStatus", status).apply();
+        editor.putBoolean("ListenerStatus", status).apply(); //shPref.edit().
     }
 
     /**
@@ -98,7 +104,7 @@ public class UserSettingsManager {
      * @param status status
      */
     public void setNetworkNotificationReceiverStatus(Boolean status) {
-        shPref.edit().putBoolean("ReceiverStatus", status).apply();
+        editor.putBoolean("ReceiverStatus", status).apply();
     }
 
     /**
@@ -109,7 +115,7 @@ public class UserSettingsManager {
      * @param etIP input field that contains the ip
      * @return the ip of the mirror as a string
      */
-    private String extractMirrorIpFromEditText(Context context, EditText etIP) {
+    private String extractMirrorIp(Context context, EditText etIP) {
         if(etIP.getText().toString().equals("")) {
             //return the default mirror IP
             return context.getResources().getString(R.string.DefaultMirrorIP);
@@ -127,7 +133,7 @@ public class UserSettingsManager {
      * @param etPort the input field that contains the port
      * @return the port of the mirror as an integer
      */
-    private int extractMirrorPortFromEditText(Context context, EditText etPort) {
+    private int extractMirrorPort(Context context, EditText etPort) {
         if(etPort.getText().toString().isEmpty()) {
             //return the default mirror port
             return context.getResources().getInteger(R.integer.DefaultMirrorPORT);
@@ -147,10 +153,43 @@ public class UserSettingsManager {
      * Return the host ip from the shared preferences or the default mirror ip when empty
      *
      * @param context the application context
-     * @return mirror ip
+     * @return mirror ip the stuff is mirrored to
      */
     public final String getMirrorIP(Context context) {
         return shPref.getString("HOST_IP", context.getResources().getString(R.string.DefaultMirrorIP));
+    }
+
+    public final String getReceiverIP(Context context) {
+        return context.getResources().getString(R.string.DefaultReceiverIP);//DEFAULT
+    }
+
+    public final String getReceiverPort(Context context) {
+        return String.valueOf(context.getResources().getInteger(R.integer.DefaultReceiverPORT));//DEFAULT
+    }
+    /**
+     * checks if the listener is connected
+     *
+     * @return state of the listener connection
+     */
+    public boolean getListenerServiceStatus(Context context) {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            SharedPreferences sharedPreferences = context.getSharedPreferences(DeviceNotificationReceiver.class.getSimpleName(), Activity.MODE_PRIVATE);
+            return sharedPreferences.getBoolean("ListenerStatus", false);
+        } else {
+            ComponentName cn = new ComponentName(context, DeviceNotificationReceiver.class);
+            String flat = Settings.Secure.getString(context.getContentResolver(), "enabled_notification_listeners");
+            return flat != null && flat.contains(cn.flattenToString());
+        }
+    }
+
+    /**
+     * gets the current state of the receiver preference
+     *
+     * @return boo if the receiver should be running
+     */
+    private boolean getReplyReceiverServiceStatus(Context context) {
+        SharedPreferences sharedPreferences = context.getSharedPreferences(NotificationReceiver.class.getSimpleName(), Activity.MODE_PRIVATE);
+        return sharedPreferences.getBoolean("ReceiverStatus", false);
     }
 
     /**
@@ -168,8 +207,8 @@ public class UserSettingsManager {
      *
      * @return mirror state
      */
-    public final Boolean getMirrorState() {
-        return shPref.getBoolean("MirrorState", false);
+    public final Boolean getMirrorState(boolean defauld) {
+        return shPref.getBoolean("MirrorState", defauld);
     }
 
     /**
