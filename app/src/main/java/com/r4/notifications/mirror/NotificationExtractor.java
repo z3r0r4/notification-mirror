@@ -1,19 +1,25 @@
 package com.r4.notifications.mirror;
 
 import android.app.Notification;
+import android.app.PendingIntent;
+import android.graphics.drawable.Icon;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.service.notification.StatusBarNotification;
 import android.util.Log;
 
+import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
 import androidx.core.app.RemoteInput;
 
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 import androidx.core.app.NotificationCompat;
+import androidx.core.graphics.drawable.IconCompat;
 
 /**
  * @since 20210719
@@ -162,21 +168,21 @@ public class NotificationExtractor {
      * @param sbn statusbarnotification of which the actions should be extracted
      * @return a list of the actions of the given notifiation
      */
-    protected static List<Notification.Action> getActions(StatusBarNotification sbn) {//actionextraction
+    protected static List<NotificationCompat.Action> getActions(StatusBarNotification sbn) {//actionextraction
         Notification notification = sbn.getNotification();
         MirrorNotification.Logger log = () -> Log.e(TAG + "getActions", "ACTION EXTRACTION FAILED");
 
         if (notification.actions != null && notification.actions.length > 0) {      //CHECK IF ACTIONS EXIST
-            LinkedList<Notification.Action> localActions = new LinkedList<Notification.Action>();
+            LinkedList<NotificationCompat.Action> localActions = new LinkedList<NotificationCompat.Action>();
             for (Notification.Action action : notification.actions) {
 
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT_WATCH)// Check whether it is a REPLY ACTION. We have special treatment for them
-                    if (action.getRemoteInputs() != null && action.getRemoteInputs().length > 0)
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT_WATCH)
+                    if (action.getRemoteInputs() != null && action.getRemoteInputs().length > 0)// Check whether it is a REPLY ACTION. special treatment for them
                         continue;
-
-                localActions.add(action);
+                localActions.add(Helper.compat(action));
             }
             return localActions;
+
         }
         log.e();   //lame, couldn't get any action");//, new NullPointerException());
         return null;
@@ -229,4 +235,5 @@ public class NotificationExtractor {
         }
         return actions;
     }
+
 }

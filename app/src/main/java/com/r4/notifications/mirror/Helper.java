@@ -4,8 +4,14 @@ import android.app.Notification;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Bundle;
 import android.widget.Toast;
+
+import java.util.Set;
+
 import androidx.core.app.NotificationCompat;
+import androidx.core.app.RemoteInput;
+import androidx.core.graphics.drawable.IconCompat;
 
 /**
  * @since 20210719
@@ -64,5 +70,68 @@ class Helper {
                 .setPriority(NotificationCompat.PRIORITY_DEFAULT)
                 .addAction(replyAction)
                 .build();
+    }
+
+
+    /**
+     * turn actions into compat actions
+     * @param action
+     * @return
+     */
+    protected static NotificationCompat.Action compat(Notification.Action action) {
+        IconCompat icon = IconCompat.createFromIcon(MainActivity.sContext, action.getIcon());
+        CharSequence title = action.title;
+        PendingIntent pIntent = action.actionIntent;
+        Bundle extras = action.getExtras();
+        android.app.RemoteInput[] remoteInputs = action.getRemoteInputs();
+        android.app.RemoteInput[] dataOnlyRemoteInputs = new android.app.RemoteInput[0];
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O)
+            dataOnlyRemoteInputs = action.getDataOnlyRemoteInputs();
+        RemoteInput[] remoteInputsX = new RemoteInput[remoteInputs.length];
+        RemoteInput[] dataOnlyRemoteInputsX = new RemoteInput[dataOnlyRemoteInputs.length];
+        for(int i = 0; i< remoteInputs.length; i++)
+            remoteInputsX[i] = compat(remoteInputs[i]); //boring ugly code
+        for(int i = 0; i< dataOnlyRemoteInputs.length; i++)
+            dataOnlyRemoteInputsX[i] = compat(dataOnlyRemoteInputs[i]); //boring ugly code
+        boolean allowGeneratedReplies = action.getAllowGeneratedReplies();
+        int semanticAction = 0;
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.P)
+            semanticAction = action.getSemanticAction();
+        boolean showsUserInterface = true;
+        boolean isContextual = true;
+        NotificationCompat.Action.Builder Builder = new NotificationCompat.Action.Builder(icon, title, pIntent)
+                .addExtras(extras)
+                .setAllowGeneratedReplies(allowGeneratedReplies)
+                .setSemanticAction(semanticAction)
+                .setShowsUserInterface(showsUserInterface)
+                .setContextual(isContextual);
+        for (RemoteInput remoteInput: remoteInputsX)
+            Builder.addRemoteInput(remoteInput);
+        for (RemoteInput remoteInput: dataOnlyRemoteInputsX)
+            Builder.addRemoteInput(remoteInput);
+        return Builder.build();
+    }
+
+    /**
+     * turn remoteinputs into compat remoteInputs
+     * @param remoteInput
+     * @return
+     */
+    private static RemoteInput compat(android.app.RemoteInput remoteInput) {
+        String resultKey = remoteInput.getResultKey();
+        CharSequence label = remoteInput.getLabel();
+        CharSequence[] choices = remoteInput.getChoices();
+        boolean allowFreeFormTextInput = remoteInput.getAllowFreeFormInput();
+        int editChoicesBeforeSending = remoteInput.getEditChoicesBeforeSending();
+        Bundle extras = remoteInput.getExtras();
+        Set<String> allowedDataTypes = remoteInput.getAllowedDataTypes();
+        RemoteInput.Builder compatRemoteInputBuilder = new RemoteInput.Builder(resultKey)
+                .setLabel(label)
+                .setChoices(choices)
+                .setAllowFreeFormInput(allowFreeFormTextInput)
+                .setEditChoicesBeforeSending(editChoicesBeforeSending)
+                .addExtras(extras);
+        allowedDataTypes.forEach((s) -> compatRemoteInputBuilder.setAllowDataType(s,true));
+        return compatRemoteInputBuilder.build();
     }
 }
