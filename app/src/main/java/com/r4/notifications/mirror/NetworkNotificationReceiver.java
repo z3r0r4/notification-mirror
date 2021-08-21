@@ -31,7 +31,7 @@ import java.net.Socket;
  *
  * formerly ReplyListenerService
  *
- * TODO RENAME to indicate that it just receives replies
+ * TODO RENAME to indicate that it just receives replies not notifications
  */
 
 //TODO make port modifiable
@@ -47,7 +47,7 @@ public class NetworkNotificationReceiver extends Service {
     private static final int FOREGROUND_SERVICE_NOTIFICATION_ID = 5646545;
     private static final String FOREGROUND_SERVICE_CHANNEL_NAME = "FgChannel01";
     private static final String FOREGROUND_SERVICE_CHANNEL_ID = "FgChannelID01";
-    private static final String TAG = "NetworkNotificationReceiver";//dont like this scheme
+    private static final String TAG = "NetworkNotificationReceiver";
 
     private ServerSocket serverSocket;
     private Socket socket;
@@ -133,22 +133,14 @@ public class NetworkNotificationReceiver extends Service {
      * @param netpkg from json extracted networkpackage containing the data for the actions on the notifications
      */
     private void processReply(NetworkPackage netpkg) {
-//        MirrorNotification mn = new MirrorNotification(netpkg);
-//        if (netpkg.isReply())
-//            mn.reply(netpkg.getMessage(), MainActivity.sContext);
-//        if (netpkg.isAction())
-//            mn.act(netpkg.getActionName());
-//        if (netpkg.isDismiss())
-//            mn.dismiss();
         MirrorNotification mirrorNotification = new MirrorNotification(netpkg);
+        MirrorNotificationHandler handler = MirrorNotificationHandler.getSingleInstance(this);
         if (netpkg.isReply())
-            NotificationMirror.getSingleInstance(this).replyToNotification(mirrorNotification, netpkg.getMessage(), context);
+            handler.replyToNotification(mirrorNotification, netpkg.getMessage(), context);
         if (netpkg.isAction())
-            NotificationMirror.getSingleInstance(this).executeNotificationAction(mirrorNotification, netpkg.getActionName());
+            handler.executeNotificationAction(mirrorNotification, netpkg.getActionName());
         if (netpkg.isDismiss())
-            NotificationMirror.getSingleInstance(this).dismissNotification(mirrorNotification);
-        //K
-        //Dont like this
+            handler.dismissNotification(mirrorNotification);
     }
 
     /**
@@ -189,9 +181,9 @@ public class NetworkNotificationReceiver extends Service {
         context = getApplicationContext();
 
         //create some funny channel
-        NotificationMirror.getSingleInstance(context).createNotificationChannel(FOREGROUND_SERVICE_CHANNEL_NAME, "", FOREGROUND_SERVICE_CHANNEL_ID, context);
-        //K
-        //dont like this
+        MirrorNotificationHandler.createNotificationChannel(FOREGROUND_SERVICE_CHANNEL_NAME,
+                "Persistent Notification of the Service that receives replies from the PC",
+                FOREGROUND_SERVICE_CHANNEL_ID, context);
 
         mThread = new Thread(ReplyReceiverRunnable);
         mThread.start();

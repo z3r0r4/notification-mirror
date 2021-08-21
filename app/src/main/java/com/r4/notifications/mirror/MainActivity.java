@@ -32,7 +32,9 @@ public class MainActivity extends AppCompatActivity {
     public static final String FOREGROUND_SERVICE_NOTIFICATIONCHANNEL_NAME = "Foreground Service Persistent Notification";
     private final static String TAG = "MAIN";
 
-    public static NotificationMirror notificationMirror;
+    public static MirrorNotificationHandler notificationHandler;
+
+    public static NotificationMirror notificationMirror; //rename
 
 //    private NotificationManagerCompat notificationManager;
     private Notification testNotification;
@@ -89,62 +91,64 @@ public class MainActivity extends AppCompatActivity {
         EditText etIP = findViewById(R.id.etIP);
         EditText etPORT = findViewById(R.id.etPort);
 
-        /**add on click to post test notification*/
-//        MirrorNotification notification = new MirrorNotification("123456", "TestNotification", "Testing", "ReplyAction", sContext);
-//        notificationManager = createTestNotificationChannel();//RM
-//        btnMsgTest.setOnClickListener(v -> notification.post(notificationManager, sContext));
-
         //get an instance of the notification mirror
         notificationMirror = NotificationMirror.getSingleInstance(sContext);
 
-        //create the notification channel for the test notifications
-        notificationMirror.createNotificationChannel(Helper.TESTCHANNEL_NAME, Helper.TESTCHANNEL_DESCRIPTION, Helper.TESTCHANNEL_ID, sContext);
-        //create a basic test notification that can be posted
-        testNotification = Helper.createTestNotification(sContext);
-        //load the notification filter that classifies which notifications to mirror
+        /** load the notification filter that classifies which notifications to mirror */
         NotificationFilter.loadFilter(sContext);
 
-        //post the test notification when the "send test notification" button is clicked
-        btnMsgTest.setOnClickListener(v -> notificationMirror.postTestNotification(testNotification));
+        /** create TestChannel and TestNotification */
+        //get an instance of the notification handler
+        notificationHandler = MirrorNotificationHandler.getSingleInstance(sContext);
+        //create the notification channel for the test notifications
+        notificationHandler.createNotificationChannel(Helper.TESTCHANNEL_NAME, Helper.TESTCHANNEL_DESCRIPTION, Helper.TESTCHANNEL_ID, sContext);
+        //create a basic test notification that can be posted
+        testNotification = Helper.createTestNotification(sContext);
+
+        /** onclick to post test notification when the "send test notification" button is clicked */
+        btnMsgTest.setOnClickListener(v -> notificationHandler.postTestNotification(testNotification));
 
 
-//        /**check and show if listener is connected*/
-//        swListenerStatus.setClickable(false);
-//        showListenerServiceStatus();
-//
-//        /**add onclick to open notification listener settings*/
-//        swListenerStatus.setOnClickListener(v -> openListenerSettings());
-//
-//        /**check if notifications should be mirrored*/
-////        swMirrorState.setChecked(shPref.getBoolean("MirrorState", false));
-//        swMirrorState.setChecked(mSharedPreferencesManager.getMirrorState(false));//K
-//
-//        /**add onclick to set mirroring state on toggle*/
-////        swMirrorState.setOnCheckedChangeListener((v, isChecked) -> setMirrorState(isChecked));
-//        swMirrorState.setOnCheckedChangeListener((v, isChecked) -> mSharedPreferencesManager.setMirrorState(isChecked)); //K
+        /**check and show if listener is connected*/
+        swListenerStatus.setClickable(false);
+        showListenerServiceStatus();
+
+        /**add onclick to open notification listener settings*/
+        swListenerStatus.setOnClickListener(v -> openListenerSettings());
+
+        /**check if notifications should be mirrored*/
+//        swMirrorState.setChecked(shPref.getBoolean("MirrorState", false));
+        swMirrorState.setChecked(mSharedPreferencesManager.getMirrorState(false));//K
+
+        /**add onclick to set mirroring state on toggle*/
+//        swMirrorState.setOnCheckedChangeListener((v, isChecked) -> setMirrorState(isChecked));
+        swMirrorState.setOnCheckedChangeListener((v, isChecked) -> mSharedPreferencesManager.setMirrorState(isChecked)); //K
 //
         /**handle replyintents from testnotification*/
         handleReplyIntent();
 //
-//        /**show Mirror Socket Address in Textviews*/
-//        showMirrorSocketAddress(tvMirrorIP, tvMirrorPORT);
-//
-//        /**save IP:PORT from edittexts*/
-//        btnSaveConnection.setOnClickListener(v -> {
-//            mSharedPreferencesManager.setSocketAddress(sContext, etIP, etPORT);
-//            showMirrorSocketAddress(tvMirrorIP, tvMirrorPORT);
-//            notificationMirror.updateHostCredentials(this);
-//        });
+        /**show Mirror Socket Address in Textviews*/
+        showMirrorSocketAddress(tvMirrorIP, tvMirrorPORT);
+
+        /**save IP:PORT from edittexts*/
+        btnSaveConnection.setOnClickListener(v -> {
+            mSharedPreferencesManager.setSocketAddress(sContext, etIP, etPORT);
+            showMirrorSocketAddress(tvMirrorIP, tvMirrorPORT);
+            notificationMirror.updateHostCredentials(this);
+        });
 //
 //        /**show Receiver Socket Address in Textviews*/
-//        showReceiverSocketAddress(tvReceiverIP, tvReceiverPORT);
-//
-//        if (!mSharedPreferencesManager.getListenerServiceStatus(sContext)) return; //Problematic Y?
-//        /**add onclick to post Test Notification *///wrong -> test reciever access
+        showReceiverSocketAddress(tvReceiverIP, tvReceiverPORT);
+
+        /** check and abort when there is not connection to the listener */
+        if (!mSharedPreferencesManager.getListenerServiceStatus(sContext)) return;
+        //Problematic: yes because buttons dont work if there is no listener connection -> TODO make reply actions and such safe to execute even if there is no listener connection
+
+//        /** test reciever access */
 //        btnTestNotificationReceiverAccess.setOnClickListener(v -> getLastNotification());
 //
-//        /**add onclick to reply to last notification */
-//        btnReply.setOnClickListener(v -> replyToLastNotification());
+        /**add onclick to reply to last notification */
+        btnReply.setOnClickListener(v -> replyToLastNotification());
 //
 //        /**add onclick to dismiss last notifiaction */
 //        btnDismiss.setOnClickListener(v -> dismissLastNotification());
@@ -227,7 +231,7 @@ public class MainActivity extends AppCompatActivity {
         try {
 //old            NotificationReceiver.getactiveNotifications().get(NotificationReceiver.lastKey).reply("AUTOREPLY", getApplicationContext());
                 MirrorNotification notification = DeviceNotificationReceiver.getLastNotification();
-                notificationMirror.replyToNotification(notification, "AUTOREPLY", sContext);
+                notificationHandler.replyToNotification(notification, "AUTOREPLY", sContext);
         } catch (NullPointerException e) {
             Log.e(TAG + "OnClickReply", "no Noficications yet, or Listener broke");
             Helper.toasted(sContext,"No Notifications yet, check Listener connection");
@@ -240,7 +244,7 @@ public class MainActivity extends AppCompatActivity {
     private void dismissLastNotification() {
         try {
 //            NotificationReceiver.getactiveNotifications().get(NotificationReceiver.lastKey).dismiss();
-            notificationMirror.dismissNotification(DeviceNotificationReceiver.getLastNotification());
+            notificationHandler.dismissNotification(DeviceNotificationReceiver.getLastNotification());
         } catch (NullPointerException e) {
             Log.e(TAG + "OnClickDismiss", "no Noficications yet, or Listener broke");
             Helper.toasted(sContext, "No Notifications yet, check Listener connection");
@@ -336,7 +340,7 @@ public class MainActivity extends AppCompatActivity {
                             .setSmallIcon(android.R.drawable.ic_dialog_info)
                             .setContentText("Reply received")
                             .build();
-            notificationMirror.updateTestNotification(repliedNotification); //doesnt work anymore =>TODO
+            notificationHandler.updateTestNotification(repliedNotification); //doesnt work anymore =>TODO
         } catch (NullPointerException e) {
             Log.e(TAG + "handleReplyIntent", "REPLY EXTRACTION FAILED, maybe not a replying intent");
 //            Helper.toasted("Not a Reply Intent");

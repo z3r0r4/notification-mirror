@@ -92,10 +92,10 @@ public class SharedPreferencesManager {
     /**
      * Write the status of the DeviceNotificationReceiver to shared preferences
      *
-     * @param status status
+     * @param defauld status
      */
-    public void setDeviceNotificationReceiverStatus(Boolean status) {
-        editor.putBoolean("ListenerStatus", status).apply(); //shPref.edit().
+    public void setDeviceNotificationReceiverStatus(Boolean defauld) {
+        editor.putBoolean("ListenerStatus", defauld).apply();
     }
 
     /**
