@@ -30,12 +30,18 @@ class Helper {
     public static final String TESTCHANNEL_NAME = "TestChannel01";
     public static final String TESTCHANNEL_DESCRIPTION = "TestChannel";
 
+    private static Context context;
+
+    public static void setContext(Context context1) {
+        context = context1;
+    }
+
     /**
      * helps in creating and showing a toast
      *
      * @param text
      */
-    protected static void toasted(Context context, String text) {
+    protected static void toasted(String text) {
         Toast.makeText(context, text, Toast.LENGTH_LONG).show();
     }
 

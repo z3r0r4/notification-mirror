@@ -1,5 +1,6 @@
 package com.r4.notifications.mirror;
 
+import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.os.AsyncTask;
 import android.util.Log;
@@ -21,7 +22,7 @@ import java.net.Socket;
 class Mirror extends AsyncTask<MirrorNotification, Void, Void> { //deprecated but who cares
     private final static String TAG = "Mirror";
 
-    private String HOST_IP = MainActivity.sContext.getResources().getString(R.string.DefaultMirrorIP);
+    private String HOST_IP = SharedPreferencesManager.getSingleInstance(MainActivity.sContext).getMirrorIP(MainActivity.sContext);
     private int HOST_PORT = MainActivity.sContext.getResources().getInteger(R.integer.DefaultMirrorPORT);
 
     /**

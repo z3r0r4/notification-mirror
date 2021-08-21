@@ -41,12 +41,14 @@ public class MainActivity extends AppCompatActivity {
 
     private SharedPreferencesManager mSharedPreferencesManager;
     public static Context sContext; //suck it Context. maybe rather not static? hehe leaky memory
+    private Context mContext;
 
     //TODO test on real devices
     //TODO change accent color of switches to bluuue
 
     //TODO check one feature by one
 
+    //TODO replace PC side mirror references with "reflection" !!!
 //    /**
 //     * Test only
 //     * creates a Test NotificationChannel
@@ -55,7 +57,7 @@ public class MainActivity extends AppCompatActivity {
 //     */
 //    @Deprecated
 //    public static NotificationManagerCompat createTestNotificationChannel() {
-//        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(MainActivity.sContext);
+//        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(MainActivity.mContext);
 //        notificationManager.createNotificationChannel(new NotificationChannel("TestChannel", "Test", NotificationManager.IMPORTANCE_HIGH));
 //        return notificationManager;
 //    }
@@ -72,7 +74,9 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         sContext = getApplicationContext();
-        mSharedPreferencesManager = SharedPreferencesManager.getSingleInstance(sContext);
+        mContext = getApplicationContext();
+        Helper.setContext(getApplicationContext());
+        mSharedPreferencesManager = SharedPreferencesManager.getSingleInstance(mContext);
 
         /**declare buttons and views*/
         Button btnMsgTest = findViewById(R.id.btnMsgTest);
@@ -92,18 +96,18 @@ public class MainActivity extends AppCompatActivity {
         EditText etPORT = findViewById(R.id.etPort);
 
         //get an instance of the notification mirror
-        notificationMirror = NotificationMirror.getSingleInstance(sContext);
+        notificationMirror = NotificationMirror.getSingleInstance(mContext);
 
         /** load the notification filter that classifies which notifications to mirror */
-        NotificationFilter.loadFilter(sContext);
+        NotificationFilter.loadFilter(mContext);
 
         /** create TestChannel and TestNotification */
         //get an instance of the notification handler
-        notificationHandler = MirrorNotificationHandler.getSingleInstance(sContext);
+        notificationHandler = MirrorNotificationHandler.getSingleInstance(mContext);
         //create the notification channel for the test notifications
-        notificationHandler.createNotificationChannel(Helper.TESTCHANNEL_NAME, Helper.TESTCHANNEL_DESCRIPTION, Helper.TESTCHANNEL_ID, sContext);
+        notificationHandler.createNotificationChannel(Helper.TESTCHANNEL_NAME, Helper.TESTCHANNEL_DESCRIPTION, Helper.TESTCHANNEL_ID, mContext);
         //create a basic test notification that can be posted
-        testNotification = Helper.createTestNotification(sContext);
+        testNotification = Helper.createTestNotification(mContext);
 
         /** onclick to post test notification when the "send test notification" button is clicked */
         btnMsgTest.setOnClickListener(v -> notificationHandler.postTestNotification(testNotification));
@@ -132,16 +136,16 @@ public class MainActivity extends AppCompatActivity {
 
         /**save IP:PORT from edittexts*/
         btnSaveConnection.setOnClickListener(v -> {
-            mSharedPreferencesManager.setSocketAddress(sContext, etIP, etPORT);
+            mSharedPreferencesManager.setSocketAddress(mContext, etIP, etPORT);
             showMirrorSocketAddress(tvMirrorIP, tvMirrorPORT);
-            notificationMirror.updateHostCredentials(this);
+            notificationMirror.updateHostCredentials(mContext);
         });
 //
 //        /**show Receiver Socket Address in Textviews*/
         showReceiverSocketAddress(tvReceiverIP, tvReceiverPORT);
 
         /** check and abort when there is not connection to the listener */
-        if (!mSharedPreferencesManager.getListenerServiceStatus(sContext)) return;
+//        if (!mSharedPreferencesManager.getListenerServiceStatus(mContext)) return;
         //Problematic: yes because buttons dont work if there is no listener connection -> TODO make reply actions and such safe to execute even if there is no listener connection
 
 //        /** test reciever access */
@@ -151,7 +155,7 @@ public class MainActivity extends AppCompatActivity {
         btnReply.setOnClickListener(v -> replyToLastNotification());
 //
 //        /**add onclick to dismiss last notifiaction */
-//        btnDismiss.setOnClickListener(v -> dismissLastNotification());
+        btnDismiss.setOnClickListener(v -> MirrorNotificationHandler.getSingleInstance(mContext).dismissLastNotification());
 //
 //        /**add onclick to mirror last notification*/
 //        btnNetTest.setOnClickListener(v -> mirrorLastNotification());
@@ -206,8 +210,8 @@ public class MainActivity extends AppCompatActivity {
      * @param tvPORT TextView where the port will be displayed in
      */
     private void showMirrorSocketAddress(TextView tvIP, TextView tvPORT) {
-        tvIP.setText(mSharedPreferencesManager.getMirrorIP(sContext));
-        tvPORT.setText(String.valueOf(mSharedPreferencesManager.getMirrorPort(sContext)));
+        tvIP.setText(mSharedPreferencesManager.getMirrorIP(mContext));
+        tvPORT.setText(String.valueOf(mSharedPreferencesManager.getMirrorPort(mContext)));
     }
 
     /**
@@ -217,8 +221,8 @@ public class MainActivity extends AppCompatActivity {
      * @param tvPORT
      */
     private void showReceiverSocketAddress(TextView tvIP, TextView tvPORT) {
-        tvIP.setText(mSharedPreferencesManager.getReceiverIP(sContext));
-        tvPORT.setText(mSharedPreferencesManager.getReceiverPort(sContext));
+        tvIP.setText(mSharedPreferencesManager.getReceiverIP(mContext));
+        tvPORT.setText(mSharedPreferencesManager.getReceiverPort(mContext));
     }
 
 
@@ -231,39 +235,14 @@ public class MainActivity extends AppCompatActivity {
         try {
 //old            NotificationReceiver.getactiveNotifications().get(NotificationReceiver.lastKey).reply("AUTOREPLY", getApplicationContext());
                 MirrorNotification notification = DeviceNotificationReceiver.getLastNotification();
-                notificationHandler.replyToNotification(notification, "AUTOREPLY", sContext);
+                notificationHandler.replyToNotification(notification, "AUTOREPLY", mContext);
         } catch (NullPointerException e) {
             Log.e(TAG + "OnClickReply", "no Noficications yet, or Listener broke");
-            Helper.toasted(sContext,"No Notifications yet, check Listener connection");
+            Helper.toasted("No Notifications yet, check Listener connection");
         }
     }
 
-    /**
-     * dismisses the last notificaiton the listener stored
-     */
-    private void dismissLastNotification() {
-        try {
-//            NotificationReceiver.getactiveNotifications().get(NotificationReceiver.lastKey).dismiss();
-            notificationHandler.dismissNotification(DeviceNotificationReceiver.getLastNotification());
-        } catch (NullPointerException e) {
-            Log.e(TAG + "OnClickDismiss", "no Noficications yet, or Listener broke");
-            Helper.toasted(sContext, "No Notifications yet, check Listener connection");
-        }
-    }
 
-    /**
-     * sends the last notification over the network
-     */
-    private void mirrorLastNotification() {
-        try {
-//            Mirror mirror = new Mirror();
-//            mirror.execute(NotificationReceiver.getactiveNotifications().get(NotificationReceiver.lastKey));
-            notificationMirror.mirrorFromDevice(DeviceNotificationReceiver.getLastNotification());
-        } catch (NullPointerException e) {
-            Log.e(TAG + "OnClickNetTest", "no Noficications yet, or Listener broke");
-            Helper.toasted(sContext,"No Notifications yet, check Listener connection");
-        }
-    }
 
     /**
      * opens the ListenerServiceSettings
@@ -278,10 +257,8 @@ public class MainActivity extends AppCompatActivity {
      */
     private void showListenerServiceStatus() {
         SwitchCompat swListenerStatus = findViewById(R.id.swSetListenerPermission);
-        swListenerStatus.setChecked(mSharedPreferencesManager.getListenerServiceStatus(sContext));
+        swListenerStatus.setChecked(mSharedPreferencesManager.getListenerServiceStatus(mContext));
     }
-
-
 
     /**
      * sets the state of the receiver preference as switch state
@@ -297,7 +274,7 @@ public class MainActivity extends AppCompatActivity {
      */
     @RequiresApi(api = Build.VERSION_CODES.O)
     private void createForegroundServiceNotificationChannel() {
-        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(MainActivity.sContext);
+        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(mContext);
         notificationManager.createNotificationChannel(new NotificationChannel(FOREGROUND_SERVICE_NOTIFICATIONCHANNEL_ID, FOREGROUND_SERVICE_NOTIFICATIONCHANNEL_NAME, NotificationManager.IMPORTANCE_HIGH));
     }
 
@@ -305,7 +282,7 @@ public class MainActivity extends AppCompatActivity {
      * starts the the foreground service that listens for replies to the messages
      */
     private void startReplyListenerService() {
-        Intent replyListenerIntent = new Intent(sContext, NetworkNotificationReceiver.class);
+        Intent replyListenerIntent = new Intent(mContext, NetworkNotificationReceiver.class);
         this.startService(replyListenerIntent);
     }
 
@@ -313,7 +290,7 @@ public class MainActivity extends AppCompatActivity {
      * stops the the foreground service that listens for replies to the messages
      */
     private void stopReplyListenerService() {
-        Intent replyListenerIntent = new Intent(sContext, NetworkNotificationReceiver.class);
+        Intent replyListenerIntent = new Intent(mContext, NetworkNotificationReceiver.class);
         this.stopService(replyListenerIntent);
     }
 
@@ -344,20 +321,6 @@ public class MainActivity extends AppCompatActivity {
         } catch (NullPointerException e) {
             Log.e(TAG + "handleReplyIntent", "REPLY EXTRACTION FAILED, maybe not a replying intent");
 //            Helper.toasted("Not a Reply Intent");
-        }
-    }
-
-    /**
-     * Get the last notification the listener stored
-     * requires a working listener
-     */
-    private void getLastNotification() {
-        try {
-            Log.d("Test By extracting Last Notification", DeviceNotificationReceiver.getactiveNotifications()
-                                                                                         .get(DeviceNotificationReceiver.lastKey).toString());
-        } catch (NullPointerException e) {
-            Log.e(TAG + "OnClickReceiverAccess", "no Noficications yet, or Listener broke");
-            Helper.toasted(sContext,"No Notifications yet, check Listener connection");
         }
     }
 }

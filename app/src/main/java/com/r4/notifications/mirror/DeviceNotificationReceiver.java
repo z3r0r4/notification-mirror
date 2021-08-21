@@ -56,7 +56,7 @@ public class DeviceNotificationReceiver extends NotificationListenerService {
     public void onListenerDisconnected() {
         mSharedPreferencesManager.setDeviceNotificationReceiverStatus(false);
         Log.e(TAG, "Listener Disconnected");
-        Helper.toasted(getApplicationContext(),"Listener Disconnected");
+        Helper.toasted("Listener Disconnected");
     }
 
     /**

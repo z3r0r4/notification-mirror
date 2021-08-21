@@ -83,9 +83,9 @@ class MirrorNotificationHandler {
     public void replyToNotification(MirrorNotification mirrorNotification, String message, Context context) {
         MirrorNotification.Logger log = () -> {
             Log.e(TAG + "reply", "NO REPLYACTIONS or REMOTEINPUTS");
-            Helper.toasted(context,"Not Repliable");
+            Helper.toasted("Not Repliable");
         };
-
+        Log.e(TAG,"REPPPPPLIYIINGNGNGN");
         final NotificationCompat.Action replyAction = mirrorNotification.getReplyAction();
 
         if (replyAction == null || replyAction.getRemoteInputs().length == 0) {
@@ -104,10 +104,21 @@ class MirrorNotificationHandler {
             replyAction.actionIntent.send(context, 0, intent); //SET
         } catch (PendingIntent.CanceledException e) {
             Log.e(TAG + "reply", "REPLY FAILED" + e.getLocalizedMessage());
-            Helper.toasted(context,"Couldnt reply to Notification");
+            Helper.toasted("Couldnt reply to Notification");
         }
     }
-
+    /**
+     * dismisses the last notificaiton the listener stored
+     */
+    public void dismissLastNotification() {
+        try {
+//            NotificationReceiver.getactiveNotifications().get(NotificationReceiver.lastKey).dismiss();
+            dismissNotification(DeviceNotificationReceiver.getLastNotification());
+        } catch (NullPointerException e) {
+            Log.e(TAG + "OnClickDismiss", "no Noficications yet, or Listener broke");
+            Helper.toasted("No Notifications yet, check Listener connection");
+        }
+    }
     /**
      * Displays a Notification in the status bar.
      *
