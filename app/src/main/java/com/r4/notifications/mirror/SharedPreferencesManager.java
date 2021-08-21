@@ -187,9 +187,8 @@ public class SharedPreferencesManager {
      *
      * @return boo if the receiver should be running
      */
-    private boolean getReplyReceiverServiceStatus(Context context) {
-        SharedPreferences sharedPreferences = context.getSharedPreferences(NotificationReceiver.class.getSimpleName(), Activity.MODE_PRIVATE);
-        return sharedPreferences.getBoolean("ReceiverStatus", false);
+    private boolean getReplyReceiverServiceStatus(boolean defauld) {
+        return shPref.getBoolean("ReceiverStatus", false);
     }
 
     /**
