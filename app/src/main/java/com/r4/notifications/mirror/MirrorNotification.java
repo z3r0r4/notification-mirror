@@ -33,7 +33,7 @@ class MirrorNotification implements Serializable {
     public String ticker;
     public String time;
     public transient NotificationCompat.Action replyAction;   //theres only one replyaction
-    public transient List<Notification.Action> actions; //excludes repliable Actions
+    public transient List<NotificationCompat.Action> actions; //excludes repliable Actions
 
     public boolean isCancel;   //TODO onNotificationRemoved
     //    public boolean isUpdate;
@@ -208,7 +208,7 @@ class MirrorNotification implements Serializable {
         return replyAction;
     }
 
-    public List<Notification.Action> getActions() {
+    public List<NotificationCompat.Action> getActions() {
         return actions;
     }
 

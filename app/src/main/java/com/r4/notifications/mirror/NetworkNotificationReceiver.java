@@ -152,6 +152,30 @@ public class NetworkNotificationReceiver extends Service {
     }
 
     /**
+     * Mirrors the Notifications that come over the network to the device.
+     * Displays the notification in the statusbar.
+     *
+     * @param mirrorNotification the notification to be displayed
+     * @param channelID          the channel where the notification will be sent in
+     * @param context            application context
+     */
+    public void mirrorFromNetwork(MirrorNotification mirrorNotification, String channelID, Context context) {
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(context, channelID)
+                .setSmallIcon(android.R.drawable.ic_dialog_info)
+                .setContentTitle(mirrorNotification.getTitle())
+                .setContentText(mirrorNotification.getText())
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                .addAction(mirrorNotification.getReplyAction());
+
+        for(NotificationCompat.Action action : mirrorNotification.getActions())
+            builder.addAction(action);
+
+        Notification notification = builder.build();
+
+        MirrorNotificationHandler.getSingleInstance(context).postNotification(mirrorNotification.getId(), notification);
+    }
+
+    /**
      * create everything thats needed for the service to run
      * get access to the preferences
      * create thread from socket runnable
