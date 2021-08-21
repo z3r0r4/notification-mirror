@@ -6,9 +6,15 @@ import android.util.Log;
 
 import java.util.HashMap;
 import java.util.Map;
-
+/**
+ * @since 20210719
+ * Receives notifications from the listenerservice and stores them and mirrors them as MirrorNotifications
+ * saves last reveived key
+ * dismiss notifications
+ *
+ */
 public class DeviceNotificationReceiver extends NotificationListenerService {
-    private final static String TAG = "nm.DeviceNotificationReceiver";
+    private final static String TAG = "DeviceNotificationReceiver";
 
     public static Map<String, MirrorNotification> activeNotifications = new HashMap<>();
     public static String lastKey;
@@ -22,9 +28,7 @@ public class DeviceNotificationReceiver extends NotificationListenerService {
      * @return a map of the currently active notifications accessible by their key
      */
     public static Map<String, MirrorNotification> getactiveNotifications() {
-        if (lastKey == null) {
-            throw new NullPointerException();
-        }
+        if (lastKey == null) throw new NullPointerException();
         return activeNotifications;
     }
 
@@ -34,9 +38,7 @@ public class DeviceNotificationReceiver extends NotificationListenerService {
      * @return last received notification
      */
     public static MirrorNotification getLastNotification() {
-        if(lastKey == null) {
-            throw new NullPointerException();
-        }
+        if(lastKey == null) throw new NullPointerException();
         return activeNotifications.get(lastKey);
     }
 
@@ -54,7 +56,7 @@ public class DeviceNotificationReceiver extends NotificationListenerService {
     public void onListenerDisconnected() {
         mSharedPreferencesManager.setDeviceNotificationReceiverStatus(false);
         Log.e(TAG, "Listener Disconnected");
-        Helper.toasted(getApplicationContext(),"LISTENER Disconnected");
+        Helper.toasted(getApplicationContext(),"Listener Disconnected");
     }
 
     /**
@@ -82,15 +84,10 @@ public class DeviceNotificationReceiver extends NotificationListenerService {
             activeNotifications.put(mirrorNotification.key, mirrorNotification);
             Log.d(TAG + "onNotificationPosted", "Mirroring Notification: " + mSharedPreferencesManager.getMirrorState(false));
 
-            //mirror the notification if the MirrorState is set to true
-            if (mSharedPreferencesManager.getMirrorState(false)) {
-                NotificationMirror.getSingleInstance(getApplicationContext()).mirrorFromDevice(
-                        activeNotifications.get(mirrorNotification.key)
-                );
-            }
-            if (lastKey != null) {
-                lastlastKey = lastKey;
-            }
+            if (mSharedPreferencesManager.getMirrorState(false))//mirror the notification if the MirrorState is set to true
+                NotificationMirror.getSingleInstance(getApplicationContext())
+                        .mirrorFromDevice(activeNotifications.get(mirrorNotification.key));
+            if (lastKey != null) lastlastKey = lastKey;
             lastKey = mirrorNotification.key;
 //          }
         }
@@ -111,7 +108,8 @@ public class DeviceNotificationReceiver extends NotificationListenerService {
                 lastlastKey = null;
             }
             activeNotifications.remove(mirrorNotification.key);
-//        if (shPref.getBoolean("MirrorState", false)) NotificationMirror.dismiss();
+        if (mSharedPreferencesManager.getMirrorState( false))
+            NotificationMirror.mirrorDismissFromDevice(mirrorNotification);
             Log.d(TAG + "onNotificationRemoved", "Removed notification");
         }
     }

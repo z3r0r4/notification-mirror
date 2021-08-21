@@ -18,7 +18,6 @@ import java.util.Map;
  *
  * DEPRECTATEETETED
  */
-
 public class NotificationReceiver extends NotificationListenerService {
     private final static String TAG = "Notification Receiver";
 
@@ -63,7 +62,7 @@ public class NotificationReceiver extends NotificationListenerService {
      */
     public void onCreate() {
         shPref = this.getSharedPreferences(NotificationReceiver.class.getSimpleName(), Activity.MODE_PRIVATE);
-        editor = shPref.edit();//switch to Shrdprfmannger
+        editor = shPref.edit();
     }
 
     /**
